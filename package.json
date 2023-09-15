@@ -1,0 +1,22 @@
+{
+  "name": "the-ratatouille-moment",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install-client": "cd client && npm install",
+    "install-server": "cd server && npm install",
+    "install-all": "npm run install-client && npm run install-server",
+    "client": "cd client && npm start",
+    "server": "cd server && npm start",
+    "server-dev": "cd server && npm run dev",
+    "dev": "concurrently \"npm run server-dev\" \"npm run client\"",
+    "start": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^8.2.1"
+  }
+}
