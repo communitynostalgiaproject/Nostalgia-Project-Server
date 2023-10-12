@@ -7,13 +7,26 @@ const isValidDate = (value: string): boolean => {
   return !isNaN(date.getTime());
 };
 
+const GeoJSONPointSchema = new Schema({
+  type: {
+    type: String,
+    enum: ["Point"],
+    default: "Point",
+    required: true
+  },
+  coordinates: {
+    type: [Number],
+    required: true
+  }
+});
+
 const PlaceSchema = new Schema<Place>({
   address: {
     type: Schema.Types.Mixed,
     required: true
   },
   location: {
-    type: Schema.Types.GeoJSON,
+    type: GeoJSONPointSchema,
     required: true
   }
 });
