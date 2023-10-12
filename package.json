@@ -17,6 +17,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@stadiamaps/api": "^1.0.9",
     "@types/mongoose-geojson-schema": "^2.1.7",
     "concurrently": "^8.2.1",
     "mongoose": "^7.5.3",
