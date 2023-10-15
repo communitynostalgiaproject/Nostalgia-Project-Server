@@ -67,4 +67,30 @@ describe('Experience Model Test', () => {
     });
     await expect(experience.save()).rejects.toThrowError("invalid-date-string is not a valid date string");
   });
+
+  it("returns a javascript object when queried", async () => {
+    const experience = new ExperienceModel({
+      title: "Test title",
+      place: {
+        address: { someProperty: "value" },
+        location: {
+          type: "Point",
+          coordinates: [125.6, 10.1]
+        }
+      },
+      description: "Test description",
+      experienceDate: "2023-10-12"
+    });
+    try {
+      const savedExperience = await experience.save();
+      expect(savedExperience._id).toBeDefined();
+
+      const queriedExperience = await ExperienceModel.findById(savedExperience._id);
+      console.log(`Experience: ${JSON.stringify(queriedExperience)}`);
+      expect(typeof(queriedExperience)).toBe("object");
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+  });
 });
