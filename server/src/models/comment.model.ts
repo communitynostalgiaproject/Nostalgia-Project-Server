@@ -15,7 +15,8 @@ const CommentSchema: Schema = new Schema<Comment>({
   createdDate: {
     type: Date,
     default: Date.now
-  }
+  },
+  creatorId: Schema.Types.ObjectId
 });
 
 const CommentModel = mongoose.model<Comment>("Comment");

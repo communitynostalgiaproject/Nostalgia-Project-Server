@@ -13,6 +13,6 @@ declare interface Experience extends Document {
   flavourProfile?: string;
   periodOfLifeAssociation?: string;
   placesToGetFood?: [Place];
-  creatorGoogleId?: string;
+  creatorId?: string;
 }
 

@@ -56,7 +56,7 @@ const ExperienceSchema: Schema = new Schema<Experience>({
   flavourProfile: String,
   periodOfLifeAssociation: String,
   placesToGetFood: [PlaceSchema],
-  creatorGoogleId: String
+  creatorId: String
 });
 
 const ExperienceModel = mongoose.model<Experience>("Experience", ExperienceSchema);
