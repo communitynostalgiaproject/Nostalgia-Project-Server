@@ -4,7 +4,7 @@ declare interface Experience {
   description: string;
   recipe?: string;
   experienceDate: string;
-  createdDate: string;
+  createdDate?: string;
   mood?: string;
   foodtype?: string;
   personItRemindsThemOf?: string;
