@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import { GeoJSONPoint } from "@stadiamaps/api";
 import { Place } from "../../../types/place";
 
 const isValidDate = (value: string): boolean => {
@@ -7,7 +8,7 @@ const isValidDate = (value: string): boolean => {
   return !isNaN(date.getTime());
 };
 
-const GeoJSONPointSchema = new Schema({
+const GeoJSONPointSchema = new Schema<GeoJSONPoint>({
   type: {
     type: String,
     enum: ["Point"],
@@ -33,7 +34,10 @@ const PlaceSchema = new Schema<Place>({
  
 const ExperienceSchema: Schema = new Schema<Experience>({
   title: { type: String, required: true },
-  place: PlaceSchema,
+  place: {
+    type: PlaceSchema,
+    required: true
+  },
   description: { type: String, required: true },
   recipe: String,
   experienceDate: {

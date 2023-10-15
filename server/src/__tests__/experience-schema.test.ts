@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import ExperienceModel from "../models/experience.model";
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import { Place } from "../../../types/place";
 
 let mongoServer: MongoMemoryServer;
 
@@ -16,6 +17,9 @@ beforeEach(async () => {
 
 afterAll(async () => {
   await mongoose.connection.close();
+  if (mongoServer) {
+    mongoServer.stop();
+  }
 });
 
 describe('Experience Model Test', () => {
@@ -39,7 +43,7 @@ describe('Experience Model Test', () => {
         console.error(error);
         throw error;
     }
-  }, 10000);
+  });
 
   it('should fail to save an experience without required fields', async () => {
     const experience = new ExperienceModel({
