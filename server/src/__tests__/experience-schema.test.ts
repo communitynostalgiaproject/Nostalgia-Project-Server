@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import ExperienceModel from "../models/experience.model";
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Place } from "../../../types/place";
 
 let mongoServer: MongoMemoryServer;
 
