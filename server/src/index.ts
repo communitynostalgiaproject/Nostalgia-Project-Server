@@ -1,5 +1,6 @@
 import express from "express";
-import experienceRoutes from "./routes/experience.route";
+import experienceRouter from "./routes/experience.route";
+import commentRouter from "./routes/comment.route";
 import errorHandler from "./middleware/errorHandler";
 
 const app = express();
@@ -9,7 +10,8 @@ const port = process.env.PORT || 5000;
 app.use(express.json());
 
 // API routes
-app.use("/experiences", experienceRoutes);
+app.use("/experiences", experienceRouter);
+experienceRouter.use("/:experienceId/comments", commentRouter);
 
 // Error handling middleware
 app.use(errorHandler);
