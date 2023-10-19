@@ -8,7 +8,24 @@ const UserSchema = new Schema<User>({
     unique: true
   },
   displayName: String,
-  moderator: {
+  emailAddress: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+    lowercase: true,
+    validate: {
+      validator: (email: any) => {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      },
+      message: (props) => `${props.value} is not a valid email address`
+    }
+  },
+  isModerator: {
+    type: Boolean,
+    default: false
+  },
+  isAdmin: {
     type: Boolean,
     default: false
   },
