@@ -7,7 +7,15 @@ const UserSchema = new Schema<User>({
     required: true,
     unique: true
   },
-  displayName: String
+  displayName: String,
+  moderator: {
+    type: Boolean,
+    default: false
+  },
+  joinedDate: {
+    type: Date,
+    default: Date.now
+  }
 });
 
 const UserModel = mongoose.model<User>("User", UserSchema);
