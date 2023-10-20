@@ -2,6 +2,7 @@ import express from "express";
 import experienceRouter from "./routes/experiences.route";
 import commentRouter from "./routes/comments.route";
 import userRouter from "./routes/users.route";
+import flagRouter from "./routes/flags.route";
 import errorHandler from "./middleware/errorHandler";
 
 const app = express();
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use("/experiences", experienceRouter);
 experienceRouter.use("/:experienceId/comments", commentRouter);
 app.use("/users", userRouter);
+app.use("/flags", flagRouter);
 
 // Error handling middleware
 app.use(errorHandler);
