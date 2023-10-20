@@ -1,7 +1,7 @@
 import { Router } from "express";
-import controller from "src/controllers/user.controller";
+import controller from "src/controllers/users.controller";
 
-const router = Router({ mergeParams: true });
+const router = Router();
 
 // Create
 router.post("/", controller.createUser);

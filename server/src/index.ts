@@ -1,7 +1,7 @@
 import express from "express";
-import experienceRouter from "./routes/experience.route";
-import commentRouter from "./routes/comment.route";
-import userRouter from "./routes/user.route";
+import experienceRouter from "./routes/experiences.route";
+import commentRouter from "./routes/comments.route";
+import userRouter from "./routes/users.route";
 import errorHandler from "./middleware/errorHandler";
 
 const app = express();
