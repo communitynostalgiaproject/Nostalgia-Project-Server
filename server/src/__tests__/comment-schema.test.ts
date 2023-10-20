@@ -17,7 +17,8 @@ beforeAll(async () => {
 
   testUser = await new UserModel({
     googleId: "1234",
-    displayName: "Just A. User"
+    displayName: "Just A. User",
+    emailAddress: "justauser@test.com"
   }).save();
   testExperience = await new ExperienceModel({
     title: "Test title",
