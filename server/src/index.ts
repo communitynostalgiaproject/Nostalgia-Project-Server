@@ -4,6 +4,11 @@ import commentRouter from "./routes/comments.route";
 import userRouter from "./routes/users.route";
 import flagRouter from "./routes/flags.route";
 import errorHandler from "./middleware/errorHandler";
+import dotenv from "dotenv";
+import connectDB from "./config/mongodbSetup";
+
+dotenv.config();
+connectDB();
 
 const app = express();
 const port = process.env.PORT || 5000;
