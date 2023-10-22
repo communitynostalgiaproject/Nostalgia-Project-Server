@@ -71,7 +71,7 @@ describe("Comment model test", () => {
     await expect(comment.save()).rejects.toThrowError();
   });
 
-  it("fails to save comment without empty text string", async () => {
+  it("fails to save comment with empty text string", async () => {
     const comment = new CommentModel({
       experienceId: testExperience._id,
       text: "",
