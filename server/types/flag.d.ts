@@ -1,8 +1,8 @@
 import { Document, ObjectId } from "mongoose";
 
-type ContentType = "Experience" | "Comment";
-type FlagPriority = "low" | "medium" | "high";
-type FlagReason = "spam" | "hate-speech" | "misinformation" | "other";
+export type ContentType = "Experience" | "Comment";
+export type FlagPriority = "low" | "medium" | "high";
+export type FlagReason = "spam" | "hate-speech" | "misinformation" | "other";
 
 declare interface Flag extends Document {
   contentId: ObjectId;

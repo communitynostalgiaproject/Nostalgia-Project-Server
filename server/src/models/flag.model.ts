@@ -10,12 +10,12 @@ const FlagSchema = new Schema<Flag>({
   contentType: {
     type: String,
     required: true,
-    enum: ['Experience', 'Comment']  // These values should match the model names.
+    enum: ["Experience", "Comment"]
   },
   userId: {
     type: Schema.Types.ObjectId,
     required: true,
-    ref: 'User'  // Assuming you have a User model.
+    ref: "User"
   },
   createdDate: {
     type: Date,
