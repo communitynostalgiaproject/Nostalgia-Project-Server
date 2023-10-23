@@ -4,7 +4,6 @@ import controllers from "../controllers/experiences.controller";
 const router = Router();
 
 router.post("/", controllers.createExperience);
-router.get("/locations", controllers.getAllExperienceLocations);
 router.get("/withinBox", controllers.getExperiencesWithinBox)
 router.get("/:experienceId", controllers.getExperienceById);
 router.patch("/:experienceId", controllers.updateExperience);

@@ -14,7 +14,7 @@ exports.getFlagById = (req: Request, res: Response, next: NextFunction) => {
   res.send("Route not yet implemented.");
 };
 
-exports.getFlag = (req: Request, res: Response, next: NextFunction) => {
+exports.getFlags = (req: Request, res: Response, next: NextFunction) => {
   // To do
 
   res.send("Route not yet implemented.");
@@ -39,3 +39,5 @@ exports.deleteFlag = (req: Request, res: Response, next: NextFunction) => {
 
   res.send("Route not yet implemented.");
 };
+
+export default exports;
