@@ -39,8 +39,8 @@ export const createExperiences = (n: number) => {
           name: faker.location.streetAddress(),
           accuracy: "point",
           country: faker.location.country(),
-          street: faker.location.street,
-          locality: faker.location.city
+          street: faker.location.street(),
+          locality: faker.location.city()
         },
         location: {
           type: "Point",
