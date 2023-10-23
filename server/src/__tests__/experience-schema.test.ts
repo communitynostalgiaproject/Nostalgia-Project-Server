@@ -85,7 +85,6 @@ describe('Experience Model Test', () => {
       expect(savedExperience._id).toBeDefined();
 
       const queriedExperience = await ExperienceModel.findById(savedExperience._id);
-      console.log(`Experience: ${JSON.stringify(queriedExperience)}`);
       expect(typeof(queriedExperience)).toBe("object");
     } catch (error) {
         console.error(error);
