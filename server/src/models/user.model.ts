@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { User } from "types/user";
+import { User } from "@shared/types/user";
 
 const UserSchema = new Schema<User>({
   googleId: {

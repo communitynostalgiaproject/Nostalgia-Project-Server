@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { Flag } from "types/flag";
+import { Flag } from "@shared/types/flag";
 
 const FlagSchema = new Schema<Flag>({
   contentId: {

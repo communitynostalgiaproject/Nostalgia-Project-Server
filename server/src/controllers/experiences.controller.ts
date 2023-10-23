@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { NotFoundError } from "src/utils/customErrors";
+import { NotFoundError } from "../utils/customErrors";
 
 exports.createExperience = (req: Request, res: Response, next: NextFunction) => {
   // To do

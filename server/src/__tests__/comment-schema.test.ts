@@ -3,8 +3,8 @@ import CommentModel from "../models/comment.model";
 import ExperienceModel from "../models/experience.model";
 import UserModel from "../models/user.model";  
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Experience } from "types/experience";
-import { User } from "types/user";
+import { Experience } from "@shared/types/experience";
+import { User } from "@shared/types/user";
 
 let mongoServer: MongoMemoryServer;
 let testUser: User;

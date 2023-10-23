@@ -1,5 +1,5 @@
 import { Router } from "express";
-import controller from "src/controllers/comments.controller";
+import controller from "../controllers/comments.controller";
 
 const router = Router({ mergeParams: true });
 
