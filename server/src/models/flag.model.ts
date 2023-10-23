@@ -1,7 +1,7 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 import { Flag } from "@shared/types/flag";
 
-const FlagSchema = new Schema<Flag>({
+const FlagSchema = new Schema({
   contentId: {
     type: Schema.Types.ObjectId,
     required: true,
@@ -37,6 +37,6 @@ const FlagSchema = new Schema<Flag>({
   }
 });
 
-const FlagModel = mongoose.model<Flag>("Flag", FlagSchema);
+const FlagModel = mongoose.model<Flag & Document>("Flag", FlagSchema);
 
 export default FlagModel;

@@ -1,7 +1,7 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 import { User } from "@shared/types/user";
 
-const UserSchema = new Schema<User>({
+const UserSchema = new Schema({
   googleId: {
     type: String,
     required: true,
@@ -35,6 +35,6 @@ const UserSchema = new Schema<User>({
   }
 });
 
-const UserModel = mongoose.model<User>("User", UserSchema);
+const UserModel = mongoose.model<User & Document>("User", UserSchema);
 
 export default UserModel;

@@ -1,6 +1,7 @@
-import { Document, ObjectId } from "mongoose";
+import { ObjectId } from "mongoose";
 
-export interface Comment extends Document {
+export interface Comment {
+  _id: ObjectId;
   experienceId: ObjectId;
   text: string;
   createdDate: Date;

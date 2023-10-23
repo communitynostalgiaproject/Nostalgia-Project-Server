@@ -1,7 +1,7 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 import { Comment } from "@shared/types/comment";
 
-const CommentSchema: Schema = new Schema<Comment>({
+const CommentSchema: Schema = new Schema({
   experienceId: {
     type: Schema.Types.ObjectId,
     ref: "Experience",
@@ -19,5 +19,5 @@ const CommentSchema: Schema = new Schema<Comment>({
   creatorId: Schema.Types.ObjectId
 });
 
-const CommentModel = mongoose.model<Comment>("Comment", CommentSchema);
+const CommentModel = mongoose.model<Comment & Document>("Comment", CommentSchema);
 export default CommentModel;

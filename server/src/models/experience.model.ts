@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 import { GeoJSONPoint } from "@stadiamaps/api";
 import { Experience, Place } from "@shared/types/experience";
 
@@ -32,7 +32,7 @@ const PlaceSchema = new Schema<Place>({
   }
 });
  
-const ExperienceSchema: Schema = new Schema<Experience>({
+const ExperienceSchema: Schema = new Schema({
   title: { type: String, required: true },
   place: {
     type: PlaceSchema,
@@ -58,5 +58,5 @@ const ExperienceSchema: Schema = new Schema<Experience>({
   creatorId: String
 });
 
-const ExperienceModel = mongoose.model<Experience>("Experience", ExperienceSchema);
+const ExperienceModel = mongoose.model<Experience & Document>("Experience", ExperienceSchema);
 export default ExperienceModel;

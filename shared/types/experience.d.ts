@@ -1,4 +1,4 @@
-import { Document } from "mongoose";
+import { ObjectId } from "mongoose";
 import { GeoJSONPoint, PeliasGeoJSONProperties } from "@stadiamaps/api";
 
 export interface Place {
@@ -6,7 +6,8 @@ export interface Place {
   location: GeoJSONPoint
 }
 
-export interface Experience extends Document {
+export interface Experience {
+  _id: ObjectId;
   title: string;
   place: Place;
   description: string;
@@ -19,5 +20,5 @@ export interface Experience extends Document {
   flavourProfile?: string;
   periodOfLifeAssociation?: string;
   placesToGetFood?: [Place];
-  creatorId?: string;
+  creatorId?: ObjectId;
 }
