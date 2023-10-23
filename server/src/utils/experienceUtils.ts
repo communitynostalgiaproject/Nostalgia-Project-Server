@@ -14,24 +14,22 @@ exports.getExperienceById = async (experienceId: string) => {
   return experience;
 };
 
-exports.getAllExperienceLocations = async () => {
-  const experiences = await ExperienceModel.find({});
-  const justLocations = experiences.map((experience) => ({
-    location: experience.toObject().place.location
-  }));
-
-  return justLocations;
-}
-
-exports.getExperiencesWithinBox = async (lowerLeft: [number], upperRight: [number]) => {
-  const experiences = await ExperienceModel.find({
-    "place.location": {
-      $geoWithin: {
-        $box: [lowerLeft, upperRight]
+exports.getExperiencesWithinBox = async (lowerLeft: [number], upperRight: [number], locationsOnly=false) => {
+  const experiences = locationsOnly ? 
+    await ExperienceModel.find({
+      "place.location": {
+        $geoWithin: {
+          $box: [lowerLeft, upperRight]
+        }
       }
-    }
-  });
-  console.log(`Experiences found within box: ${JSON.stringify(experiences.map(experience => experience.place.location.coordinates))}`);
+    }).select("place.location -_id")
+  : await ExperienceModel.find({
+      "place.location": {
+        $geoWithin: {
+          $box: [lowerLeft, upperRight]
+        }
+      }
+    });
 
   return experiences;
 };
