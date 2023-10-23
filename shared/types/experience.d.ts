@@ -1,6 +1,12 @@
 import { Document } from "mongoose";
+import { GeoJSONPoint, PeliasGeoJSONProperties } from "@stadiamaps/api";
 
-declare interface Experience extends Document {
+export interface Place {
+  address: PeliasGeoJSONProperties,
+  location: GeoJSONPoint
+}
+
+export interface Experience extends Document {
   title: string;
   place: Place;
   description: string;
@@ -15,4 +21,3 @@ declare interface Experience extends Document {
   placesToGetFood?: [Place];
   creatorId?: string;
 }
-

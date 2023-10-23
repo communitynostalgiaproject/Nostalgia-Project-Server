@@ -4,7 +4,7 @@ export type ContentType = "Experience" | "Comment";
 export type FlagPriority = "low" | "medium" | "high";
 export type FlagReason = "spam" | "hate-speech" | "misinformation" | "other";
 
-declare interface Flag extends Document {
+export interface Flag extends Document {
   contentId: ObjectId;
   contentType: ContentType;
   userId: ObjectId;
