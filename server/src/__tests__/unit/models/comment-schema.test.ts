@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import CommentModel from "../../models/comment.model";
-import ExperienceModel from "../../models/experience.model";
-import UserModel from "../../models/user.model";  
+import CommentModel from "../../../models/comment.model";
+import ExperienceModel from "../../../models/experience.model";
+import UserModel from "../../../models/user.model";  
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Experience } from "@shared/types/experience";
 import { User } from "@shared/types/user";

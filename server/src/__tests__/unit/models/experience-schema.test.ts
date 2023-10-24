@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import ExperienceModel from "../../models/experience.model";
+import ExperienceModel from "../../../models/experience.model";
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
 let mongoServer: MongoMemoryServer;

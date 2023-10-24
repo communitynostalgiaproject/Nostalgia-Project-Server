@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
-import ExperienceModel from "../../models/experience.model";
+import ExperienceModel from "../../../models/experience.model";
 import { MongoMemoryServer } from "mongodb-memory-server";
-import experienceUtils from "../../utils/experienceUtils";
-import { createExperiences } from "../../utils/testDataGen";
+import experienceUtils from "../../../utils/experienceUtils";
+import { createExperiences } from "../../../utils/testDataGen";
 import { faker } from "@faker-js/faker";
 
 let mongoServer: MongoMemoryServer;
