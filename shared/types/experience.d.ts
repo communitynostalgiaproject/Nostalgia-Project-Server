@@ -19,6 +19,6 @@ export interface Experience {
   personItRemindsThemOf?: string;
   flavourProfile?: string;
   periodOfLifeAssociation?: string;
-  placesToGetFood?: [Place];
+  placesToGetFood?: Place[];
   creatorId?: ObjectId;
 }
