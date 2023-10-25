@@ -234,15 +234,18 @@ export const createExperiences = (n: number, userIds: ObjectId[] = []) => {
   const experiences = [];
 
   for (let i = 0; i < n; i++) {
+    const createdDate = faker.date.past().toISOString();
     experiences.push({
       title: faker.lorem.words(randomInt(3, 6)),
       place: createRandomPlaces(1)[0],
       description: faker.lorem.paragraphs({
         min: 1,
-        max: 3
+        max: 12
       }),
-      createdDate: faker.date.past().toISOString(),
-      experienceDate: faker.date.past().toISOString(),
+      createdDate,
+      experienceDate: faker.date.past({
+        refDate: createdDate
+      }).toISOString(),
       mood: moods[randomInt(moods.length)],
       foodtype: foodTypes[randomInt(foodTypes.length)],
       personItRemindsThemOf: peopleToBeRemindedOf[randomInt(peopleToBeRemindedOf.length)],
