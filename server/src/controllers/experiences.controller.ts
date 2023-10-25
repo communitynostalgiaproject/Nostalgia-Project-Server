@@ -15,24 +15,54 @@ exports.createExperience = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
-exports.getExperienceById = (req: Request, res: Response, next: NextFunction) => {
-  // To do
-  res.send("Route not yet implemented.");
+exports.getExperienceById = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { experienceId } = req.params;
+    const experience = await utils.getExperienceById(experienceId);
+
+    res.status(200).send(experience);
+  } catch(err) {
+    console.log(err);
+    next(err);
+  }
 };
 
-exports.getExperiencesWithinBox = (req: Request, res: Response, next: NextFunction) => {
-  // To do
-  res.send("Route not yet implemented.");
+exports.getExperiencesWithinBox = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { bbox, locationsOnly } = req.query;
+    const { lowerLeft, upperRight } = utils.convertBbox(bbox);
+    const experiences = await utils.getExperiencesWithinBox(lowerLeft, upperRight, locationsOnly ? true : false);
+
+    res.status(200).send(experiences);
+  } catch(err) {
+    console.log(err);
+    next(err);
+  }
 };
 
-exports.updateExperience = (req: Request, res: Response, next: NextFunction) => {
-  // To do
-  res.send("Route not yet implemented.");
+exports.updateExperience = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const experience: Experience = req.body;
+    await utils.updateExperience(experience);
+
+    res.status(200).send();
+  } catch(err) {
+    console.log(err);
+    next(err);
+  }
 };
 
-exports.deleteExperience = (req: Request, res: Response, next: NextFunction) => {
-  // To do
-  res.send("Route not yet implemented.");``
+exports.deleteExperience = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { experienceId } = req.params;
+    console.log(`Experience ID: ${experienceId}`);
+    await utils.deleteExperience(experienceId);
+
+    res.status(200).send();
+  } catch(err) {
+    console.log(err);
+    next(err);
+  }
 };
 
 export default exports;
