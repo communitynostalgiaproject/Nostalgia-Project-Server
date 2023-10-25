@@ -16,6 +16,7 @@ const numFlags = 150;
 connectDB();
 
 async function seedData() {
+  console.log("Seeding database...");
   // If the overwrite option is set, delete existing records
   await UserModel.deleteMany({});
   await ExperienceModel.deleteMany({});
