@@ -1,7 +1,7 @@
 import { Document, ObjectId } from "mongoose";
 
 export interface User {
-  _id: ObjectId;
+  _id?: ObjectId;
   googleId: string;
   displayName?: string;
   emailAddress: string;

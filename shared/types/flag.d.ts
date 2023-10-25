@@ -5,7 +5,7 @@ export type FlagPriority = "low" | "medium" | "high";
 export type FlagReason = "spam" | "hate-speech" | "misinformation" | "other";
 
 export interface Flag {
-  _id: ObjectId;
+  _id?: ObjectId;
   contentId: ObjectId;
   contentType: ContentType;
   userId: ObjectId;

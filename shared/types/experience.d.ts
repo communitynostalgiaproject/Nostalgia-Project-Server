@@ -7,7 +7,7 @@ export interface Place {
 }
 
 export interface Experience {
-  _id: ObjectId;
+  _id?: ObjectId;
   title: string;
   place: Place;
   description: string;
