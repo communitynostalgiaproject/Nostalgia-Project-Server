@@ -256,21 +256,16 @@ export const createExperiences = (n: number, userIds: ObjectId[] = []) => {
   return experiences;
 };
 
-export const createFlags = (
-  contentId: ObjectId,
-  contentType: ContentType,
-  userId: number,
-  n: number  
-) => {
+export const createFlags = (n: number, experienceIds: ObjectId[], userIds: ObjectId[]) => {
   if (n < 1) return [];
 
   const flags = [];
 
   for (let i = 0; i < n; i++) {
     flags.push({
-      contentId,
-      contentType,
-      userId,
+      contentId: experienceIds[randomInt(experienceIds.length)],
+      contentType: "Experience",
+      userId: userIds[randomInt(userIds.length)],
       createdDate: faker.date.past(),
       priority: ["low", "medium", "high"][randomInt(3)],
       reason: ["spam", "hate-speech", "misinformation", "other"][randomInt(4)],
