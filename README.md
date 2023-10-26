@@ -1,4 +1,3 @@
-<!--- Testing out code owners approval protection for master branch --->
 # The Ratatouille Moment
 This is a description of The Ratatouille Moment project that I'm sure someone will actually flesh out one day.
 
