@@ -252,7 +252,7 @@ export const createExperiences = (n: number, userIds: ObjectId[] = []) => {
       flavourProfile: flavourProfiles[randomInt(flavourProfiles.length)],
       periodOfLifeAssociation: periodOfLifeAssociations[randomInt(periodOfLifeAssociations.length)],
       placesToGetFood: createRandomPlaces(randomInt(3)),
-      creatorId: Math.random() < 0.4 ? undefined : userIds[randomInt(userIds.length)]
+      creatorId: userIds.length ? userIds[randomInt(userIds.length)] : undefined
     } as Experience);
   }
 
