@@ -1,12 +1,19 @@
-import { ObjectId } from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 import ExperienceModel from "../models/experience.model";
 import { ValidationError } from "./customErrors";
 
 exports.createExperience = async (newExperience: any) => {
   const experience = new ExperienceModel(newExperience);
-  const savedExperience = await experience.save();
 
-  return savedExperience;
+  try {
+    const savedExperience = await experience.save();
+
+    return savedExperience;
+  } catch(err) {
+    if (err instanceof mongoose.Error.ValidationError) {
+      throw(new ValidationError(`Invalid experience: ${err}`));
+    }
+  }
 };
 
 exports.getExperienceById = async (experienceId: string) => {

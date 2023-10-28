@@ -46,4 +46,17 @@ describe("Experience creation endpoint tests", () => {
     expect(res.status).toBe(200);
     expect(removeMongooseDocFields(res.body)).toEqual(testExperience);
   });
+
+  it("should return a 400 code if invalid object was submitted", async () => {
+    const testExperience = {
+      title: "This shouldn't work"
+    };
+
+    const res = await request(app)
+      .post("/experiences")
+      .send(testExperience)
+      .set("Content-Type", "application/json");
+
+    expect(res.status).toBe(400);
+  });
 });
