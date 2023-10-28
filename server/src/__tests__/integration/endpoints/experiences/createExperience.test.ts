@@ -3,6 +3,7 @@ import { setupApp } from "../../../../config/app";
 import { createExperiences } from "../../../../utils/testDataGen";
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Express } from "express";
+import mongoose from "mongoose";
 
 let mongoServer: MongoMemoryServer;
 let app: Express;
@@ -32,7 +33,10 @@ describe("Experience creation endpoint tests", () => {
   });
   
   afterAll(async () => {
-    await mongoServer.stop();
+    await mongoose.connection.close();
+    if (mongoServer) {
+      await mongoServer.stop();
+    }
   });
 
   it("should return a 200 code and copy of created record on success", async () => {
