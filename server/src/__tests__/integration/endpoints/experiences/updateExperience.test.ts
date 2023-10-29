@@ -5,6 +5,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Express } from "express";
 import mongoose from "mongoose";
 import ExperienceModel from "../../../../models/experience.model";
+import { faker } from "@faker-js/faker";
 
 let mongoServer: MongoMemoryServer;
 let app: Express;
@@ -46,20 +47,33 @@ describe("Experience creation endpoint tests", () => {
     }
   });
 
-  it("should return a 200 code and the requested record if found", async () => {
+  it("should return a 200 code upon success and should update the db record", async () => {
     const testExperience = createExperiences(1)[0];
     const insertedExperience = await new ExperienceModel(testExperience).save();
+    const updatedExperience = {
+      ...insertedExperience.toObject(),
+      description: "This description has been updated."
+    };
 
-    const res = await request(app).get(`/experiences/${insertedExperience._id}`);
+    const res = await request(app).patch(`/experiences`).send(updatedExperience);
 
     expect(res.status).toBe(200);
-    console.log(`Res.body: ${JSON.stringify(res.body)}`);
-    expect(res.body).toEqual(convertObjectIdToString(insertedExperience.toObject()));
+    
+    const retrievedExperience = await ExperienceModel.findById(insertedExperience._id);
+    expect(retrievedExperience?.toObject()).toEqual(updatedExperience);
   });
 
-  it("should return a 404 code if experience with provided id doesn't exist", async () => {
-    const res = await request(app).get("/experiences/653d557c56be3d6d264edda2");
+  it("should return a 500 code when attempting to update a record with an invalid id", async () => {
+    const testExperience = createExperiences(1)[0];
+    const insertedExperience = await new ExperienceModel(testExperience).save();
+    const updatedExperience = {
+      ...insertedExperience.toObject(),
+      _id: "111111111111",
+      description: "This description has been updated."
+    };
 
-    expect(res.status).toBe(404);
+    const res = await request(app).patch(`/experiences`).send(updatedExperience);
+
+    expect(res.status).toBe(500);
   });
 });
