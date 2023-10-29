@@ -25,7 +25,7 @@ const removeMongooseDocFields: any = (obj: any) => {
   return newObj;
 }
 
-describe("Experience creation endpoint tests", () => {
+describe("POST /experiences", () => {
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
     const uri = mongoServer.getUri();

@@ -10,7 +10,7 @@ import { faker } from "@faker-js/faker";
 let mongoServer: MongoMemoryServer;
 let app: Express;
 
-describe("Experience creation endpoint tests", () => {
+describe("GET /experiences/withinBox", () => {
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
     const uri = mongoServer.getUri();

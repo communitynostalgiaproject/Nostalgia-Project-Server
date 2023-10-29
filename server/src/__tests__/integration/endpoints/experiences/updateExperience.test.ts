@@ -28,7 +28,7 @@ const convertObjectIdToString: any = (obj: any): any => {
   return result;
 }
 
-describe("Experience creation endpoint tests", () => {
+describe("PATCH /experiences", () => {
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
     const uri = mongoServer.getUri();
