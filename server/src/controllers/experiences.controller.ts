@@ -55,7 +55,6 @@ exports.updateExperience = async (req: Request, res: Response, next: NextFunctio
 exports.deleteExperience = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { experienceId } = req.params;
-    console.log(`Experience ID: ${experienceId}`);
     await utils.deleteExperience(experienceId);
 
     res.status(200).send();
