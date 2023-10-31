@@ -6,7 +6,7 @@ const router = Router();
 router.post("/", controller.createUser);
 router.get("/", controller.getUsers);
 router.get("/:userId", controller.getUserById);
-router.patch("/:commentId", controller.updateUser);
-router.delete("/:commentId", controller.deleteUser);
+router.patch("/", controller.updateUser);
+router.delete("/:userId", controller.deleteUser);
 
 export default router;

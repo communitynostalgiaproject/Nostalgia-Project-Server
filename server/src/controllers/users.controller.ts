@@ -25,7 +25,6 @@ exports.getUsers = async (req: Request, res: Response, next: NextFunction) => {
 }
 
 exports.getUserById = async (req: Request, res: Response, next: NextFunction) => {
-  console.log("Hit!")
   try {
     const { userId } = req.params;
     const user = await utils.getUserById(userId);
@@ -37,16 +36,29 @@ exports.getUserById = async (req: Request, res: Response, next: NextFunction) =>
   }
 };
 
-exports.updateUser = (req: Request, res: Response, next: NextFunction) => {
-  // To do
+exports.updateUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user: User = req.body;
+    await utils.updateUser(user);
 
-  res.send("Route not yet implemented.");
+    res.status(200).send();
+  } catch(err) {
+    console.log(err);
+    next(err);
+  }
 };
 
-exports.deleteUser = (req: Request, res: Response, next: NextFunction) => {
-  // To do
+exports.deleteUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { userId } = req.params;
+    console.log(`User ID: ${userId}`);
+    await utils.deleteUser(userId);
 
-  res.send("Route not yet implemented.");
+    res.status(200).send();
+  } catch(err) {
+    console.log(err);
+    next(err);
+  }
 };
 
 export default exports;
