@@ -3,16 +3,10 @@ import controller from "../controllers/users.controller";
 
 const router = Router();
 
-// Create
 router.post("/", controller.createUser);
-
-// Read
-router.get("/", controller.getUserById);
-
-// Update
+router.get("/", controller.getUsers);
+router.get("/:userId", controller.getUserById);
 router.patch("/:commentId", controller.updateUser);
-
-// Delete
 router.delete("/:commentId", controller.deleteUser);
 
 export default router;

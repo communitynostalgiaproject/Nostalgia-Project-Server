@@ -1,4 +1,5 @@
 import express from "express";
+import morgan from "morgan";
 import experienceRouter from "./routes/experiences.route";
 import commentRouter from "./routes/comments.route";
 import userRouter from "./routes/users.route";
@@ -15,6 +16,7 @@ const port = process.env.PORT || 5000;
 
 // Global middlewares
 app.use(express.json());
+app.use(morgan('dev'));
 
 // API routes
 app.use("/experiences", experienceRouter);
