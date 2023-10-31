@@ -17,7 +17,9 @@ exports.createUser = async (req: Request, res: Response, next: NextFunction) => 
 
 exports.getUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
-
+    const users = req.params?.limit ? await utils.getUsers(req.params.limit) : await utils.getUsers()
+    
+    res.status(200).send(users);
   } catch(err) {
     console.log(err);
     next(err);
