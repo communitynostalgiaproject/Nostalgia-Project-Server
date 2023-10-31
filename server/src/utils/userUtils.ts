@@ -9,10 +9,14 @@ exports.createUser = async (newUser: any) => {
   return savedUser;
 };
 
-exports.getExperienceById = async (experienceId: string) => {
-  const experience = await UserModel.findById(experienceId);
+exports.getUsers = async (limit: number) => {
+    
+}
 
-  return experience;
+exports.getUserById = async (userId: string) => {
+  const user = await UserModel.findById(userId);
+
+  return user;
 };
 
 exports.getExperiencesWithinBox = async (lowerLeft: [number], upperRight: [number], locationsOnly: boolean) => {

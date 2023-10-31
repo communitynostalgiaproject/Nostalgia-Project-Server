@@ -15,14 +15,26 @@ exports.createUser = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-exports.getUsers = (req: Request, res: Response, next: NextFunction) => {
-  res.send("Route in progress")
+exports.getUsers = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+
+  } catch(err) {
+    console.log(err);
+    next(err);
+  }
 }
 
-exports.getUserById = (req: Request, res: Response, next: NextFunction) => {
-  // To do
+exports.getUserById = async (req: Request, res: Response, next: NextFunction) => {
+  console.log("Hit!")
+  try {
+    const { userId } = req.params;
+    const user = await utils.getUserById(userId);
 
-  res.send("Route not yet implemented.");
+    res.status(200).send(user);
+  } catch(err) {
+    console.log(err);
+    next(err);
+  }
 };
 
 exports.updateUser = (req: Request, res: Response, next: NextFunction) => {
