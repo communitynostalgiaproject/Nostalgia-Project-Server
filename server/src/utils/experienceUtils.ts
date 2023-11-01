@@ -1,18 +1,36 @@
-import { ObjectId } from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 import ExperienceModel from "../models/experience.model";
-import { ValidationError } from "./customErrors";
+import { ValidationError, NotFoundError } from "./customErrors";
 
 exports.createExperience = async (newExperience: any) => {
   const experience = new ExperienceModel(newExperience);
-  const savedExperience = await experience.save();
 
-  return savedExperience;
+  try {
+    const savedExperience = await experience.save();
+
+    return savedExperience;
+  } catch(err) {
+    if (err instanceof mongoose.Error.ValidationError) {
+      throw(new ValidationError(`Invalid experience: ${err}`));
+    }
+  }
 };
 
 exports.getExperienceById = async (experienceId: string) => {
-  const experience = await ExperienceModel.findById(experienceId);
+  try {
+    const experience = await ExperienceModel.findById(experienceId);
 
-  return experience;
+    if (!experience) throw(new NotFoundError("Experience not found")); 
+  
+    return experience;
+  } catch(err) {
+    if (err instanceof mongoose.Error.DocumentNotFoundError) {
+      throw(new NotFoundError("Experience not found"));
+    }
+
+    throw(err);
+  }
+  
 };
 
 exports.getExperiencesWithinBox = async (lowerLeft: [number], upperRight: [number], locationsOnly: boolean) => {

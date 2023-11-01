@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 
-const connectDB = async () => {
+const connectDB = async (mongoUri: string) => {
   try {
     await mongoose.connect(
-      process.env.MONGODB_URI as string,
+      mongoUri,
       {
         dbName: "food-nostalgia-data"
       }

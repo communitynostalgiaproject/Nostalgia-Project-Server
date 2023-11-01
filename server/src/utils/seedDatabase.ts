@@ -13,7 +13,7 @@ const numUsers = 500;
 const numExperiences = 1500;
 const numFlags = 150;
 
-connectDB();
+connectDB(process.env.MONGODB_URI as string);
 
 async function seedData() {
   console.log("Seeding database...");
