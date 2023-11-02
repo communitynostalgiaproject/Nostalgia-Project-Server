@@ -277,7 +277,8 @@ export const createFlags = (n: number, experienceIds: string[], userIds: string[
         max: 6
       }),
       moderatorComments: [],
-      resolved: false
+      resolved: false,
+      contentDeleted: false
     });
   }
 
