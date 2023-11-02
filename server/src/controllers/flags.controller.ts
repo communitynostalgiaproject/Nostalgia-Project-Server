@@ -1,10 +1,18 @@
 import { Request, Response, NextFunction } from "express";
+import { Flag } from "@shared/types/flag";
+import utils from "../utils/flagUtils";
 
 // Create
-exports.createFlag = (req: Request, res: Response, next: NextFunction) => {
-  // To do
+exports.createFlag = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const newFlag: Flag = req.body;
+    const savedFlag = await utils.createFlag(newFlag);
 
-  res.send("Route not yet implemented.");
+    res.status(200).send(savedFlag);
+  } catch(err) {
+    console.error(err);
+    next(err);
+  }
 };
 
 // Read
