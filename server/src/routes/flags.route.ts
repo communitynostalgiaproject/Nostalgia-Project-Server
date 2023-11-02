@@ -11,7 +11,7 @@ router.get("/:flagId", controller.getFlagById);
 router.get("/", controller.getFlags);
 
 // Update
-router.patch("/:flagId", controller.updateFlag);
+router.patch("/", controller.updateFlag);
 
 // Delete
 router.delete("/:flagId", controller.deleteFlag);
