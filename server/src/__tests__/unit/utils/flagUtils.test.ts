@@ -9,6 +9,7 @@ import { Experience } from "@shared/types/experience";
 import { User } from "@shared/types/user";
 import { randomInt } from "crypto";
 import { Flag } from "@shared/types/flag";
+import { DEFAULT_LIMIT } from "../../../config/constants";
 
 let mongoServer: MongoMemoryServer;
 let testUsers: User[];
@@ -148,6 +149,19 @@ describe("Flag utils test", () => {
         expect(flag._id?.toString()).toBe(allFlags[limit * i + j]._id?.toString());
       });
     }
+  });
+
+  it("should retrieve DEFAULT_LIMIT records if there are enough records and no limit is specified", async () => {
+    const randomFlags = createFlags(
+      DEFAULT_LIMIT * 2,
+      testExperiences.map((experience: Experience) => `${experience._id}`),
+      testUsers.map((user: User) => `${user._id}`)
+    );
+    await FlagModel.insertMany(randomFlags);
+
+    const allFlags = await utils.getFlags({});
+
+    expect(allFlags.length).toBe(DEFAULT_LIMIT);
   });
 
   // Update

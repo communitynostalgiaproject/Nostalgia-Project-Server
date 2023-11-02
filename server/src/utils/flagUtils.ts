@@ -1,6 +1,7 @@
 import mongoose, { ObjectId } from "mongoose";
 import FlagModel from "../models/flag.model";
 import { ValidationError, NotFoundError } from "./customErrors";
+import { DEFAULT_LIMIT } from "../config/constants";
 
 export const createFlag = async (newFlag: any) => {
   const flag = new FlagModel(newFlag);
@@ -63,7 +64,7 @@ export const getFlags = async (options: GetFlagsOptions = {}) => {
   const experiences = await FlagModel
     .find(query)
     .skip(offset || 0)
-    .limit(limit || 30);
+    .limit(limit || DEFAULT_LIMIT);
 
   return experiences;
 };
