@@ -48,10 +48,16 @@ exports.updateFlag = async (req: Request, res: Response, next: NextFunction) => 
 };
 
 // Delete
-exports.deleteFlag = (req: Request, res: Response, next: NextFunction) => {
-  // To do
+exports.deleteFlag = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { flagId } = req.params;
+    await utils.deleteFlag(flagId);
 
-  res.send("Route not yet implemented.");
+    res.status(200).send();
+  } catch(err) {
+    console.error(err);
+    next(err);
+  }
 };
 
 export default exports;

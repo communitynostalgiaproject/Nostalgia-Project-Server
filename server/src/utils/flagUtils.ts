@@ -72,8 +72,10 @@ export const updateFlag = async (flag: any) => {
   await FlagModel.updateOne(flag);
 };
 
-export const deleteFlag = async (flagId: ObjectId) => {
-  await FlagModel.deleteOne({ _id: flagId });
+export const deleteFlag = async (flagId: string) => {
+  const deleteResult = await FlagModel.deleteOne({ _id: flagId });
+  
+  if (deleteResult.deletedCount === 0) throw(new Error("Unable to delete flag"));
 };
 
 export default {
