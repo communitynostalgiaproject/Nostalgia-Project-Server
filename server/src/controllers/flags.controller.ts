@@ -20,12 +20,6 @@ exports.getFlags = (req: Request, res: Response, next: NextFunction) => {
   res.send("Route not yet implemented.");
 };
 
-exports.getFlagsByExperience = (req: Request, res: Response, next: NextFunction) => {
-  // To do
-
-  res.send("Route not yet implemented.");
-};
-
 // Update
 exports.updateFlag = (req: Request, res: Response, next: NextFunction) => {
   // To do

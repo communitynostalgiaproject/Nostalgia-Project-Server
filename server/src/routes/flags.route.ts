@@ -9,7 +9,6 @@ router.post("/", controller.createFlag);
 // Read
 router.get("/:flagId", controller.getFlagById);
 router.get("/", controller.getFlags);
-router.get("/byExperience/:experienceId", controller.getFlagsByExperience);
 
 // Update
 router.patch("/:flagId", controller.updateFlag);
