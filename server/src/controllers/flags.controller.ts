@@ -16,10 +16,16 @@ exports.createFlag = async (req: Request, res: Response, next: NextFunction) => 
 };
 
 // Read
-exports.getFlagById = (req: Request, res: Response, next: NextFunction) => {
-  // To do
+exports.getFlagById = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { flagId } = req.params;
+    const flag = await utils.getFlagById(flagId);
 
-  res.send("Route not yet implemented.");
+    res.status(200).send(flag);
+  } catch(err) {
+    console.log(err);
+    next(err);
+  }
 };
 
 exports.getFlags = (req: Request, res: Response, next: NextFunction) => {
