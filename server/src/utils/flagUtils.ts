@@ -63,8 +63,8 @@ export const getFlags = async (options: GetFlagsOptions = {}) => {
 
   const experiences = await FlagModel
     .find(query)
-    .skip(offset || 0)
-    .limit(limit || DEFAULT_LIMIT);
+    .skip((!offset || Number(offset) < 1 || isNaN(Number(offset))) ? 0 : Number(offset))
+    .limit((!limit || Number(limit) < 1 || isNaN(Number(limit))) ? DEFAULT_LIMIT : Number(limit));
 
   return experiences;
 };

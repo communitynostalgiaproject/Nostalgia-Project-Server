@@ -28,10 +28,15 @@ exports.getFlagById = async (req: Request, res: Response, next: NextFunction) =>
   }
 };
 
-exports.getFlags = (req: Request, res: Response, next: NextFunction) => {
-  // To do
+exports.getFlags = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const flags = await utils.getFlags(req.query);
 
-  res.send("Route not yet implemented.");
+    res.status(200).send(flags);
+  } catch(err) {
+    console.error(err);
+    next(err);
+  }
 };
 
 // Update
