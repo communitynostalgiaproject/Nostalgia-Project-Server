@@ -21,6 +21,8 @@ const FlagSchema = new Schema({
     type: Date,
     default: Date.now
   },
+  priority: String,
+  reason: String,
   userComment: String,
   moderatorComments: [String],
   resolved: {

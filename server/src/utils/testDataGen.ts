@@ -228,7 +228,7 @@ const createRandomPlaces = (n: number) => {
   return places;
 }
 
-export const createExperiences = (n: number, userIds: ObjectId[] = []) => {
+export const createExperiences = (n: number, userIds: string[] = []) => {
   if (n < 1) return [];
 
   const experiences = [];
@@ -259,7 +259,7 @@ export const createExperiences = (n: number, userIds: ObjectId[] = []) => {
   return experiences;
 };
 
-export const createFlags = (n: number, experienceIds: ObjectId[], userIds: ObjectId[]) => {
+export const createFlags = (n: number, experienceIds: string[], userIds: string[]) => {
   if (n < 1) return [];
 
   const flags = [];
@@ -277,7 +277,8 @@ export const createFlags = (n: number, experienceIds: ObjectId[], userIds: Objec
         max: 6
       }),
       moderatorComments: [],
-      resolved: false
+      resolved: false,
+      contentDeleted: false
     });
   }
 
