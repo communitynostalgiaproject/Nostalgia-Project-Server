@@ -14,7 +14,7 @@ export const createUsers = (n: number, areModerators = false, areAdmins = false)
     users.push({
       googleId: faker.string.uuid(),
       displayName: faker.person.fullName(),
-      emailAddress: faker.internet.email(),
+      emailAddress: faker.internet.email().toLowerCase(),
       isModerator: areModerators,
       isAdmin: areAdmins,
       joinedDate: faker.date.past()

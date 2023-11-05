@@ -1,12 +1,20 @@
-import { ObjectId } from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 import UserModel from "../models/user.model";
-import { ValidationError } from "./customErrors";
+import { ValidationError, NotFoundError } from "./customErrors";
 
 exports.createUser = async (newUser: any) => {
     const user = new UserModel(newUser);
-    const savedUser = await user.save();
 
-    return savedUser;
+    try {
+        const savedUser = await user.save();
+
+        return savedUser;
+
+    } catch(err) {
+        if (err instanceof mongoose.Error.ValidationError) {
+            throw(new ValidationError(`Invalid experience: ${err}`));
+        }
+    }
 };
 
 exports.getUsers = async (limit: number = 0) => {
