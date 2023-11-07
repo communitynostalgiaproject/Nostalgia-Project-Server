@@ -2,7 +2,7 @@ import { setupApp } from './config/app';
 import dotenv from "dotenv";
 
 dotenv.config();
-const port = process.env.PORT || 5001;
+const port = process.env.PORT || 5000;
 const app = setupApp(process.env.MONGODB_URI as string);
 
 const server = app.listen(port, () => {

@@ -57,17 +57,15 @@ describe("GET /users/{userId}", () => {
     it("should return a 200 code and the requested record if found", async () => {
         const testUser = createUsers(1)[0];
         const insertedUser = await new UserModel(testUser).save();
-
-        const res = await request(app)
-        .get(`/users`)
-        .query({userId: insertedUser._id});
-
+        
+        const res = await request(app).get(`/users/${insertedUser._id}`);
+   
         expect(res.status).toBe(200);
-        expect(res.body[0]).toEqual(convertValueToString(insertedUser.toObject()));
+        expect(res.body).toEqual(convertValueToString(insertedUser.toObject()));
     });
 
     it("should return a 404 code if user with provided id doesn't exist", async () => {
-        const res = await request(app).get(`/users/653d57c56be3d6d264edda2`)
+        const res = await request(app).get("/users/653d557c56be3d6d264edda2")
 
         expect(res.status).toBe(404);
     });
