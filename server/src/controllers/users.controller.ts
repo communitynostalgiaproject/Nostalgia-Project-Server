@@ -17,12 +17,14 @@ exports.createUser = async (req: Request, res: Response, next: NextFunction) => 
 
 exports.getUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const users = req.params?.limit ? await utils.getUsers(req.params.limit) : await utils.getUsers()
-    
+    const limit = req.query?.limit ? parseInt(req.query.limit as string, 10) : 0;
+    const users = await utils.getUsers(limit)
+
     res.status(200).send(users);
+
   } catch(err) {
-    console.log(err);
-    next(err);
+      console.log(err);
+      next(err);
   }
 }
 

@@ -12,21 +12,32 @@ exports.createUser = async (newUser: any) => {
 
     } catch(err) {
         if (err instanceof mongoose.Error.ValidationError) {
-            throw(new ValidationError(`Invalid experience: ${err}`));
+            throw(new ValidationError(`Invalid User: ${err}`));
         }
     }
 };
 
-exports.getUsers = async (limit: number = 0) => {
-    const users = await UserModel.find({}).limit(limit)
+exports.getUsers = async (limit: number) => {
+    const users = await UserModel.find({}).limit(limit);
 
-    return users
+    return users;
 }
 
 exports.getUserById = async (userId: string) => {
-    const user = await UserModel.findById(userId);
+    try {
+        const user = await UserModel.findById(userId);
+        
+        if (!user) throw(new NotFoundError("User not found")); 
+      
+        return user;
 
-    return user;
+      } catch(err) {
+        if (err instanceof mongoose.Error.DocumentNotFoundError) {
+            throw(new NotFoundError("User not found"));
+        }
+
+        throw(err);
+      }
 };
 
 exports.updateUser = async (user: any) => {
