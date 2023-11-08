@@ -71,22 +71,24 @@ describe("GET /users", () => {
 
   it("should return a 200 code when successfully returning a limited amount of users", async () => {
     const testUsers = createUsers(6);
-    const insertedUsers = await UserModel.insertMany(testUsers);
-
-    let userArr = [];
-    for (let userObj of insertedUsers) {
-      let user = convertValueToString(userObj.toObject());
-      userArr.push(user);
-    }
-
-    const res = await request(app).get(`/users`);
+    await UserModel.insertMany(testUsers);
     
-    const res_limit = await request(app)
+    const res = await request(app)
     .get(`/users`)
     .query({limit: 2});
     
     expect(res.status).toBe(200);
-    expect(res.body).toEqual(userArr);
-    expect(res_limit.body.length).toEqual(2);
+    expect(res.body.length).toEqual(2);
   });
+
+  it("should return a 500 if an invalid value is passed as a limit query param", async () => {
+    const testUsers = createUsers(6);
+    await UserModel.insertMany(testUsers);
+
+    const res = await request(app)
+    .get(`/users`)
+    .query({limit: "c"});
+    
+    expect(res.status).toBe(500);
+  })
 });

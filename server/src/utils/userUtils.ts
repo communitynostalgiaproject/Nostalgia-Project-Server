@@ -1,6 +1,6 @@
 import mongoose, { ObjectId } from "mongoose";
 import UserModel from "../models/user.model";
-import { ValidationError, NotFoundError } from "./customErrors";
+import { ValidationError, NotFoundError, InternalServerError } from "./customErrors";
 
 exports.createUser = async (newUser: any) => {
     const user = new UserModel(newUser);
@@ -18,9 +18,23 @@ exports.createUser = async (newUser: any) => {
 };
 
 exports.getUsers = async (limit: number) => {
-    const users = await UserModel.find({}).limit(limit);
+    try {
+        if(isNaN(limit)) {
+            throw new Error("Invalid limit query param. Limit must be a number");
 
-    return users;
+        } else {
+            const users = await UserModel.find({}).limit(limit);
+        
+            return users;
+        }
+
+    } catch(err) {
+        if(err instanceof mongoose.Error.ValidationError) {
+            throw(new InternalServerError(`Invalid limit param: ${err}`));
+        }
+
+        throw(err);
+    }
 }
 
 exports.getUserById = async (userId: string) => {
