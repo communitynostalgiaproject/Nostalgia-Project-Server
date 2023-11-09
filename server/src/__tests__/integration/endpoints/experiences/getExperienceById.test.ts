@@ -53,7 +53,6 @@ describe("GET /experiences/{experienceId}", () => {
     const res = await request(app).get(`/experiences/${insertedExperience._id}`);
 
     expect(res.status).toBe(200);
-    console.log(`Res.body: ${JSON.stringify(res.body)}`);
     expect(res.body).toEqual(convertObjectIdToString(insertedExperience.toObject()));
   });
 
