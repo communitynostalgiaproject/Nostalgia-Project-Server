@@ -8,7 +8,8 @@
     "start": "node dist/index.js",
     "test": "jest",
     "build": "tsc",
-    "seed-db": "npm run build && node dist/utils/seedDatabase.js"
+    "seed-db": "npm run build && node dist/utils/seedDatabase.js",
+    "ci-install": "npm ci"
   },
   "author": "",
   "license": "ISC",
