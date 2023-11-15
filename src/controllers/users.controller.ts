@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { NotFoundError } from "../utils/customErrors";
-import { User } from "@shared/types/user";
+import { User } from "@projectTypes/user";
 import utils from "../utils/userUtils";
 
 exports.createUser = async (req: Request, res: Response, next: NextFunction) => {

@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { GeoJSONPoint } from "@stadiamaps/api";
-import { Experience, Place } from "@shared/types/experience";
+import { Experience, Place } from "@projectTypes/experience";
 
 const isValidDate = (value: string): boolean => {
   const date = new Date(value);

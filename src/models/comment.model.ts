@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
-import { Comment } from "@shared/types/comment";
+import { Comment } from "@projectTypes/comment";
 
 const CommentSchema: Schema = new Schema({
   experienceId: {

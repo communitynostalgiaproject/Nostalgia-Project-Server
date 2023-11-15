@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { Flag } from "@shared/types/flag";
+import { Flag } from "@projectTypes/flag";
 import utils from "../utils/flagUtils";
 
 // Create

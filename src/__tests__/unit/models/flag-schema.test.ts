@@ -4,9 +4,9 @@ import ExperienceModel from "../../../models/experience.model";
 import UserModel from "../../../models/user.model";  
 import FlagModel from "../../../models/flag.model";
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Experience } from "@shared/types/experience";
-import { User } from "@shared/types/user";
-import { Comment } from "@shared/types/comment";
+import { Experience } from "@projectTypes/experience";
+import { User } from "@projectTypes/user";
+import { Comment } from "@projectTypes/comment";
 
 let mongoServer: MongoMemoryServer;
 let testUser: User;

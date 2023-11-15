@@ -1,8 +1,8 @@
 import { faker } from "@faker-js/faker";
 import { randomInt } from "crypto";
-import { User } from "@shared/types/user";
-import { Experience } from "@shared/types/experience";
-import { ContentType, Flag } from "@shared/types/flag";
+import { User } from "@projectTypes/user";
+import { Experience } from "@projectTypes/experience";
+import { ContentType, Flag } from "@projectTypes/flag";
 import { ObjectId } from "mongoose";
 
 export const createUsers = (n: number, areModerators = false, areAdmins = false) => {

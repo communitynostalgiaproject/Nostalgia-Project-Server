@@ -4,14 +4,14 @@ import { createExperiences, createUsers, createFlags } from "../../../../utils/t
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Express } from "express";
 import mongoose from "mongoose";
-import { Experience } from "@shared/types/experience";
-import { User } from "@shared/types/user";
+import { Experience } from "@projectTypes/experience";
+import { User } from "@projectTypes/user";
 import ExperienceModel from "../../../../models/experience.model";
 import UserModel from "../../../../models/user.model";
 import FlagModel from "../../../../models/flag.model";
 import { DEFAULT_LIMIT } from "../../../../config/constants";
 import { randomInt } from "crypto";
-import { Flag } from "@shared/types/flag";
+import { Flag } from "@projectTypes/flag";
 import { faker } from "@faker-js/faker";
 
 let mongoServer: MongoMemoryServer;

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { NotFoundError } from "../utils/customErrors";
-import { Experience } from "@shared/types/experience";
+import { Experience } from "@projectTypes/experience";
 import utils from "../utils/experienceUtils";
 
 exports.createExperience = async (req: Request, res: Response, next: NextFunction) => {

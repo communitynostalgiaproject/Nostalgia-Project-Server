@@ -5,10 +5,10 @@ import UserModel from "../../../models/user.model";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import utils from "../../../utils/flagUtils";
 import { createExperiences, createUsers, createFlags } from "../../../utils/testDataGen";
-import { Experience } from "@shared/types/experience";
-import { User } from "@shared/types/user";
+import { Experience } from "@projectTypes/experience";
+import { User } from "@projectTypes/user";
 import { randomInt } from "crypto";
-import { Flag } from "@shared/types/flag";
+import { Flag } from "@projectTypes/flag";
 import { DEFAULT_LIMIT } from "../../../config/constants";
 
 let mongoServer: MongoMemoryServer;
