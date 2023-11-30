@@ -2,6 +2,7 @@ import passport from 'passport';
 import { Strategy as GoogleStrategy, Profile, VerifyCallback } from 'passport-google-oauth20';
 import UserModel from '../models/user.model';
 import { User } from '@projectTypes/user';
+import { Request, Response, NextFunction } from "express";
 
 // Define user (de-)serialization methods
 passport.serializeUser<any, any>((req, user, done) => {
@@ -43,3 +44,10 @@ passport.use(new GoogleStrategy({
     done(JSON.stringify(err), undefined);
   }
 }));
+
+export const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+  if (req.isAuthenticated()) {
+      return next();
+  }
+  res.send("User not logged in");
+};
