@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { isAuthenticated, isAuthorized } from "src/middleware/authChecks";
+import { isAuthenticated, isAuthorized } from "../middleware/authChecks";
 import controllers from "../controllers/experiences.controller";
 
 const router = Router();
