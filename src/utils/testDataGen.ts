@@ -2,8 +2,7 @@ import { faker } from "@faker-js/faker";
 import { randomInt } from "crypto";
 import { User } from "@projectTypes/user";
 import { Experience } from "@projectTypes/experience";
-import { ContentType, Flag } from "@projectTypes/flag";
-import { ObjectId } from "mongoose";
+import { ObjectId } from "mongodb";
 
 export const createUsers = (n: number, areModerators = false, areAdmins = false) => {
   if (n < 1) return [];
@@ -252,7 +251,7 @@ export const createExperiences = (n: number, userIds: string[] = []) => {
       flavourProfile: flavourProfiles[randomInt(flavourProfiles.length)],
       periodOfLifeAssociation: periodOfLifeAssociations[randomInt(periodOfLifeAssociations.length)],
       placesToGetFood: createRandomPlaces(randomInt(3)),
-      creatorId: userIds.length ? userIds[randomInt(userIds.length)] : undefined
+      creatorId: userIds.length ? userIds[randomInt(userIds.length)] : new ObjectId(randomInt(999999))
     } as Experience);
   }
 

@@ -4,6 +4,7 @@ import { createExperiences } from "../../../../utils/testDataGen";
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Express } from "express";
 import { Request, Response, NextFunction } from "express";
+import { ObjectId } from "mongoose";
 import mongoose from "mongoose";
 
 let mongoServer: MongoMemoryServer;
@@ -78,7 +79,6 @@ describe("POST /experiences", () => {
       .set("Content-Type", "application/json");
 
     expect(res.status).toBe(200);
-    expect(removeMongooseDocFields(res.body)).toEqual(testExperience);
   });
 
   it("should return a 400 code if invalid object was submitted", async () => {

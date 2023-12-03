@@ -55,7 +55,11 @@ const ExperienceSchema: Schema = new Schema({
   flavourProfile: String,
   periodOfLifeAssociation: String,
   placesToGetFood: [PlaceSchema],
-  creatorId: String
+  creatorId: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  }
 });
 
 const ExperienceModel = mongoose.model<Experience & Document>("Experience", ExperienceSchema);
