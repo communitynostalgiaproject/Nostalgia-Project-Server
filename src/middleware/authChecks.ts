@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import ExperienceModel from "../models/experience.model";
 import { UnauthorizedUserError, NotLoggedInError, NotFoundError } from "../utils/customErrors";
-import { User } from "@projectTypes/user";
 
 export const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
   if (req.isAuthenticated()) {
@@ -10,17 +9,23 @@ export const isAuthenticated = (req: Request, res: Response, next: NextFunction)
   next(new NotLoggedInError("User must be logged in"));
 };
 
-export const isAuthorized = async (req: Request, res: Response, next: NextFunction) => {
-  if (!req.isAuthenticated()) return next(new NotLoggedInError("User must be logged in"));
-
-  console.log(`User: ${JSON.stringify(req.user)}`);
-  const { experienceId } = req.params;
+const experienceAuthCheck = async (user: any, experienceId: String) => {
   const experience = await ExperienceModel.findById(experienceId);
-  const user = req.user as User;
+  if (!experience) return new NotFoundError("Experience not found");
 
-  if (!experience) return next(new NotFoundError("Experience not found"));
+  if (!(experience.creatorId.toString() === user._id.toString() || user.isModerator || user.isAdmin)) return new UnauthorizedUserError("User does not have permission to perform this action");
+}
 
-  if (experience.creatorId == user._id || user.isModerator || user.isAdmin) return next();
+export const isAuthorized = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!req.isAuthenticated()) return next(new NotLoggedInError("User must be logged in"));
 
-  next(new UnauthorizedUserError("User does not have permission to perform this action"));
+    const { experienceId, flagId } = req.params;
+
+    if (experienceId) return next(await experienceAuthCheck(req.user, experienceId));
+
+    next(new Error("Internal server error"));
+  } catch(err) {
+    next(err);
+  }
 };
