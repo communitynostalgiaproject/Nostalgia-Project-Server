@@ -1,10 +1,11 @@
 import { Router } from "express";
+import { isAuthenticated } from "src/middleware/authChecks";
 import controller from "../controllers/flags.controller";
 
 const router = Router();
 
 // Create
-router.post("/", controller.createFlag);
+router.post("/", isAuthenticated, controller.createFlag);
 
 // Read
 router.get("/:flagId", controller.getFlagById);
