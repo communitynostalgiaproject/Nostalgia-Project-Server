@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { isAuthenticated } from "../middleware/authChecks";
+import { isAuthenticated, isAuthorized } from "../middleware/authChecks";
 import controller from "../controllers/flags.controller";
 
 const router = Router();
@@ -12,9 +12,9 @@ router.get("/:flagId", controller.getFlagById);
 router.get("/", controller.getFlags);
 
 // Update
-router.patch("/", controller.updateFlag);
+router.patch("/", isAuthorized, controller.updateFlag);
 
 // Delete
-router.delete("/:flagId", controller.deleteFlag);
+router.delete("/:flagId", isAuthorized, controller.deleteFlag);
 
 export default router;
