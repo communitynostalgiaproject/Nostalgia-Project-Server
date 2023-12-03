@@ -13,6 +13,7 @@ export const isAuthenticated = (req: Request, res: Response, next: NextFunction)
 export const isAuthorized = async (req: Request, res: Response, next: NextFunction) => {
   if (!req.isAuthenticated()) return next(new NotLoggedInError("User must be logged in"));
 
+  console.log(`User: ${JSON.stringify(req.user)}`);
   const { experienceId } = req.params;
   const experience = await ExperienceModel.findById(experienceId);
   const user = req.user as User;

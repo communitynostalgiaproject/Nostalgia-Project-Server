@@ -3,6 +3,7 @@ import { setupApp } from "../../../../config/app";
 import { createExperiences } from "../../../../utils/testDataGen";
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Express } from "express";
+import { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
 
 let mongoServer: MongoMemoryServer;
@@ -23,7 +24,15 @@ const removeMongooseDocFields: any = (obj: any) => {
   }
 
   return newObj;
-}
+};
+
+const mockAuth = (userState: any) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    req.isAuthenticated = () => true;
+    req.user = userState;
+    next();
+  };
+};
 
 describe("POST /experiences", () => {
   beforeAll(async () => {
@@ -39,7 +48,28 @@ describe("POST /experiences", () => {
     }
   });
 
+  it("should return a 401 code if user is not logged in", async () => {
+    const testExperience = createExperiences(1)[0];
+
+    const res = await request(app)
+      .post("/experiences")
+      .send(testExperience)
+      .set("Content-Type", "application/json");
+
+    expect(res.status).toBe(401);
+  });
+
   it("should return a 200 code and copy of created record on success", async () => {
+    // Mock login creds
+    app.use(mockAuth({
+      _id: "122234455",
+      googleId: "12345",
+      emailAddress: "test.user@fake.com",
+      displayName: "Test User",
+      isModerator: false,
+      isAdmin: false
+    }));
+
     const testExperience = createExperiences(1)[0];
 
     const res = await request(app)
