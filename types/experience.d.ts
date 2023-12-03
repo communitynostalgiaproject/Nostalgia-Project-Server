@@ -20,5 +20,5 @@ export interface Experience {
   flavourProfile?: string;
   periodOfLifeAssociation?: string;
   placesToGetFood?: Place[];
-  creatorId?: ObjectId;
+  creatorId: String | ObjectId;
 }

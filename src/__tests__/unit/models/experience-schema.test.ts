@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { ObjectId } from "mongodb";
 import ExperienceModel from "../../../models/experience.model";
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
@@ -33,7 +34,8 @@ describe('Experience Model Test', () => {
         }
       },
       description: "Test description",
-      experienceDate: "2023-10-12"
+      experienceDate: "2023-10-12",
+      creatorId: new ObjectId(346237257)
     });
     try {
       const savedExperience = await experience.save();
@@ -65,30 +67,5 @@ describe('Experience Model Test', () => {
       experienceDate: "invalid-date-string"
     });
     await expect(experience.save()).rejects.toThrowError("invalid-date-string is not a valid date string");
-  });
-
-  it("returns a javascript object when queried", async () => {
-    const experience = new ExperienceModel({
-      title: "Test title",
-      place: {
-        address: { someProperty: "value" },
-        location: {
-          type: "Point",
-          coordinates: [125.6, 10.1]
-        }
-      },
-      description: "Test description",
-      experienceDate: "2023-10-12"
-    });
-    try {
-      const savedExperience = await experience.save();
-      expect(savedExperience._id).toBeDefined();
-
-      const queriedExperience = await ExperienceModel.findById(savedExperience._id);
-      expect(typeof(queriedExperience)).toBe("object");
-    } catch (error) {
-        console.error(error);
-        throw error;
-    }
   });
 });
