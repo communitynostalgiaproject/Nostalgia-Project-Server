@@ -16,6 +16,10 @@ const experienceAuthCheck = async (user: any, experienceId: String) => {
   if (!(experience.creatorId.toString() === user._id.toString() || user.isModerator || user.isAdmin)) return new UnauthorizedUserError("User does not have permission to perform this action");
 }
 
+const flagAuthCheck = (user: any) => {
+  if (!(user.isAdmin || user.isModerator)) return (new UnauthorizedUserError("User does not have permission to perform this action"));
+}
+
 export const isAuthorized = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.isAuthenticated()) return next(new NotLoggedInError("User must be logged in"));
@@ -23,8 +27,9 @@ export const isAuthorized = async (req: Request, res: Response, next: NextFuncti
     const { experienceId, flagId } = req.params;
 
     if (experienceId) return next(await experienceAuthCheck(req.user, experienceId));
+    if (flagId) return next(flagAuthCheck(req.user));
 
-    next(new Error("Internal server error"));
+    next(new Error("Something went wrong..."));
   } catch(err) {
     next(err);
   }
