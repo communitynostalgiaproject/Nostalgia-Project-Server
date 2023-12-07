@@ -3,7 +3,7 @@ import { setupApp } from "../../../../config/app";
 import { createExperiences } from "../../../../utils/testDataGen";
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Express } from "express";
-import { ObjectId } from "mongoose";
+import { performLogin } from "../../../../utils/testUtils";
 import mongoose from "mongoose";
 
 let mongoServer: MongoMemoryServer;
@@ -33,11 +33,8 @@ describe("POST /experiences", () => {
     const mongoUri = mongoServer.getUri();
     app = setupApp(mongoUri);
 
-    const authRes = await request(app).get("/auth/mock");
-    sessionCookie = authRes
-      .headers["set-cookie"][0]
-      .split(";")[0]
-      .trim();
+    const loginResults = await performLogin(app);
+    sessionCookie = loginResults.sessionCookie;
   });
   
   afterAll(async () => {

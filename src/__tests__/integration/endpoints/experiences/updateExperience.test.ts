@@ -5,7 +5,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Express } from "express";
 import mongoose from "mongoose";
 import ExperienceModel from "../../../../models/experience.model";
-import UserModel from "../../../../models/user.model";
+import { performLogin, performLogout } from "../../../../utils/testUtils";
 
 let mongoServer: MongoMemoryServer;
 let app: Express;
@@ -26,33 +26,6 @@ const convertObjectIdToString: any = (obj: any): any => {
     }
   }
   return result;
-}
-
-const getSessionCookie = (httpResponse: any) => {
-  return httpResponse
-  .headers["set-cookie"][0]
-  .split(";")[0]
-  .trim();
-};
-
-const performLogin = async (isModerator = false, isAdmin = false) => {
-  const authRes = await request(app).get(`/auth/mock?isModerator=${isModerator}&isAdmin=${isAdmin}`);
-  const sessionCookie = getSessionCookie(authRes);
-  const testUser = authRes.body.user;
-
-  return {
-    sessionCookie,
-    testUser
-  };
-}
-
-const performLogout = async (testUser: any) => {
-  try {
-    await request(app).get("/auth/logout");
-    await UserModel.deleteOne({_id: testUser._id});
-  } catch(err) {
-    console.log(`Unable to perform logout functions: ${err}`);
-  }
 }
 
 describe("PATCH /experiences", () => {
@@ -90,7 +63,7 @@ describe("PATCH /experiences", () => {
   });
 
   it("should return a 403 code if the user does not have permission", async () => {
-    const { sessionCookie, testUser } = await performLogin();
+    const { sessionCookie, testUser } = await performLogin(app);
 
     try {
       const testExperience = createExperiences(1)[0];
@@ -113,12 +86,12 @@ describe("PATCH /experiences", () => {
       console.log(`testUser: ${JSON.stringify(testUser)}`);
       throw err;
     } finally {
-      await performLogout(testUser);
+      await performLogout(app, testUser);
     }
   });
 
   it("should return a 200 code upon success and should update the db record", async () => {
-    const { sessionCookie, testUser } = await performLogin();
+    const { sessionCookie, testUser } = await performLogin(app);
     
     try {
       const testExperience = createExperiences(1)[0];
@@ -145,12 +118,12 @@ describe("PATCH /experiences", () => {
       console.log(`testUser: ${JSON.stringify(testUser)}`);
       throw err;
     } finally {
-      await performLogout(testUser);
+      await performLogout(app, testUser);
     }
   });
 
   it("should allow moderators to update experiences that aren't theirs", async () => {
-    const { sessionCookie, testUser } = await performLogin(true);
+    const { sessionCookie, testUser } = await performLogin(app, true);
     
     try {
       const testExperience = createExperiences(1)[0];
@@ -176,12 +149,12 @@ describe("PATCH /experiences", () => {
       console.log(`testUser: ${JSON.stringify(testUser)}`);
       throw err;
     } finally {
-      await performLogout(testUser);
+      await performLogout(app, testUser);
     }
   });
 
   it("should allow admins to update experiences that aren't theirs", async () => {
-    const { sessionCookie, testUser } = await performLogin(false, true);
+    const { sessionCookie, testUser } = await performLogin(app, false, true);
     
     try {
       const testExperience = createExperiences(1)[0];
@@ -207,12 +180,12 @@ describe("PATCH /experiences", () => {
       console.log(`testUser: ${JSON.stringify(testUser)}`);
       throw err;
     } finally {
-      await performLogout(testUser);
+      await performLogout(app, testUser);
     }
   });
 
   it("should return a 400 code when attempting to update a record with an invalid id", async () => {
-    const { sessionCookie, testUser } = await performLogin(false, true);
+    const { sessionCookie, testUser } = await performLogin(app, false, true);
 
     try {
       const testExperience = createExperiences(1)[0];
@@ -234,7 +207,7 @@ describe("PATCH /experiences", () => {
       console.log(`testUser: ${JSON.stringify(testUser)}`);
       throw err;
     } finally {
-      await performLogout(testUser);
+      await performLogout(app, testUser);
     }
   });
 });
