@@ -5,7 +5,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Express } from "express";
 import mongoose from "mongoose";
 import ExperienceModel from "../../../../models/experience.model";
-import { faker } from "@faker-js/faker";
+import UserModel from "../../../../models/user.model";
 
 let mongoServer: MongoMemoryServer;
 let app: Express;
@@ -28,6 +28,33 @@ const convertObjectIdToString: any = (obj: any): any => {
   return result;
 }
 
+const getSessionCookie = (httpResponse: any) => {
+  return httpResponse
+  .headers["set-cookie"][0]
+  .split(";")[0]
+  .trim();
+};
+
+const performLogin = async (isModerator = false, isAdmin = false) => {
+  const authRes = await request(app).get(`/auth/mock?isModerator=${isModerator}&isAdmin=${isAdmin}`);
+  const sessionCookie = getSessionCookie(authRes);
+  const testUser = authRes.body.user;
+
+  return {
+    sessionCookie,
+    testUser
+  };
+}
+
+const performLogout = async (testUser: any) => {
+  try {
+    await request(app).get("/auth/logout");
+    await UserModel.deleteOne({_id: testUser._id});
+  } catch(err) {
+    console.log(`Unable to perform logout functions: ${err}`);
+  }
+}
+
 describe("PATCH /experiences", () => {
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
@@ -47,7 +74,7 @@ describe("PATCH /experiences", () => {
     }
   });
 
-  it("should return a 200 code upon success and should update the db record", async () => {
+  it("should return a 401 code if user is not logged in", async () => {
     const testExperience = createExperiences(1)[0];
     const insertedExperience = await new ExperienceModel(testExperience).save();
     const updatedExperience = {
@@ -55,25 +82,159 @@ describe("PATCH /experiences", () => {
       description: "This description has been updated."
     };
 
-    const res = await request(app).patch(`/experiences`).send(updatedExperience);
+    const res = await request(app)
+      .patch(`/experiences/${insertedExperience._id}`)
+      .send(updatedExperience);
 
-    expect(res.status).toBe(200);
-    
-    const retrievedExperience = await ExperienceModel.findById(insertedExperience._id);
-    expect(retrievedExperience?.toObject()).toEqual(updatedExperience);
+    expect(res.status).toBe(401);
   });
 
-  it("should return a 500 code when attempting to update a record with an invalid id", async () => {
-    const testExperience = createExperiences(1)[0];
-    const insertedExperience = await new ExperienceModel(testExperience).save();
-    const updatedExperience = {
-      ...insertedExperience.toObject(),
-      _id: "111111111111",
-      description: "This description has been updated."
-    };
+  it("should return a 403 code if the user does not have permission", async () => {
+    const { sessionCookie, testUser } = await performLogin();
 
-    const res = await request(app).patch(`/experiences`).send(updatedExperience);
+    try {
+      const testExperience = createExperiences(1)[0];
+      const insertedExperience = await new ExperienceModel(testExperience).save();
+      expect(insertedExperience.creatorId).not.toBe(testUser._id);
 
-    expect(res.status).toBe(500);
+      const updatedExperience = {
+        ...insertedExperience.toObject(),
+        description: "This description has been updated."
+      };
+  
+      const res = await request(app)
+        .patch(`/experiences/${insertedExperience._id}`)
+        .send(updatedExperience)
+        .set("Cookie", sessionCookie);
+  
+      expect(res.status).toBe(403);
+    } catch(err) {
+      console.log(`sessionCookie: ${sessionCookie}`);
+      console.log(`testUser: ${JSON.stringify(testUser)}`);
+      throw err;
+    } finally {
+      await performLogout(testUser);
+    }
+  });
+
+  it("should return a 200 code upon success and should update the db record", async () => {
+    const { sessionCookie, testUser } = await performLogin();
+    
+    try {
+      const testExperience = createExperiences(1)[0];
+      const insertedExperience = await new ExperienceModel({
+        ...testExperience,
+        creatorId: testUser._id
+      }).save();
+      const updatedExperience = {
+        ...insertedExperience.toObject(),
+        description: "This description has been updated."
+      };
+
+      const res = await request(app)
+        .patch(`/experiences/${insertedExperience._id}`)
+        .send(updatedExperience)
+        .set("Cookie", sessionCookie);
+
+      expect(res.status).toBe(200);
+      
+      const retrievedExperience = await ExperienceModel.findById(insertedExperience._id);
+      expect(retrievedExperience?.toObject()).toEqual(updatedExperience);
+    } catch(err) {
+      console.log(`sessionCookie: ${sessionCookie}`);
+      console.log(`testUser: ${JSON.stringify(testUser)}`);
+      throw err;
+    } finally {
+      await performLogout(testUser);
+    }
+  });
+
+  it("should allow moderators to update experiences that aren't theirs", async () => {
+    const { sessionCookie, testUser } = await performLogin(true);
+    
+    try {
+      const testExperience = createExperiences(1)[0];
+      const insertedExperience = await new ExperienceModel(testExperience).save();
+      expect(insertedExperience.creatorId).not.toBe(testUser._id);
+
+      const updatedExperience = {
+        ...insertedExperience.toObject(),
+        description: "This description has been updated."
+      };
+
+      const res = await request(app)
+        .patch(`/experiences/${insertedExperience._id}`)
+        .send(updatedExperience)
+        .set("Cookie", sessionCookie);
+
+      expect(res.status).toBe(200);
+      
+      const retrievedExperience = await ExperienceModel.findById(insertedExperience._id);
+      expect(retrievedExperience?.toObject()).toEqual(updatedExperience);
+    } catch(err) {
+      console.log(`sessionCookie: ${sessionCookie}`);
+      console.log(`testUser: ${JSON.stringify(testUser)}`);
+      throw err;
+    } finally {
+      await performLogout(testUser);
+    }
+  });
+
+  it("should allow admins to update experiences that aren't theirs", async () => {
+    const { sessionCookie, testUser } = await performLogin(false, true);
+    
+    try {
+      const testExperience = createExperiences(1)[0];
+      const insertedExperience = await new ExperienceModel(testExperience).save();
+      expect(insertedExperience.creatorId).not.toBe(testUser._id);
+      
+      const updatedExperience = {
+        ...insertedExperience.toObject(),
+        description: "This description has been updated."
+      };
+
+      const res = await request(app)
+        .patch(`/experiences/${insertedExperience._id}`)
+        .send(updatedExperience)
+        .set("Cookie", sessionCookie);
+
+      expect(res.status).toBe(200);
+      
+      const retrievedExperience = await ExperienceModel.findById(insertedExperience._id);
+      expect(retrievedExperience?.toObject()).toEqual(updatedExperience);
+    } catch(err) {
+      console.log(`sessionCookie: ${sessionCookie}`);
+      console.log(`testUser: ${JSON.stringify(testUser)}`);
+      throw err;
+    } finally {
+      await performLogout(testUser);
+    }
+  });
+
+  it("should return a 400 code when attempting to update a record with an invalid id", async () => {
+    const { sessionCookie, testUser } = await performLogin(false, true);
+
+    try {
+      const testExperience = createExperiences(1)[0];
+      const insertedExperience = await new ExperienceModel(testExperience).save();
+      const updatedExperience = {
+        ...insertedExperience.toObject(),
+        _id: "111111111111",
+        description: "This description has been updated."
+      };
+
+      const res = await request(app)
+        .patch(`/experiences/${insertedExperience._id}`)
+        .send(updatedExperience)
+        .set("Cookie", sessionCookie);
+
+      expect(res.status).toBe(500);
+    } catch(err) {
+      console.log(`sessionCookie: ${sessionCookie}`);
+      console.log(`testUser: ${JSON.stringify(testUser)}`);
+      throw err;
+    } finally {
+      await performLogout(testUser);
+    }
   });
 });
