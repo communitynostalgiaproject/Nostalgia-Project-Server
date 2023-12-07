@@ -3,12 +3,11 @@ import { setupApp } from "../../../../config/app";
 import { createExperiences } from "../../../../utils/testDataGen";
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Express } from "express";
-import { Request, Response, NextFunction } from "express";
-import { ObjectId } from "mongoose";
 import mongoose from "mongoose";
 
 let mongoServer: MongoMemoryServer;
 let app: Express;
+let sessionCookie: string;
 
 const removeMongooseDocFields: any = (obj: any) => {
   if (typeof obj !== 'object' || obj === null) return obj;
@@ -27,19 +26,17 @@ const removeMongooseDocFields: any = (obj: any) => {
   return newObj;
 };
 
-const mockAuth = (userState: any) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    req.isAuthenticated = () => true;
-    req.user = userState;
-    next();
-  };
-};
-
 describe("POST /experiences", () => {
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
-    const uri = mongoServer.getUri();
-    app = setupApp(uri);
+    const mongoUri = mongoServer.getUri();
+    app = setupApp(mongoUri);
+
+    const authRes = await request(app).get("/auth/mock");
+    sessionCookie = authRes
+      .headers["set-cookie"][0]
+      .split(";")[0]
+      .trim();
   });
   
   afterAll(async () => {
@@ -60,23 +57,14 @@ describe("POST /experiences", () => {
     expect(res.status).toBe(401);
   });
 
-  it("should return a 200 code and copy of created record on success", async () => {
-    // Mock login creds
-    app.use(mockAuth({
-      _id: "122234455",
-      googleId: "12345",
-      emailAddress: "test.user@fake.com",
-      displayName: "Test User",
-      isModerator: false,
-      isAdmin: false
-    }));
-
+  it("should return a 200 code on success", async () => {
     const testExperience = createExperiences(1)[0];
 
     const res = await request(app)
       .post("/experiences")
       .send(testExperience)
-      .set("Content-Type", "application/json");
+      .set("Content-Type", "application/json")
+      .set("Cookie", sessionCookie);
 
     expect(res.status).toBe(200);
   });
@@ -89,7 +77,8 @@ describe("POST /experiences", () => {
     const res = await request(app)
       .post("/experiences")
       .send(testExperience)
-      .set("Content-Type", "application/json");
+      .set("Content-Type", "application/json")
+      .set("Cookie", sessionCookie);
 
     expect(res.status).toBe(400);
   });
