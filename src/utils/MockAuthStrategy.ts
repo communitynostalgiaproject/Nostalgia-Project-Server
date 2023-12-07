@@ -19,10 +19,7 @@ export class MockAuthStrategy extends Strategy {
 
       try {
         const mockUser = await new UserModel(user).save();
-        this.success({
-          ...user,
-          _id: mockUser._id
-        });
+        this.success(mockUser);
       } catch(err) {
         console.log("Failed to add mock user to database");
         this.fail();
