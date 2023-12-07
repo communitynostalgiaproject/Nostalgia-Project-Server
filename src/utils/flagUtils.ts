@@ -70,7 +70,12 @@ export const getFlags = async (options: GetFlagsOptions = {}) => {
 };
 
 export const updateFlag = async (flag: any) => {
-  await FlagModel.updateOne(flag);
+  const {
+    _id,
+    __v,
+    ...rest
+  } = flag;
+  await FlagModel.updateOne({ _id }, rest);
 };
 
 export const deleteFlag = async (flagId: string) => {
