@@ -8,7 +8,10 @@ if (process.env.NODE_ENV === "test") {
     "/mock",
     passport.authenticate("mock"),
     (req, res) => {
-      res.send("Login successful");
+      res.send({
+        success: true,
+        user: {...req.user}
+      });
     }
   );
 }
