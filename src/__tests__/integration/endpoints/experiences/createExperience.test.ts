@@ -10,7 +10,6 @@ let mongoServer: MongoMemoryServer;
 let app: Express;
 let sessionCookie: string;
 
-<<<<<<< HEAD
 const removeMongooseDocFields: any = (obj: any) => {
   if (typeof obj !== 'object' || obj === null) return obj;
 
@@ -28,8 +27,6 @@ const removeMongooseDocFields: any = (obj: any) => {
   return newObj;
 };
 
-=======
->>>>>>> development
 describe("POST /experiences", () => {
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
@@ -50,13 +47,8 @@ describe("POST /experiences", () => {
     }
   });
 
-<<<<<<< HEAD
   it("should return a 401 code if user is not logged in", async () => {
     const testExperience = createExperiences(1)[0];
-=======
-  it("should return a 200 code and copy of created record on success", async () => {
-    const testExperience: any = createExperiences(1)[0];
->>>>>>> development
 
     const res = await request(app)
       .post("/experiences")
