@@ -33,7 +33,8 @@ beforeAll(async () => {
         }
       },
       description: "Test description",
-      experienceDate: "2023-10-12"
+      experienceDate: "2023-10-12",
+      creatorId: testUser._id
   }).save();
   testComment = await new CommentModel({
     experienceId: testExperience._id,

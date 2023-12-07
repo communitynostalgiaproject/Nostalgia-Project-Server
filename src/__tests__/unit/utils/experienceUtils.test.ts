@@ -4,6 +4,7 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import experienceUtils from "../../../utils/experienceUtils";
 import { createExperiences } from "../../../utils/testDataGen";
 import { faker } from "@faker-js/faker";
+import { ObjectId } from "mongodb";
 
 let mongoServer: MongoMemoryServer;
 
@@ -37,7 +38,8 @@ describe("Experience utils test", () => {
         }
       },
       description: "Test description",
-      experienceDate: "2023-10-12"
+      experienceDate: "2023-10-12",
+      creatorId: new ObjectId(32624634634)
     };
     const newExperience = await experienceUtils.createExperience(testExperience);
     
