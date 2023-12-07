@@ -17,6 +17,9 @@ import errorHandler from "../middleware/errorHandler";
 import connectDB from "./mongodbSetup";
 import configurePassport from "../config/passportConfig";
 
+// Other imports
+import { MockAuthStrategy } from "src/utils/MockAuthStrategy";
+
 export const setupApp = (mongoUri: string) => {
   connectDB(mongoUri);
   configurePassport(passport);

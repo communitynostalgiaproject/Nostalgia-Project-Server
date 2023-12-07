@@ -12,7 +12,7 @@ router.get("/:flagId", controller.getFlagById);
 router.get("/", controller.getFlags);
 
 // Update
-router.patch("/", isAuthorized, controller.updateFlag);
+router.patch("/:flagId", isAuthorized, controller.updateFlag);
 
 // Delete
 router.delete("/:flagId", isAuthorized, controller.deleteFlag);

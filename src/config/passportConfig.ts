@@ -1,5 +1,6 @@
 import { PassportStatic } from 'passport';
 import { Strategy as GoogleStrategy, Profile, VerifyCallback } from 'passport-google-oauth20';
+import { MockAuthStrategy } from '../utils/MockAuthStrategy';
 import UserModel from '../models/user.model';
 import { User } from '@projectTypes/user';
 
@@ -17,6 +18,12 @@ import { User } from '@projectTypes/user';
       done(err, undefined);
     }
   });
+
+  // Set mock strategy for testing
+  if (process.env.NODE_ENV === "test") {  
+    passport.use(new MockAuthStrategy());
+    return;
+  }
 
   /**
    * Google OAuth Strategy Overview
