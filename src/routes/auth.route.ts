@@ -32,4 +32,18 @@ router.get(
   }
 );
 
+router.get(
+  "/logout",
+  (req, res) => {
+    req.logout((err: any) => {
+      if (err) {
+        console.error(`Logout failed: ${err}`);
+        res.status(500).send("Unable to log out");
+      } else {
+        res.status(200).send("Logout successful");
+      }
+    });
+  }
+)
+
 export default router;
