@@ -173,7 +173,7 @@ describe("Flag utils test", () => {
     )[0]).save();
 
     await utils.updateFlag({
-      ...originalFlag,
+      ...originalFlag.toObject(),
       resolved: true,
       resolvedBy: testUsers[randomInt(testUsers.length)]._id
     });
@@ -181,8 +181,8 @@ describe("Flag utils test", () => {
     const updatedFlag = await FlagModel.findById(originalFlag._id);
 
     expect(updatedFlag).toBeDefined();
-    expect(updatedFlag?.resolved).toBe(originalFlag.resolved);
-    expect(updatedFlag?.resolvedBy?.toString()).toBe(originalFlag.resolvedBy?.toString());
+    expect(updatedFlag?.resolved).not.toBe(originalFlag.resolved);
+    expect(updatedFlag?.resolvedBy?.toString()).not.toBe(originalFlag.resolvedBy?.toString());
   });
 
   // Delete

@@ -183,9 +183,10 @@ describe("Experience utils test", () => {
   it("successfully updates an experience", async () => {
     const randomExperience = createExperiences(1)[0];
     const originalExperience = await new ExperienceModel(randomExperience).save();
+    expect(originalExperience._id).toBeDefined();
 
     await experienceUtils.updateExperience({
-      ...randomExperience,
+      ...originalExperience.toObject(),
       description: "Updated description"
     });
     const updatedExperience = await ExperienceModel.findById(originalExperience._id);
