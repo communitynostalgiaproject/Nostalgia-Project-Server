@@ -9,7 +9,7 @@ const getSessionCookie = (httpResponse: any) => {
   .trim();
 };
 
-export const performLogin = async (app: Express, isModerator = false, isAdmin = true) => {
+export const performLogin = async (app: Express, isModerator = false, isAdmin = false) => {
   const authRes = await request(app).get(`/auth/mock?isModerator=${isModerator}&isAdmin=${isAdmin}`);
   const sessionCookie = getSessionCookie(authRes);
   const testUser = authRes.body.user;
