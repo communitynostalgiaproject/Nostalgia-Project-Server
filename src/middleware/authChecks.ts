@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import ExperienceModel from "../models/experience.model";
-import { UnauthorizedUserError, NotLoggedInError, NotFoundError } from "../utils/customErrors";
+import { UnauthorizedUserError, NotLoggedInError, NotFoundError, ValidationError } from "../utils/customErrors";
+import { ObjectId } from "mongodb";
 
 export const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
   if (req.isAuthenticated()) {
@@ -10,7 +11,9 @@ export const isAuthenticated = (req: Request, res: Response, next: NextFunction)
 };
 
 const experienceAuthCheck = async (user: any, experienceId: String) => {
+  if (!ObjectId.isValid(`${experienceId}`)) return new ValidationError("Invalid object id");
   const experience = await ExperienceModel.findById(experienceId);
+
   if (!experience) return new NotFoundError("Experience not found");
 
   if (!(experience.creatorId.toString() === user._id.toString() || user.isModerator || user.isAdmin)) return new UnauthorizedUserError("User does not have permission to perform this action");
