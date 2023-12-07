@@ -27,8 +27,11 @@ router.get(
   "/google/callback",
   passport.authenticate("google"),
   (req, res) => {
-    res.status(200).send("Login successful");
-    // res.redirect(`${process.env.FRONTEND_URI}`);
+    if (process.env.REDIRECT_URI){
+      res.redirect(`${process.env.REDIRECT_URI}`);
+    } else {
+      res.status(200).send("Login successful");
+    }  
   }
 );
 
