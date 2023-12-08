@@ -8,4 +8,5 @@ export interface User {
   isModerator: boolean;
   isAdmin: boolean;
   joinedDate: Date;
+  firstLogin: boolean;
 }
