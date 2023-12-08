@@ -39,9 +39,13 @@ import { User } from '@projectTypes/user';
     
   }, async (accessToken: string, refreshToken: string, profile: Profile, done: VerifyCallback) => {
     try {
-      const userDoc = await UserModel.findOne({googleId: profile.id}) as User;
+      const userDoc = await UserModel.findOne({googleId: profile.id});
 
       if (userDoc) {
+        if (userDoc.firstLogin) {
+          userDoc.firstLogin = false;
+          await userDoc.save();
+        }
         return done(undefined, userDoc);
       }
       else {
