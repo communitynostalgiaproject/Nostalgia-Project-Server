@@ -9,7 +9,13 @@ const getSessionCookie = (httpResponse: any) => {
   .trim();
 };
 
-export const performLogin = async (app: Express, options?: any) => {
+interface PerformLoginOptions {
+  isModerator?: boolean;
+  isAdmin?: boolean;
+  userId?: string;
+}
+
+export const performLogin = async (app: Express, options: PerformLoginOptions = {}) => {
   const {
     isModerator,
     isAdmin,
