@@ -9,7 +9,7 @@ import { User } from "@projectTypes/user";
 import ExperienceModel from "../../../../models/experience.model";
 import UserModel from "../../../../models/user.model";
 import FlagModel from "../../../../models/flag.model";
-import { performLogin, performLogout } from "../../../../utils/testUtils";
+import { performLogin, performLogout, upgradePermissions } from "../../../../utils/testUtils";
 
 let mongoServer: MongoMemoryServer;
 let app: Express;
@@ -69,12 +69,13 @@ describe("DELETE /flags/{flagId}", () => {
       console.log(`testUser: ${JSON.stringify(testUser)}`);
       throw err;
     } finally {
-      await performLogout(app, testUser);
+      await performLogout(app, testUser._id);
     }
   });
 
   it("deletes the record and returns a 200 code if the user is a moderator", async () => {
-    const { sessionCookie, testUser } = await performLogin(app, { isModerator: true});
+    const { sessionCookie, testUser } = await performLogin(app);
+    await upgradePermissions(app, { testUser,  makeModerator: true });
 
     try {
       const testFlag = await new FlagModel(createFlags(
@@ -97,12 +98,13 @@ describe("DELETE /flags/{flagId}", () => {
       console.log(`testUser: ${JSON.stringify(testUser)}`);
       throw err;
     } finally {
-      await performLogout(app, testUser);
+      await performLogout(app, testUser._id);
     }
   });
 
   it("deletes the record and returns a 200 code if the user is an admin", async () => {
-    const { sessionCookie, testUser } = await performLogin(app, { isAdmin: true});
+    const { sessionCookie, testUser } = await performLogin(app);
+    await upgradePermissions(app, { testUser, makeAdmin: true });
 
     try {
       const testFlag = await new FlagModel(createFlags(
@@ -125,12 +127,13 @@ describe("DELETE /flags/{flagId}", () => {
       console.log(`testUser: ${JSON.stringify(testUser)}`);
       throw err;
     } finally {
-      await performLogout(app, testUser);
+      await performLogout(app, testUser._id);
     }
   });
 
   it("should return a 500 code when given an invalid ID", async () => {
-    const { sessionCookie, testUser } = await performLogin(app, { isAdmin: true });
+    const { sessionCookie, testUser } = await performLogin(app);
+    await upgradePermissions(app, { testUser, makeAdmin: true });
 
     try {
       const res = await request(app)
@@ -143,7 +146,7 @@ describe("DELETE /flags/{flagId}", () => {
       console.log(`testUser: ${JSON.stringify(testUser)}`);
       throw err;
     } finally {
-      await performLogout(app, testUser);
+      await performLogout(app, testUser._id);
     }
   });
 });

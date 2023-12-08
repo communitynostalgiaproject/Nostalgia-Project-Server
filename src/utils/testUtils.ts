@@ -28,10 +28,10 @@ export const performLogin = async (app: Express, options: PerformLoginOptions = 
   };
 }
 
-export const performLogout = async (app: Express, testUser: any) => {
+export const performLogout = async (app: Express, deleteUserId?: string) => {
   try {
     await request(app).get("/auth/logout");
-    // await UserModel.deleteOne({_id: testUser._id});
+    if (deleteUserId) await UserModel.deleteOne({_id: deleteUserId});
   } catch(err) {
     console.log(`Unable to perform logout functions: ${err}`);
   }

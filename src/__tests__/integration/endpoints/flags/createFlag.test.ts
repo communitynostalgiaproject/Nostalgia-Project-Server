@@ -80,7 +80,7 @@ describe("POST /flags", () => {
       console.log(`testUser: ${JSON.stringify(testUser)}`);
       throw err;
     } finally {
-      await performLogout(app, testUser);
+      await performLogout(app, testUser._id);
     }
   });
 
@@ -102,7 +102,7 @@ describe("POST /flags", () => {
     } catch(err) {
 
     } finally {
-      await performLogout(app, testUser);
+      await performLogout(app, testUser._id);
     }
   });
 });
