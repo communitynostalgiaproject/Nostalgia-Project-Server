@@ -32,6 +32,10 @@ const UserSchema = new Schema({
   joinedDate: {
     type: Date,
     default: Date.now
+  },
+  firstLogin: {
+    type: Boolean,
+    default: true
   }
 });
 
