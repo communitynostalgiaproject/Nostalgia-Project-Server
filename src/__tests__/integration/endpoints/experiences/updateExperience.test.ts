@@ -123,7 +123,7 @@ describe("PATCH /experiences", () => {
   });
 
   it("should allow moderators to update experiences that aren't theirs", async () => {
-    const { sessionCookie, testUser } = await performLogin(app, true);
+    const { sessionCookie, testUser } = await performLogin(app, { isModerator: true });
     
     try {
       const testExperience = createExperiences(1)[0];
@@ -154,7 +154,7 @@ describe("PATCH /experiences", () => {
   });
 
   it("should allow admins to update experiences that aren't theirs", async () => {
-    const { sessionCookie, testUser } = await performLogin(app, false, true);
+    const { sessionCookie, testUser } = await performLogin(app, { isAdmin: true });
     
     try {
       const testExperience = createExperiences(1)[0];
@@ -184,8 +184,8 @@ describe("PATCH /experiences", () => {
     }
   });
 
-  it("should return a 400 code when attempting to update a record with an invalid id", async () => {
-    const { sessionCookie, testUser } = await performLogin(app, false, true);
+  it("should return a 500 code when attempting to update a record with an invalid id", async () => {
+    const { sessionCookie, testUser } = await performLogin(app, { isModerator: true });
 
     try {
       const testExperience = createExperiences(1)[0];

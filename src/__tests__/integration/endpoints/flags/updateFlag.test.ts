@@ -85,7 +85,7 @@ describe("PATCH /flags", () => {
   });
 
   it("updates the record and returns a 200 code if user is a moderator", async () => {
-    const { sessionCookie, testUser } = await performLogin(app, true);
+    const { sessionCookie, testUser } = await performLogin(app, { isModerator: true});
 
     try {
       const testFlag = await new FlagModel(createFlags(
@@ -118,7 +118,7 @@ describe("PATCH /flags", () => {
   });
 
   it("updates the record and returns a 200 code if user is an admin", async () => {
-    const { sessionCookie, testUser } = await performLogin(app, false, true);
+    const { sessionCookie, testUser } = await performLogin(app, { isAdmin: true });
 
     try {
       const testFlag = await new FlagModel(createFlags(
@@ -152,7 +152,7 @@ describe("PATCH /flags", () => {
 
 
   it("should return a 500 code when attempting to update a record with an invalid id", async () => {
-    const { sessionCookie, testUser } = await performLogin(app, false, true);
+    const { sessionCookie, testUser } = await performLogin(app, { isModerator: true });
 
     try {
       const testFlag = await new FlagModel(createFlags(

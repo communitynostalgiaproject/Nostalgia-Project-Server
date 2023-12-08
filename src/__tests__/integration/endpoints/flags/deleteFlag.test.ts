@@ -74,7 +74,7 @@ describe("DELETE /flags/{flagId}", () => {
   });
 
   it("deletes the record and returns a 200 code if the user is a moderator", async () => {
-    const { sessionCookie, testUser } = await performLogin(app, true);
+    const { sessionCookie, testUser } = await performLogin(app, { isModerator: true});
 
     try {
       const testFlag = await new FlagModel(createFlags(
@@ -102,7 +102,7 @@ describe("DELETE /flags/{flagId}", () => {
   });
 
   it("deletes the record and returns a 200 code if the user is an admin", async () => {
-    const { sessionCookie, testUser } = await performLogin(app, false, true);
+    const { sessionCookie, testUser } = await performLogin(app, { isAdmin: true});
 
     try {
       const testFlag = await new FlagModel(createFlags(
@@ -130,7 +130,7 @@ describe("DELETE /flags/{flagId}", () => {
   });
 
   it("should return a 500 code when given an invalid ID", async () => {
-    const { sessionCookie, testUser } = await performLogin(app, false, true);
+    const { sessionCookie, testUser } = await performLogin(app, { isAdmin: true });
 
     try {
       const res = await request(app)

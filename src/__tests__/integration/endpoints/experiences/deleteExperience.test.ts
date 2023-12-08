@@ -85,7 +85,7 @@ describe("DELETE /experiences/{experienceId}", () => {
   });
 
   it("should let a moderator delete an experience that is not theirs", async () => {
-    const { sessionCookie, testUser } = await performLogin(app, true);
+    const { sessionCookie, testUser } = await performLogin(app, { isModerator: true });
 
     try {
       const testExperience = createExperiences(1)[0];
@@ -111,7 +111,7 @@ describe("DELETE /experiences/{experienceId}", () => {
   });
 
   it("should let an admin delete an experience that is not theirs", async () => {
-    const { sessionCookie, testUser } = await performLogin(app, false, true);
+    const { sessionCookie, testUser } = await performLogin(app, { isAdmin: true });
 
     try {
       const testExperience = createExperiences(1)[0];
@@ -137,7 +137,7 @@ describe("DELETE /experiences/{experienceId}", () => {
   });
 
   it("should return a 400 code if given an invalid ID", async () => {
-    const { sessionCookie, testUser } = await performLogin(app);
+    const { sessionCookie, testUser } = await performLogin(app, { isAdmin: true });
 
     try {
       const res = await request(app)
