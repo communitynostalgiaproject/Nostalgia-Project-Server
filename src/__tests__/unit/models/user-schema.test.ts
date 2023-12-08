@@ -51,6 +51,7 @@ describe("User model test", () => {
       expect(savedUser.isModerator).toBe(false);
       expect(savedUser.isAdmin).toBe(false);
       expect(savedUser.joinedDate.toDateString()).toBe((new Date).toDateString());
+      expect(savedUser.firstLogin).toBe(true);
     } catch (error) {
         console.error(error);
         throw error;
