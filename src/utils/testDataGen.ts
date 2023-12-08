@@ -11,7 +11,7 @@ export const createUsers = (n: number, areModerators = false, areAdmins = false)
 
   for (let i = 0; i < n; i++) {
     users.push({
-      googleId: faker.string.uuid(),
+      googleId: new ObjectId(randomInt(99999)).toString(),
       displayName: faker.person.fullName(),
       emailAddress: faker.internet.email().toLowerCase(),
       isModerator: areModerators,
