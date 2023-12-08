@@ -8,7 +8,7 @@ export class MockAuthStrategy extends Strategy {
   }
 
   async authenticate(req: any, options: any) {
-      const { isAdmin, isModerator } = req.query;
+      const { isAdmin, isModerator, userId } = req.query;
       const user = {
         googleId: "12345",
         emailAddress: "test.user@fake.com",
@@ -18,6 +18,14 @@ export class MockAuthStrategy extends Strategy {
       };
 
       try {
+        if (userId) {
+          const mockUser = await UserModel.findById(userId);
+          if (mockUser) {
+            this.success(mockUser);
+            return;
+          }
+        }
+        
         const mockUser = await new UserModel(user).save();
         this.success(mockUser);
       } catch(err) {
