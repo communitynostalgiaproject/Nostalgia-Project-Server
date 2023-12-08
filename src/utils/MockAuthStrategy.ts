@@ -1,36 +1,33 @@
 import { Strategy } from "passport";
-import UserModel from "../models/user.model";
+import { authCallback } from "./loginUtils";
+import { faker } from "@faker-js/faker";
+import { randomInt } from "crypto";
+import { ObjectId } from "mongodb";
 
 export class MockAuthStrategy extends Strategy {
   constructor() {
       super();
-      this.name = 'mock';
+      this.name = "mock";
   }
 
   async authenticate(req: any, options: any) {
-      const { isAdmin, isModerator, userId } = req.query;
-      const user = {
-        googleId: "12345",
-        emailAddress: "test.user@fake.com",
-        displayName: "Test User",
-        isModerator: isModerator && isModerator === "true",
-        isAdmin: isAdmin && isAdmin === "true"
+      const { googleId } = req.query;
+      const googleProfile = {
+        id: googleId ? googleId : new ObjectId(randomInt(99999)).toString(),
+        emails: [{value: faker.internet.email().toLowerCase()}],
+        displayName: faker.person.fullName()
       };
 
-      try {
-        if (userId) {
-          const mockUser = await UserModel.findById(userId);
-          if (mockUser) {
-            this.success(mockUser);
-            return;
-          }
+      authCallback("mockToken", "mockRefresh", googleProfile, (err, user) => {
+        if (err) {
+          console.error(err);
+          return this.error(err);
         }
-        
-        const mockUser = await new UserModel(user).save();
-        this.success(mockUser);
-      } catch(err) {
-        console.log(`Failed to add mock user to database: ${err}`);
-        this.fail();
-      }
+
+        if (user) {
+          req.user = user;
+          return this.success(user);
+        }
+      });
   }
 }
