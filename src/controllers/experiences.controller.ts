@@ -5,6 +5,10 @@ import utils from "../utils/experienceUtils";
 
 exports.createExperience = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    console.log(`Inside create experience handler!`);
+    console.log(`req.headers: ${JSON.stringify(req.headers)}`);
+    console.log(`req.user: ${JSON.stringify(req.user)}`);
+
     const experience: Experience = req.body;
     const savedExperience = await utils.createExperience(experience);
 

@@ -54,7 +54,12 @@ exports.getExperiencesWithinBox = async (lowerLeft: [number], upperRight: [numbe
 };
 
 exports.updateExperience = async (experience: any) => {
-  await ExperienceModel.updateOne(experience);
+  const {
+    _id,
+    __v,
+    ...rest
+  } = experience;
+  await ExperienceModel.updateOne({ _id }, rest);
 };
 
 exports.deleteExperience = async (experienceId: ObjectId) => {
