@@ -5,7 +5,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Express } from "express";
 import mongoose from "mongoose";
 import ExperienceModel from "../../../../models/experience.model";
-import { performLogin, performLogout } from "../../../../utils/testUtils";
+import { performLogin, performLogout, upgradePermissions } from "../../../../utils/testUtils";
 
 let mongoServer: MongoMemoryServer;
 let app: Express;
@@ -86,7 +86,7 @@ describe("PATCH /experiences", () => {
       console.log(`testUser: ${JSON.stringify(testUser)}`);
       throw err;
     } finally {
-      await performLogout(app, testUser);
+      await performLogout(app, testUser._id);
     }
   });
 
@@ -118,12 +118,13 @@ describe("PATCH /experiences", () => {
       console.log(`testUser: ${JSON.stringify(testUser)}`);
       throw err;
     } finally {
-      await performLogout(app, testUser);
+      await performLogout(app, testUser._id);
     }
   });
 
   it("should allow moderators to update experiences that aren't theirs", async () => {
-    const { sessionCookie, testUser } = await performLogin(app, true);
+    const { sessionCookie, testUser } = await performLogin(app);
+    await upgradePermissions(app, { testUser, makeModerator: true });
     
     try {
       const testExperience = createExperiences(1)[0];
@@ -149,12 +150,13 @@ describe("PATCH /experiences", () => {
       console.log(`testUser: ${JSON.stringify(testUser)}`);
       throw err;
     } finally {
-      await performLogout(app, testUser);
+      await performLogout(app, testUser._id);
     }
   });
 
   it("should allow admins to update experiences that aren't theirs", async () => {
-    const { sessionCookie, testUser } = await performLogin(app, false, true);
+    const { sessionCookie, testUser } = await performLogin(app);
+    await upgradePermissions(app, { testUser, makeAdmin: true });
     
     try {
       const testExperience = createExperiences(1)[0];
@@ -180,12 +182,13 @@ describe("PATCH /experiences", () => {
       console.log(`testUser: ${JSON.stringify(testUser)}`);
       throw err;
     } finally {
-      await performLogout(app, testUser);
+      await performLogout(app, testUser._id);
     }
   });
 
-  it("should return a 400 code when attempting to update a record with an invalid id", async () => {
-    const { sessionCookie, testUser } = await performLogin(app, false, true);
+  it("should return a 500 code when attempting to update a record with an invalid id", async () => {
+    const { sessionCookie, testUser } = await performLogin(app);
+    await upgradePermissions(app, { testUser, makeAdmin: true });
 
     try {
       const testExperience = createExperiences(1)[0];

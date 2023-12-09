@@ -5,7 +5,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Express } from "express";
 import mongoose from "mongoose";
 import ExperienceModel from "../../../../models/experience.model";
-import { performLogin, performLogout } from "../../../../utils/testUtils";
+import { performLogin, performLogout, upgradePermissions } from "../../../../utils/testUtils";
 
 let mongoServer: MongoMemoryServer;
 let app: Express;
@@ -85,7 +85,8 @@ describe("DELETE /experiences/{experienceId}", () => {
   });
 
   it("should let a moderator delete an experience that is not theirs", async () => {
-    const { sessionCookie, testUser } = await performLogin(app, true);
+    const { sessionCookie, testUser } = await performLogin(app);
+    await upgradePermissions(app, { testUser, makeModerator: true });
 
     try {
       const testExperience = createExperiences(1)[0];
@@ -106,12 +107,13 @@ describe("DELETE /experiences/{experienceId}", () => {
       console.log(`testUser: ${JSON.stringify(testUser)}`);
       throw err;
     } finally {
-      await performLogout(app, testUser);
+      await performLogout(app, testUser._id);
     }
   });
 
   it("should let an admin delete an experience that is not theirs", async () => {
-    const { sessionCookie, testUser } = await performLogin(app, false, true);
+    const { sessionCookie, testUser } = await performLogin(app);
+    await upgradePermissions(app, { testUser, makeAdmin: true });
 
     try {
       const testExperience = createExperiences(1)[0];
@@ -132,12 +134,13 @@ describe("DELETE /experiences/{experienceId}", () => {
       console.log(`testUser: ${JSON.stringify(testUser)}`);
       throw err;
     } finally {
-      await performLogout(app, testUser);
+      await performLogout(app, testUser._id);
     }
   });
 
   it("should return a 400 code if given an invalid ID", async () => {
     const { sessionCookie, testUser } = await performLogin(app);
+    upgradePermissions(app, { testUser, makeAdmin: true });
 
     try {
       const res = await request(app)

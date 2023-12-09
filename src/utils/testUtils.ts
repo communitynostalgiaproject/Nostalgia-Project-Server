@@ -9,8 +9,16 @@ const getSessionCookie = (httpResponse: any) => {
   .trim();
 };
 
-export const performLogin = async (app: Express, isModerator = false, isAdmin = false) => {
-  const authRes = await request(app).get(`/auth/mock?isModerator=${isModerator}&isAdmin=${isAdmin}`);
+interface PerformLoginOptions {
+  googleId?: string;
+}
+
+export const performLogin = async (app: Express, options: PerformLoginOptions = {}) => {
+  const {
+    googleId
+  } = options;
+  const query = googleId ? `?googleId=${googleId}` : "";
+  const authRes = await request(app).get(`/auth/mock${query}`);
   const sessionCookie = getSessionCookie(authRes);
   const testUser = authRes.body.user;
 
@@ -20,11 +28,34 @@ export const performLogin = async (app: Express, isModerator = false, isAdmin = 
   };
 }
 
-export const performLogout = async (app: Express, testUser: any) => {
+export const performLogout = async (app: Express, deleteUserId?: string) => {
   try {
     await request(app).get("/auth/logout");
-    await UserModel.deleteOne({_id: testUser._id});
+    if (deleteUserId) await UserModel.deleteOne({_id: deleteUserId});
   } catch(err) {
     console.log(`Unable to perform logout functions: ${err}`);
+  }
+}
+
+interface UpgradePermissionsOptions {
+  testUser: any;
+  makeModerator?: boolean;
+  makeAdmin?: boolean;
+}
+
+export const upgradePermissions = async (app: Express, options: UpgradePermissionsOptions) => {
+  const {
+    testUser,
+    makeModerator,
+    makeAdmin
+  } = options;
+
+  try {
+    await UserModel.updateOne({_id: testUser._id}, {
+      isModerator: makeModerator ? true : false,
+      isAdmin: makeAdmin ? true : false
+    });
+  } catch(err) {
+    console.log(`Unable to make user moderator: ${err}`);
   }
 }

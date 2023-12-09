@@ -51,7 +51,7 @@ describe("POST /users", () => {
       .set("Content-Type", "application/json");
 
     expect(res.status).toBe(200);
-    expect(removeMongooseDocFields(res.body)).toEqual({...testUser, joinedDate: dateStr});
+    expect(removeMongooseDocFields(res.body)).toEqual({...testUser, joinedDate: dateStr, firstLogin: true});
   });
 
   it("should return a 400 code if invalid object was submitted", async () => {
