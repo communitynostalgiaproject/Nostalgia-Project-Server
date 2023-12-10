@@ -40,9 +40,9 @@ describe("DELETE /users/{userId}", () => {
     expect(retrievedUser).toBeNull();
   });
 
-  it("should return a 500 code if given an invalid ID", async () => {
+  it("should return a 400 code if given an invalid ID", async () => {
     const res = await request(app).delete(`/users/1234`);
 
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(400);
   });
 });

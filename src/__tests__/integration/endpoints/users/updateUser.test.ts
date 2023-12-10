@@ -37,7 +37,7 @@ describe("PATCH /users", () => {
       isModerator: true
     };
 
-    const res = await request(app).patch(`/users`).send(updatedUser);
+    const res = await request(app).patch(`/users/${updatedUser._id}`).send(updatedUser);
 
     expect(res.status).toBe(200);
     
@@ -45,7 +45,7 @@ describe("PATCH /users", () => {
     expect(retrievedUser?.toObject()).toEqual(updatedUser);
   });
 
-  it("should return a 500 code when attempting to update a record with an invalid id", async () => {
+  it("should return a 400 code when attempting to update a record with an invalid id", async () => {
     const testUser = createUsers(1)[0];
     const insertedUser = await new UserModel(testUser).save();
     const updatedUser = {
@@ -54,8 +54,8 @@ describe("PATCH /users", () => {
       isAdmin: true
     };
 
-    const res = await request(app).patch(`/users`).send(updatedUser);
+    const res = await request(app).patch(`/users/${updatedUser._id}`).send(updatedUser);
 
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(400);
   });
 });
