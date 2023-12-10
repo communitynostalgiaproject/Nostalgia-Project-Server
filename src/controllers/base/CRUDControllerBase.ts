@@ -54,22 +54,19 @@ export abstract class CRUDControllerBase<T> {
       if (createdBefore) query.createdDate = { $lt: new Date(`${createdBefore}`) };
       if (createdAfter) query.createdDate = { ...query.createdDate, $gt: new Date(`${createdAfter}`) };
 
-      const extendedQuery = await this.extendReadQuery(req);
+      const finalQuery = await this.modifyReadQuery(query);
+      const projectionString = this.injectReadProjectionString(req);
       const docs = await this.model
-        .find({ ...query, ...extendedQuery })
+        .find(finalQuery, projectionString)
         .skip((!offset || Number(offset) < 1 || isNaN(Number(offset))) ? 0 : Number(offset))
         .limit((!limit || Number(limit) < 1 || isNaN(Number(limit))) ? DEFAULT_LIMIT : Number(limit));
   
-      this.processReadResults(req, docs);
-      res.status(200).send(docs);
+      const processedResults = this.processReadResults(req, docs);
+      res.status(200).send(processedResults);
     } catch(err) {
       console.error(err);
       next(this.convertMongoError(err));
     }
-  }
-
-  protected extendReadQuery = async (req: Request): Promise<any> => {
-    return {};
   }
 
   update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -98,6 +95,16 @@ export abstract class CRUDControllerBase<T> {
       console.error(err);
       next(this.convertMongoError(err));
     }
+  }
+
+  // Overwrite this method to modify the query before it is sent to the database
+  protected modifyReadQuery = async (query: any): Promise<any> => {
+    return query;
+  }
+
+  // Overwrite this method to inject a read projection string into the query
+  protected injectReadProjectionString = (req: Request): string => {
+    return "";
   }
 
   // Overwrite this method to process results of a read operation before sending them back to the client
