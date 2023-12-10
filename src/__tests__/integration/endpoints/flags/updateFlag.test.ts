@@ -153,7 +153,7 @@ describe("PATCH /flags", () => {
   });
 
 
-  it("should return a 500 code when attempting to update a record with an invalid id", async () => {
+  it("should return a 400 code when attempting to update a record with an invalid id", async () => {
     const { sessionCookie, testUser } = await performLogin(app);
     await upgradePermissions(app, { testUser,  makeAdmin: true });
 
@@ -174,7 +174,7 @@ describe("PATCH /flags", () => {
         .send(updatedFlag)
         .set("Cookie", sessionCookie);
   
-      expect(res.status).toBe(500);
+      expect(res.status).toBe(400);
     } catch(err) {
       console.log(`sessionCookie: ${sessionCookie}`);
       console.log(`testUser: ${JSON.stringify(testUser)}`);

@@ -131,7 +131,7 @@ describe("DELETE /flags/{flagId}", () => {
     }
   });
 
-  it("should return a 500 code when given an invalid ID", async () => {
+  it("should return a 400 code when given an invalid ID", async () => {
     const { sessionCookie, testUser } = await performLogin(app);
     await upgradePermissions(app, { testUser, makeAdmin: true });
 
@@ -140,7 +140,7 @@ describe("DELETE /flags/{flagId}", () => {
         .delete(`/flags/111111111111`)
         .set("Cookie", sessionCookie);
 
-      expect(res.status).toBe(500);
+      expect(res.status).toBe(400);
     } catch(err) {
       console.log(`sessionCookie: ${sessionCookie}`);
       console.log(`testUser: ${JSON.stringify(testUser)}`);
