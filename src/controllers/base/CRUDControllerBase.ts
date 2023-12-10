@@ -101,7 +101,7 @@ export abstract class CRUDControllerBase<T> {
   }
 
   // Overwrite this method to process results of a read operation before sending them back to the client
-  protected processReadResults = (results: any): any => {
+  protected processReadResults = (req: Request, results: any): any => {
     return results;
   }
 
