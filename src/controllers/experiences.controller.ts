@@ -1,71 +1,62 @@
-import { Request, Response, NextFunction } from "express";
-import { NotFoundError } from "../utils/customErrors";
+import { Request } from "express";
 import { Experience } from "@projectTypes/experience";
-import utils from "../utils/experienceUtils";
+import { Document } from "mongoose";
+import { CRUDControllerBase } from "./base/CRUDControllerBase";
+import { ValidationError } from "../utils/customErrors";
+import ExperienceModel from "../models/experience.model";
 
-exports.createExperience = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    console.log(`Inside create experience handler!`);
-    console.log(`req.headers: ${JSON.stringify(req.headers)}`);
-    console.log(`req.user: ${JSON.stringify(req.user)}`);
-
-    const experience: Experience = req.body;
-    const savedExperience = await utils.createExperience(experience);
-
-    res.status(200).send(savedExperience);
-  } catch(err) {
-    console.log(err);
-    next(err);
+export class ExperienceController extends CRUDControllerBase<Experience & Document> {
+  constructor(model: any) {
+    super(model);
   }
-};
 
-exports.getExperienceById = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { experienceId } = req.params;
-    const experience = await utils.getExperienceById(experienceId);
+  protected injectReadProjectionString = (req: Request): string => {
+    const { locationsOnly } = req.query;
 
-    res.status(200).send(experience);
-  } catch(err) {
-    console.log(err);
-    next(err);
+    if (locationsOnly) {
+      return "place.location";
+    }
+
+    return "";
+  };
+  
+  protected processReadResults = (req: Request, results: any) => {
+    const { locationsOnly } = req.query;
+
+    if (locationsOnly) {
+      return results.map((result: any) => result.place.location);
+    }
+
+    return results;
+  };
+
+  protected modifyReadQuery = async (query: any): Promise<any> => {
+    const { bbox, locationsOnly, ...rest } = query;
+
+    if (!bbox) return rest;
+    const { lowerLeft, upperRight } = this.convertBbox(`${bbox}`);
+
+    return {
+      ...rest,
+      "place.location": {
+        $geoWithin: {
+          $box: [lowerLeft, upperRight]
+        }
+      }
+    };
   }
-};
 
-exports.getExperiencesWithinBox = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { bbox, locationsOnly } = req.query;
-    const { lowerLeft, upperRight } = utils.convertBbox(bbox);
-    const experiences = await utils.getExperiencesWithinBox(lowerLeft, upperRight, locationsOnly ? true : false);
+  protected convertBbox = (bbox: string) => {
+    const nums = bbox.split(",").map((coord: string) => Number(coord));
+    if (nums.length !== 4) {
+      throw(new ValidationError("Invalid bbox query parameter"));
+    }
 
-    res.status(200).send(experiences);
-  } catch(err) {
-    console.log(err);
-    next(err);
+    return {
+      lowerLeft: [nums[0], nums[1]],
+      upperRight: [nums[2], nums[3]]
+    };
   }
-};
+}
 
-exports.updateExperience = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const experience: Experience = req.body;
-    await utils.updateExperience(experience);
-
-    res.status(200).send();
-  } catch(err) {
-    console.log(err);
-    next(err);
-  }
-};
-
-exports.deleteExperience = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { experienceId } = req.params;
-    await utils.deleteExperience(experienceId);
-
-    res.status(200).send();
-  } catch(err) {
-    console.log(err);
-    next(err);
-  }
-};
-
-export default exports;
+export default new ExperienceController(ExperienceModel);

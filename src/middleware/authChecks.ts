@@ -27,10 +27,11 @@ export const isAuthorized = async (req: Request, res: Response, next: NextFuncti
   try {
     if (!req.isAuthenticated()) return next(new NotLoggedInError("User must be logged in"));
 
-    const { experienceId, flagId } = req.params;
+    const requestRoute = req.baseUrl.split("/")[1];
+    const { documentId } = req.params;
 
-    if (experienceId) return next(await experienceAuthCheck(req.user, experienceId));
-    if (flagId) return next(flagAuthCheck(req.user));
+    if (requestRoute === "experiences") return next(await experienceAuthCheck(req.user, documentId));
+    if (requestRoute === "flags") return next(flagAuthCheck(req.user));
 
     next(new Error("Something went wrong..."));
   } catch(err) {
