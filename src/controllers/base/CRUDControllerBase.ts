@@ -60,7 +60,7 @@ export abstract class CRUDControllerBase<T> {
         .skip((!offset || Number(offset) < 1 || isNaN(Number(offset))) ? 0 : Number(offset))
         .limit((!limit || Number(limit) < 1 || isNaN(Number(limit))) ? DEFAULT_LIMIT : Number(limit));
   
-      this.processReadResults(docs);
+      this.processReadResults(req, docs);
       res.status(200).send(docs);
     } catch(err) {
       console.error(err);
