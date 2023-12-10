@@ -1,20 +1,13 @@
 import { Router } from "express";
 import { isAuthenticated, isAuthorized } from "../middleware/authChecks";
-import controller from "../controllers/flags.controller";
+import FlagController from "../controllers/flags.controller";
 
 const router = Router();
 
-// Create
-router.post("/", isAuthenticated, controller.createFlag);
-
-// Read
-router.get("/:flagId", controller.getFlagById);
-router.get("/", controller.getFlags);
-
-// Update
-router.patch("/:flagId", isAuthorized, controller.updateFlag);
-
-// Delete
-router.delete("/:flagId", isAuthorized, controller.deleteFlag);
+router.post("/", isAuthenticated, FlagController.create);
+router.get("/:documentId", FlagController.readById);
+router.get("/", FlagController.read);
+router.patch("/:documentId", isAuthorized, FlagController.update);
+router.delete("/:documentId", isAuthorized, FlagController.delete);
 
 export default router;

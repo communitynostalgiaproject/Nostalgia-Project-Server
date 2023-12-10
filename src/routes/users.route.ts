@@ -1,12 +1,13 @@
 import { Router } from "express";
-import controller from "../controllers/users.controller";
+import { isAuthorized } from "src/middleware/authChecks";
+import UserController from "../controllers/users.controller";
 
 const router = Router();
 
-router.post("/", controller.createUser);
-router.get("/", controller.getUsers);
-router.get("/:userId", controller.getUserById);
-router.patch("/", controller.updateUser);
-router.delete("/:userId", controller.deleteUser);
+router.post("/", UserController.create);
+router.get("/", UserController.read);
+router.get("/:documentId", UserController.readById);
+router.patch("/:documentId", UserController.update);
+router.delete("/:documentId", UserController.delete);
 
 export default router;

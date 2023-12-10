@@ -10,7 +10,7 @@ import { faker } from "@faker-js/faker";
 let mongoServer: MongoMemoryServer;
 let app: Express;
 
-describe("GET /experiences/withinBox", () => {
+describe("GET /experiences", () => {
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
     const uri = mongoServer.getUri();
@@ -68,7 +68,7 @@ describe("GET /experiences/withinBox", () => {
     });
     await ExperienceModel.insertMany(randomExperiences);
 
-    const res = await request(app).get(`/experiences/withinBox?bbox=0,0,20,20`);
+    const res = await request(app).get(`/experiences?bbox=0,0,20,20`);
 
     expect(res.status).toBe(200);
     expect(res.body.length).toBe(Math.floor(numExperiences / 2));
@@ -121,26 +121,13 @@ describe("GET /experiences/withinBox", () => {
     });
     await ExperienceModel.insertMany(randomExperiences);
 
-    const res = await request(app).get(`/experiences/withinBox?bbox=0,0,20,20&locationsOnly=true`);
+    const res = await request(app).get(`/experiences?bbox=0,0,20,20&locationsOnly=true`);
 
     expect(res.status).toBe(200);
     expect(res.body.length).toBe(Math.floor(numExperiences / 2));
     res.body.forEach((experience: any) => {
-      expect(experience.place).toBeDefined();
-      expect(experience.place.location).toBeDefined();
-      expect(experience._id).not.toBeDefined();
-      expect(experience.title).not.toBeDefined();
-      expect(experience.description).not.toBeDefined();
-      expect(experience.recipe).not.toBeDefined();
-      expect(experience.experienceDate).not.toBeDefined();
-      expect(experience.createdDate).not.toBeDefined();
-      expect(experience.mood).not.toBeDefined();
-      expect(experience.foodtype).not.toBeDefined();
-      expect(experience.personItRemindsThemOf).not.toBeDefined();
-      expect(experience.flavourProfile).not.toBeDefined();
-      expect(experience.periodOfLifeAssociation).not.toBeDefined();
-      expect(experience.placesToGetFood).not.toBeDefined();
-      expect(experience.creatorId).not.toBeDefined();
+      expect(experience.type).toBeDefined();
+      expect(experience.coordinates).toBeDefined();
     });
   });
 
@@ -167,27 +154,21 @@ describe("GET /experiences/withinBox", () => {
     });
     await ExperienceModel.insertMany(randomExperiences);
 
-    const res = await request(app).get(`/experiences/withinBox?bbox=0,0,20,20`);
+    const res = await request(app).get(`/experiences?bbox=0,0,20,20`);
 
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body.length).toBe(0);
   });
 
-  it("should return a 400 code when called without bbox param", async () => {
-    const res = await request(app).get(`/experiences/withinBox`);
-
-    expect(res.status).toBe(400);
-  });
-
   it("should return a 400 code when called with an invalid bbox param", async () => {
     // Too many numbers
-    const res1 = await request(app).get(`/experiences/withinBox?bbox=10,20,3,2,1,23`);
+    const res1 = await request(app).get(`/experiences?bbox=10,20,3,2,1,23`);
 
     expect(res1.status).toBe(400);
 
     // Not enough numbers
-    const res2 = await request(app).get(`/experiences/withinBox?bbox=10,20`);
+    const res2 = await request(app).get(`/experiences?bbox=10,20`);
 
     expect(res2.status).toBe(400);
   });
