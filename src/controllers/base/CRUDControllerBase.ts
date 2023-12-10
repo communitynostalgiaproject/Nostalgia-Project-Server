@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { Model, Error } from 'mongoose';
-import { ValidationError } from '../../utils/customErrors';
+import { ValidationError, NotFoundError } from '../../utils/customErrors';
 import { DEFAULT_LIMIT } from '../../config/constants';
 
 export abstract class CRUDControllerBase<T> {
@@ -24,8 +24,10 @@ export abstract class CRUDControllerBase<T> {
 
   readById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { id } = req.params;
-      const document = await this.model.findById(id);
+      const { documentId } = req.params;
+      const document = await this.model.findById(documentId);
+
+      if (!document) throw new NotFoundError("Document not found");
 
       res.status(200).send(document);
     } catch(err) {
@@ -87,8 +89,10 @@ export abstract class CRUDControllerBase<T> {
 
   delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { id } = req.params;
-      await this.model.deleteOne({ _id: id });
+      const { documentId } = req.params;
+      const deleteResult = await this.model.deleteOne({ _id: documentId });
+
+      if (deleteResult.deletedCount === 0) throw(new Error("Unable to delete document"));
   
       res.status(200).send();
     } catch(err) {
