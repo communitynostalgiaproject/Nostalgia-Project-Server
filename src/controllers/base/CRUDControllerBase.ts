@@ -60,6 +60,7 @@ export abstract class CRUDControllerBase<T> {
         .skip((!offset || Number(offset) < 1 || isNaN(Number(offset))) ? 0 : Number(offset))
         .limit((!limit || Number(limit) < 1 || isNaN(Number(limit))) ? DEFAULT_LIMIT : Number(limit));
   
+      this.processResults(docs);
       res.status(200).send(docs);
     } catch(err) {
       console.error(err);
@@ -97,6 +98,11 @@ export abstract class CRUDControllerBase<T> {
       console.error(err);
       next(this.convertMongoError(err));
     }
+  }
+
+  // Overwrite this method to process results of a read operation before sending them back to the client
+  protected processResults = (results: any): any => {
+    return results;
   }
 
   protected convertMongoError = (err: any): any => {
