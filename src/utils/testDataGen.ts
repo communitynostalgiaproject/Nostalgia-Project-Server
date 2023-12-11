@@ -283,3 +283,20 @@ export const createFlags = (n: number, experienceIds: string[], userIds: string[
 
   return flags;
 };
+
+export const createReactions = (n: number, experienceIds: string[] = [], userIds: string[] = []) => {
+  if (n < 1) return [];
+
+  const reactions = [];
+
+  for (let i = 0; i < n; i++) {
+    reactions.push({
+      experienceId: experienceIds.length ? experienceIds[randomInt(experienceIds.length)]: new ObjectId(randomInt(999999)),
+      userId: userIds.length ? userIds[randomInt(userIds.length)] : new ObjectId(randomInt(999999)),
+      createdDate: faker.date.past(),
+      reaction: ["meToo", "thanksForSharing", "willTry"][randomInt(5)]
+    });
+  }
+
+  return reactions;
+};
