@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { isAuthenticated, createAuthorizationMiddleware } from "../middleware/authChecks";
 import ReactionController from "../controllers/reactions.controller";
-import ReactionModel from "src/models/reaction.model";
+import ReactionModel from "../models/reaction.model";
 
 const router = Router();
 const isAuthorized = createAuthorizationMiddleware(ReactionModel, (user, document) => {
