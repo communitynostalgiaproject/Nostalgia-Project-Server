@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { isAuthorized } from "src/middleware/authChecks";
 import UserController from "../controllers/users.controller";
 
 const router = Router();

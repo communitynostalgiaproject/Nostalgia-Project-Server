@@ -1,8 +1,12 @@
 import { Router } from "express";
-import { isAuthenticated, isAuthorized } from "../middleware/authChecks";
+import { isAuthenticated, createAuthorizationMiddleware } from "../middleware/authChecks";
 import FlagController from "../controllers/flags.controller";
+import FlagModel from "../models/flag.model";
 
 const router = Router();
+const isAuthorized = createAuthorizationMiddleware(FlagModel, (user, document) => {
+  return user.isModerator || user.isAdmin;
+});
 
 router.post("/", isAuthenticated, FlagController.create);
 router.get("/:documentId", FlagController.readById);
