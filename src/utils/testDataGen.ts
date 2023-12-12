@@ -294,7 +294,7 @@ export const createReactions = (n: number, experienceIds: string[] = [], userIds
       experienceId: experienceIds.length ? experienceIds[randomInt(experienceIds.length)]: new ObjectId(randomInt(999999)),
       userId: userIds.length ? userIds[randomInt(userIds.length)] : new ObjectId(randomInt(999999)),
       createdDate: faker.date.past(),
-      reaction: ["meToo", "thanksForSharing", "willTry"][randomInt(5)]
+      reaction: ["meToo", "thanksForSharing", "willTry"][randomInt(3)]
     });
   }
 
