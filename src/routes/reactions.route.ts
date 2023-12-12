@@ -11,7 +11,6 @@ const isAuthorized = createAuthorizationMiddleware(ReactionModel, (user, documen
 router.post("/", isAuthenticated, ReactionController.create);
 router.get("/:documentId", ReactionController.readById);
 router.get("/", ReactionController.read);
-router.patch("/:documentId", isAuthorized, ReactionController.update);
 router.delete("/:documentId", isAuthorized, ReactionController.delete);
 
 export default router;
