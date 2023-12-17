@@ -5,10 +5,20 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Express } from "express";
 import { performLogin } from "../../../../utils/testUtils";
 import mongoose from "mongoose";
+import fs from "fs";
+import path from "path";
 
 let mongoServer: MongoMemoryServer;
 let app: Express;
 let sessionCookie: string;
+let testFoodPhotoBuffer: Buffer;
+let testPersonPhotoBuffer: Buffer;
+
+jest.mock("sharp", () => {
+  return jest.fn().mockImplementation(() => {
+    return { resize: jest.fn().mockReturnThis() };
+  });
+});
 
 const removeMongooseDocFields: any = (obj: any) => {
   if (typeof obj !== 'object' || obj === null) return obj;
@@ -35,6 +45,9 @@ describe("POST /experiences", () => {
 
     const loginResults = await performLogin(app);
     sessionCookie = loginResults.sessionCookie;
+
+    testFoodPhotoBuffer = fs.readFileSync(path.join(__dirname, "..", "..", "..", "assets", "testFoodPhoto.png"));
+    testPersonPhotoBuffer = fs.readFileSync(path.join(__dirname, "..", "..", "..", "assets", "testPersonPhoto.jpg"));
   });
   
   afterAll(async () => {
@@ -49,22 +62,26 @@ describe("POST /experiences", () => {
 
     const res = await request(app)
       .post("/experiences")
-      .send(testExperience)
-      .set("Content-Type", "application/json");
+      .field("experience", JSON.stringify(testExperience))
+      .attach("foodPhoto", testFoodPhotoBuffer, "testFoodPhoto.png")
+      .attach("personPhoto", testPersonPhotoBuffer, "testPersonPhoto.jpg")
+      .set("Content-Type", "multipart/form-data");
 
     expect(res.status).toBe(401);
   });
 
-  it("should return a 200 code on success", async () => {
+  it("should return a 201 code on success", async () => {
     const testExperience = createExperiences(1)[0];
 
     const res = await request(app)
       .post("/experiences")
-      .send(testExperience)
-      .set("Content-Type", "application/json")
+      .field("experience", JSON.stringify(testExperience))
+      .attach("foodPhoto", testFoodPhotoBuffer, "testFoodPhoto.png")
+      .attach("personPhoto", testPersonPhotoBuffer, "testPersonPhoto.jpg")
+      .set("Content-Type", "multipart/form-data")
       .set("Cookie", sessionCookie);
 
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(201);
   });
 
   it("should return a 400 code if invalid object was submitted", async () => {
@@ -74,8 +91,10 @@ describe("POST /experiences", () => {
 
     const res = await request(app)
       .post("/experiences")
-      .send(testExperience)
-      .set("Content-Type", "application/json")
+      .field("experience", JSON.stringify(testExperience))
+      .attach("foodPhoto", testFoodPhotoBuffer, "testFoodPhoto.png")
+      .attach("personPhoto", testPersonPhotoBuffer, "testPersonPhoto.jpg")
+      .set("Content-Type", "multipart/form-data")
       .set("Cookie", sessionCookie);
 
     expect(res.status).toBe(400);
