@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import ExperienceModel from "../models/experience.model";
 import { UnauthorizedUserError, NotLoggedInError, NotFoundError, ValidationError } from "../utils/customErrors";
 import { ObjectId } from "mongodb";
 
@@ -10,31 +9,33 @@ export const isAuthenticated = (req: Request, res: Response, next: NextFunction)
   next(new NotLoggedInError("User must be logged in"));
 };
 
-const experienceAuthCheck = async (user: any, experienceId: String) => {
-  if (!ObjectId.isValid(`${experienceId}`)) return new ValidationError("Invalid object id");
-  const experience = await ExperienceModel.findById(experienceId);
-
-  if (!experience) return new NotFoundError("Experience not found");
-
-  if (!(experience.creatorId.toString() === user._id.toString() || user.isModerator || user.isAdmin)) return new UnauthorizedUserError("User does not have permission to perform this action");
-}
-
-const flagAuthCheck = (user: any) => {
-  if (!(user.isAdmin || user.isModerator)) return (new UnauthorizedUserError("User does not have permission to perform this action"));
-}
-
-export const isAuthorized = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    if (!req.isAuthenticated()) return next(new NotLoggedInError("User must be logged in"));
-
-    const requestRoute = req.baseUrl.split("/")[1];
-    const { documentId } = req.params;
-
-    if (requestRoute === "experiences") return next(await experienceAuthCheck(req.user, documentId));
-    if (requestRoute === "flags") return next(flagAuthCheck(req.user));
-
-    next(new Error("Something went wrong..."));
-  } catch(err) {
-    next(err);
+const generalAuthCheck = async (user: any, model: any, documentId: string, checkPermission: (user: any, document: any) => boolean) => {
+  if (!ObjectId.isValid(`${documentId}`)) {
+    throw new ValidationError("Invalid object id");
   }
+
+  const document = await model.findById(documentId);
+  if (!document) {
+    throw new NotFoundError("Document not found");
+  }
+
+  if (!checkPermission(user, document)) {
+    throw new UnauthorizedUserError("User does not have permission to perform this action");
+  }
+};
+
+export const createAuthorizationMiddleware = (model: any, checkPermission: (user: any, document: any) => boolean) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (!req.isAuthenticated()) {
+        throw new NotLoggedInError("User must be logged in");
+      }
+
+      const documentId = req.params.documentId;
+      await generalAuthCheck(req.user, model, documentId, checkPermission);
+      next();
+    } catch (err) {
+      next(err);
+    }
+  };
 };

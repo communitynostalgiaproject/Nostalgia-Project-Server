@@ -9,6 +9,7 @@ import commentRouter from "../routes/comments.route";
 import userRouter from "../routes/users.route";
 import flagRouter from "../routes/flags.route";
 import authRouter from "../routes/auth.route";
+import reactionRouter from "../routes/reactions.route";
 
 // Import middleware
 import errorHandler from "../middleware/errorHandler";
@@ -16,9 +17,6 @@ import errorHandler from "../middleware/errorHandler";
 // Import config
 import connectDB from "./mongodbSetup";
 import configurePassport from "../config/passportConfig";
-
-// Other imports
-import { MockAuthStrategy } from "src/utils/MockAuthStrategy";
 
 export const setupApp = (mongoUri: string) => {
   connectDB(mongoUri);
@@ -42,6 +40,7 @@ export const setupApp = (mongoUri: string) => {
   experienceRouter.use("/:experienceId/comments", commentRouter);
   app.use("/users", userRouter);
   app.use("/flags", flagRouter);
+  app.use("/reactions", reactionRouter);
   app.use("/auth", authRouter);
 
   // Error handling middleware
