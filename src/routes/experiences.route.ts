@@ -13,7 +13,7 @@ const isAuthorized = createAuthorizationMiddleware(ExperienceModel, (user, docum
 router.post("/", isAuthenticated, upload.fields([{ name: "foodPhoto", maxCount: 1 }, { name: "personPhoto", maxCount: 1 }]), ExperienceController.create);
 router.get("/", ExperienceController.read)
 router.get("/:documentId", ExperienceController.readById);
-router.patch("/:documentId", isAuthorized, ExperienceController.update);
+router.patch("/:documentId", isAuthorized, upload.fields([{ name: "foodPhoto", maxCount: 1 }, { name: "personPhoto", maxCount: 1 }]), ExperienceController.update);
 router.delete("/:documentId", isAuthorized, ExperienceController.delete);
 
 export default router;  

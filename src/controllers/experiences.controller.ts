@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import e, { Request, Response, NextFunction } from "express";
 import { Experience } from "@projectTypes/experience";
 import { Document } from "mongoose";
 import { CRUDControllerBase } from "./base/CRUDControllerBase";
@@ -11,6 +11,7 @@ import { MockFileStorage, S3StorageService } from "../services/fileStorage.servi
 import ExperienceModel from "../models/experience.model";
 import fs from "fs";
 import { IMAGE_MAX_WIDTH } from "../config/constants";
+import exp from "constants";
 
 export class ExperienceController extends CRUDControllerBase<Experience & Document> {
   constructor(model: any) {
@@ -24,19 +25,7 @@ export class ExperienceController extends CRUDControllerBase<Experience & Docume
       const foodPhoto = extendedReq.files['foodPhoto'][0];
       const personPhoto = extendedReq.files['personPhoto'][0];
 
-      const uploadRequest = process.env.NODE_ENV === "test" ?
-        new ImageUploadRequest(
-          new MockVirusScanner(),
-          new MockImageScaler(),
-          new MockFileStorage(),
-          IMAGE_MAX_WIDTH
-        ) 
-      : new ImageUploadRequest(
-        new VirusTotalScanner(process.env.VIRUS_TOTAL_API_KEY!),
-        new SharpImageScaler(),
-        new S3StorageService(process.env.AWS_S3_BUCKET_NAME!, process.env.AWS_REGION!),
-        IMAGE_MAX_WIDTH
-      );
+      const uploadRequest = this.createUploadRequest();
 
       if (!experience) throw new ValidationError("Missing experience JSON");
       if (!foodPhoto) throw new ValidationError("Missing food photo");
@@ -64,6 +53,69 @@ export class ExperienceController extends CRUDControllerBase<Experience & Docume
       console.error(err);
       next(this.convertMongoError(err));
     }
+  }
+
+  update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const extendedReq = req as FilesRequest;
+      const experience = JSON.parse(req.body.experience);
+      const foodPhoto = extendedReq.files['foodPhoto'][0];
+      const personPhoto = extendedReq.files['personPhoto'][0];
+      let newFoodPhotoUrl: string | undefined;
+      let newPersonPhotoUrl: string | undefined;
+
+      const uploadRequest = this.createUploadRequest();
+
+      if (!experience) throw new ValidationError("Missing experience JSON");
+
+      if (foodPhoto) newFoodPhotoUrl = await uploadRequest.uploadFile(
+        fs.readFileSync(foodPhoto.path),
+        experience.foodPhotoUrl.split("/").pop()!
+      );
+      if (personPhoto) newPersonPhotoUrl = await uploadRequest.uploadFile(
+        fs.readFileSync(personPhoto.path),
+        experience.personPhotoUrl 
+          ? experience.personPhotoUrl.split("/").pop()!
+          : `${personPhoto.filename}.${personPhoto.mimetype.split("/")[1]}`
+      );
+
+      if (foodPhoto) fs.unlinkSync(foodPhoto.path);
+      if (personPhoto) fs.unlinkSync(personPhoto.path);
+
+      const {
+        _id,
+        __v,
+        ...rest
+      } = experience;
+      await this.model.updateOne({ _id }, {
+        ...rest,
+        foodPhotoUrl: newFoodPhotoUrl || experience.foodPhotoUrl,
+        personPhotoUrl: newPersonPhotoUrl || experience.personPhotoUrl
+      });
+
+      res.status(200).send();
+    } catch (err) {
+      console.error(err);
+      next(this.convertMongoError(err));
+    }
+  }
+
+  private createUploadRequest = () => {
+    const uploadRequest = process.env.NODE_ENV === "test" ?
+        new ImageUploadRequest(
+          new MockVirusScanner(),
+          new MockImageScaler(),
+          new MockFileStorage(),
+          IMAGE_MAX_WIDTH
+        ) 
+      : new ImageUploadRequest(
+        new VirusTotalScanner(process.env.VIRUS_TOTAL_API_KEY!),
+        new SharpImageScaler(),
+        new S3StorageService(process.env.AWS_S3_BUCKET_NAME!, process.env.AWS_REGION!),
+        IMAGE_MAX_WIDTH
+      );
+
+      return uploadRequest;
   }
 
   protected injectReadProjectionString = (req: Request): string => {

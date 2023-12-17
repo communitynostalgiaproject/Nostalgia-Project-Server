@@ -3,6 +3,7 @@ import { randomInt } from "crypto";
 import { User } from "@projectTypes/user";
 import { Experience } from "@projectTypes/experience";
 import { ObjectId } from "mongodb";
+import { GENERIC_FOOD_PHOTO_URL, GENERIC_PERSON_PHOTO_URL } from "../config/constants";
 
 export const createUsers = (n: number, areModerators = false, areAdmins = false) => {
   if (n < 1) return [];
@@ -241,8 +242,8 @@ export const createExperiences = (n: number, userIds: string[] = []) => {
         min: 1,
         max: 12
       }),
-      foodPhotoUrl: faker.internet.url(),
-      personPhotoUrl: faker.internet.url(),
+      foodPhotoUrl: GENERIC_FOOD_PHOTO_URL,
+      personPhotoUrl: Math.random() < 0.4 ? GENERIC_PERSON_PHOTO_URL : undefined,
       createdDate,
       experienceDate: faker.date.past({
         refDate: createdDate
