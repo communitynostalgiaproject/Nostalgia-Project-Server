@@ -1,11 +1,17 @@
 import { Router } from "express";
 import { isAuthenticated, createAuthorizationMiddleware } from "../middleware/authChecks";
+<<<<<<< HEAD
 import multer from "multer";
+=======
+>>>>>>> development
 import ExperienceController from "../controllers/experiences.controller";
 import ExperienceModel from "../models/experience.model";
 
 const router = Router();
+<<<<<<< HEAD
 const upload = multer({ dest: "uploads/" });
+=======
+>>>>>>> development
 const isAuthorized = createAuthorizationMiddleware(ExperienceModel, (user, document) => {
   return user._id.equals(document.creatorId) || user.isModerator || user.isAdmin;
 });
