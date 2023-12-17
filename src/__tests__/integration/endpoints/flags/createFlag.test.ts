@@ -47,7 +47,7 @@ describe("POST /flags", () => {
     expect(res.status).toBe(401);
   })
 
-  it("should return a 200 code and copy of created record on success", async () => {
+  it("should return a 201 code and copy of created record on success", async () => {
     const { sessionCookie, testUser } = await performLogin(app);
 
     try {
@@ -63,7 +63,7 @@ describe("POST /flags", () => {
         .set("Content-Type", "application/json")
         .set("Cookie", sessionCookie);
   
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(201);
       const {
         _id,
         __v,

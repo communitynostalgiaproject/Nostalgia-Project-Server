@@ -55,7 +55,7 @@ describe("POST /reactions", () => {
     expect(res.status).toBe(401);
   });
 
-  it("should return a 200 code on success", async () => {
+  it("should return a 201 code on success", async () => {
     const testReaction = createReactions(1)[0];
 
     const res = await request(app)
@@ -64,7 +64,7 @@ describe("POST /reactions", () => {
       .set("Content-Type", "application/json")
       .set("Cookie", sessionCookie);
 
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(201);
   });
 
   it("should return a 400 code if invalid object was submitted", async () => {

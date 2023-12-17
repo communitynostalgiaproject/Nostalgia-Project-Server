@@ -14,12 +14,6 @@ let sessionCookie: string;
 let testFoodPhotoBuffer: Buffer;
 let testPersonPhotoBuffer: Buffer;
 
-jest.mock("sharp", () => {
-  return jest.fn().mockImplementation(() => {
-    return { resize: jest.fn().mockReturnThis() };
-  });
-});
-
 const removeMongooseDocFields: any = (obj: any) => {
   if (typeof obj !== 'object' || obj === null) return obj;
 

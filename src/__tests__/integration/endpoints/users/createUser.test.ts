@@ -39,7 +39,7 @@ describe("POST /users", () => {
     }
   });
 
-  it("should return a 200 code and copy of created record on success", async () => {
+  it("should return a 201 code and copy of created record on success", async () => {
     const testUser = createUsers(1)[0];
 
     // Converting from date object in 'testUser.joinedDate' to an ISO string to account for res object format.
@@ -50,7 +50,7 @@ describe("POST /users", () => {
       .send(testUser)
       .set("Content-Type", "application/json");
 
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(201);
     expect(removeMongooseDocFields(res.body)).toEqual({...testUser, joinedDate: dateStr, firstLogin: true});
   });
 
