@@ -100,23 +100,52 @@ export class ExperienceController extends CRUDControllerBase<Experience & Docume
     }
   }
 
+  delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { documentId } = req.params;
+      const experience = await this.model.findById(documentId);
+      const storageService = this.createStorageService();
+
+      if (!experience) throw new ValidationError("Experience not found");
+
+      if (experience.foodPhotoUrl) await storageService.deleteFile(experience.foodPhotoUrl.split("/").pop()!);
+      if (experience.personPhotoUrl) await storageService.deleteFile(experience.personPhotoUrl.split("/").pop()!);
+
+      const deleteResult = await this.model.deleteOne({ _id: documentId });
+
+      if (deleteResult.deletedCount === 0) throw(new Error("Unable to delete document"));
+
+      res.status(200).send();
+    } catch(err) {
+      console.error(err);
+      next(this.convertMongoError(err));
+    }
+  }
+
   private createUploadRequest = () => {
+    const storageService = this.createStorageService();
     const uploadRequest = process.env.NODE_ENV === "test" ?
         new ImageUploadRequest(
           new MockVirusScanner(),
           new MockImageScaler(),
-          new MockFileStorage(),
+          storageService,
           IMAGE_MAX_WIDTH
         ) 
       : new ImageUploadRequest(
         new VirusTotalScanner(process.env.VIRUS_TOTAL_API_KEY!),
         new SharpImageScaler(),
-        new S3StorageService(process.env.AWS_S3_BUCKET_NAME!, process.env.AWS_REGION!),
+        storageService,
         IMAGE_MAX_WIDTH
       );
 
       return uploadRequest;
   }
+
+  private createStorageService = () => {
+    return process.env.NODE_ENV === "test" ?
+      new MockFileStorage() :
+      new S3StorageService(process.env.AWS_S3_BUCKET_NAME!, process.env.AWS_REGION!);
+  };
 
   protected injectReadProjectionString = (req: Request): string => {
     const { locationsOnly } = req.query;
