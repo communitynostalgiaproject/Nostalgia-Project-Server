@@ -5,6 +5,12 @@ export interface VirusScanner {
   scanFile(fileBuffer: Buffer, fileName: String): Promise<boolean>;
 }
 
+export class MockVirusScanner implements VirusScanner {
+  scanFile = async (fileBuffer: Buffer, fileName: string): Promise<boolean> => {
+    return true;
+  }
+}
+
 export class VirusTotalScanner implements VirusScanner {
   private readonly apiKey: string;
 

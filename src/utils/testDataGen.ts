@@ -241,6 +241,8 @@ export const createExperiences = (n: number, userIds: string[] = []) => {
         min: 1,
         max: 12
       }),
+      foodPhotoUrl: faker.internet.url(),
+      personPhotoUrl: faker.internet.url(),
       createdDate,
       experienceDate: faker.date.past({
         refDate: createdDate
