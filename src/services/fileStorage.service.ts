@@ -1,4 +1,10 @@
-import AWS from 'aws-sdk';
+import {
+  S3Client,
+  PutObjectCommand,
+  PutObjectCommandInput,
+  DeleteObjectCommand,
+  DeleteObjectCommandInput
+} from "@aws-sdk/client-s3";
 
 export interface FileStorage {
   storeFile(fileBuffer: Buffer, fileName: string): Promise<string>;
@@ -16,13 +22,11 @@ export class MockFileStorage implements FileStorage {
 }
 
 export class S3StorageService implements FileStorage {
-  private s3: AWS.S3;
   private bucketName: string;
+  private s3Client: S3Client;
 
   constructor(bucketName: string, region: string) {
-    AWS.config.update({ region });
-
-    this.s3 = new AWS.S3();
+    this.s3Client = new S3Client({ region });
     this.bucketName = bucketName;
   }
 
@@ -31,18 +35,17 @@ export class S3StorageService implements FileStorage {
       Bucket: this.bucketName,
       Key: fileName,
       Body: fileBuffer
-    };
-
-    const { Location } = await this.s3.upload(params).promise();
-    return Location;
+    } as PutObjectCommandInput;
+    await this.s3Client.send(new PutObjectCommand(params));
+    return `https://${this.bucketName}.s3.amazonaws.com/${fileName}`;
   }
 
   async deleteFile(fileName: string): Promise<void> {
     const params = {
       Bucket: this.bucketName,
       Key: fileName,
-    };
+    } as DeleteObjectCommandInput;
 
-    await this.s3.deleteObject(params).promise();
+    await this.s3Client.send(new DeleteObjectCommand(params));
   }
 }
