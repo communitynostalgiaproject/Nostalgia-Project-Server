@@ -6,12 +6,13 @@ import { ValidationError } from "../utils/customErrors";
 import { FilesRequest } from "@projectTypes/filesRequest";
 import { ImageUploadRequest } from "../services/fileUploadRequest.service";
 import { MockImageScaler, SharpImageScaler } from "../services/imageScaler.service";
-import { MockVirusScanner, VirusTotalScanner } from "../services/virusScanner.service";
+import { MockVirusScanner, VirusScanner, VirusTotalScanner } from "../services/virusScanner.service";
 import { MockFileStorage, S3StorageService } from "../services/fileStorage.service";
 import ExperienceModel from "../models/experience.model";
 import fs from "fs";
 import { IMAGE_MAX_WIDTH } from "../config/constants";
 import exp from "constants";
+import { vi } from "@faker-js/faker";
 
 export class ExperienceController extends CRUDControllerBase<Experience & Document> {
   constructor(model: any) {
@@ -124,28 +125,46 @@ export class ExperienceController extends CRUDControllerBase<Experience & Docume
 
   private createUploadRequest = () => {
     const storageService = this.createStorageService();
-    const uploadRequest = process.env.NODE_ENV === "test" ?
-        new ImageUploadRequest(
-          new MockVirusScanner(),
-          new MockImageScaler(),
-          storageService,
-          IMAGE_MAX_WIDTH
-        ) 
-      : new ImageUploadRequest(
-        new VirusTotalScanner(process.env.VIRUS_TOTAL_API_KEY!),
-        new SharpImageScaler(),
-        storageService,
-        IMAGE_MAX_WIDTH
-      );
+    const virusScanner = this.createVirusScanner();
+    const imageScaler = this.createImageScaler();
 
-      return uploadRequest;
+    return new ImageUploadRequest(
+      virusScanner,
+      imageScaler,
+      storageService,
+      IMAGE_MAX_WIDTH
+    );
   }
 
   private createStorageService = () => {
-    return process.env.NODE_ENV === "test" ?
-      new MockFileStorage() :
-      new S3StorageService(process.env.AWS_S3_BUCKET_NAME!, process.env.AWS_REGION!);
+    if (
+      process.env.NODE_ENV === "test"
+      || process.env.BYPASS_FILE_STORAGE
+    ) return new MockFileStorage();
+
+    return  new S3StorageService(process.env.AWS_S3_BUCKET_NAME!, process.env.AWS_REGION!);
   };
+
+
+
+  private createVirusScanner = () => {
+    if (
+      process.env.NODE_ENV === "test" 
+      || !process.env.VIRUS_TOTAL_API_KEY 
+      || process.env.BYPASS_VIRUS_SCANNING
+    ) return new MockVirusScanner();
+
+    return new VirusTotalScanner(process.env.VIRUS_TOTAL_API_KEY!);
+  };
+
+  private createImageScaler = () => {
+    if (
+      process.env.NODE_ENV === "test"
+      || process.env.BYPASS_IMAGE_SCALING
+    ) return new MockImageScaler();
+
+    return new SharpImageScaler();
+  }
 
   protected injectReadProjectionString = (req: Request): string => {
     const { locationsOnly } = req.query;
@@ -155,8 +174,8 @@ export class ExperienceController extends CRUDControllerBase<Experience & Docume
     }
 
     return "";
-  };
-  
+  }; 
+
   protected processReadResults = (req: Request, results: any) => {
     const { locationsOnly } = req.query;
 
