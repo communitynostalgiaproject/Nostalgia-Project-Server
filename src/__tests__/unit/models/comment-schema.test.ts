@@ -5,6 +5,7 @@ import UserModel from "../../../models/user.model";
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Experience } from "@projectTypes/experience";
 import { User } from "@projectTypes/user";
+import { createExperiences, createUsers } from "../../../utils/testDataGen";
 
 let mongoServer: MongoMemoryServer;
 let testUser: User;
@@ -15,24 +16,8 @@ beforeAll(async () => {
   const conUri = mongoServer.getUri();
   await mongoose.connect(conUri);
 
-  testUser = await new UserModel({
-    googleId: "1234",
-    displayName: "Just A. User",
-    emailAddress: "justauser@test.com"
-  }).save();
-  testExperience = await new ExperienceModel({
-    title: "Test title",
-      place: {
-        address: { someProperty: "value" },
-        location: {
-          type: "Point",
-          coordinates: [125.6, 10.1]
-        }
-      },
-      description: "Test description",
-      experienceDate: "2023-10-12",
-      creatorId: testUser._id
-  }).save();
+  testUser = await new UserModel(createUsers(1)[0]).save();
+  testExperience = await new ExperienceModel(createExperiences(1)[0]).save();
 });
 
 beforeEach(async () => {

@@ -1,11 +1,11 @@
 import mongoose from "mongoose";
-import CommentModel from "../../../models/comment.model";
 import ExperienceModel from "../../../models/experience.model";
 import UserModel from "../../../models/user.model";  
 import ReactionModel from "../../../models/reaction.model";
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Experience } from "@projectTypes/experience";
 import { User } from "@projectTypes/user";
+import { createExperiences } from "../../../utils/testDataGen";
 
 let mongoServer: MongoMemoryServer;
 let testUser: User;
@@ -21,19 +21,7 @@ beforeAll(async () => {
     displayName: "Just A. User",
     emailAddress: "justauser@test.com"
   }).save();
-  testExperience = await new ExperienceModel({
-    title: "Test title",
-      place: {
-        address: { someProperty: "value" },
-        location: {
-          type: "Point",
-          coordinates: [125.6, 10.1]
-        }
-      },
-      description: "Test description",
-      experienceDate: "2023-10-12",
-      creatorId: testUser._id
-  }).save();
+  testExperience = await new ExperienceModel(createExperiences(1)[0]).save();
 });
 
 beforeEach(async () => {

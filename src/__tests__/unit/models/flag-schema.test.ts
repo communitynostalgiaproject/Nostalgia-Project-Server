@@ -7,6 +7,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Experience } from "@projectTypes/experience";
 import { User } from "@projectTypes/user";
 import { Comment } from "@projectTypes/comment";
+import { createExperiences } from "../../../utils/testDataGen";
 
 let mongoServer: MongoMemoryServer;
 let testUser: User;
@@ -23,19 +24,7 @@ beforeAll(async () => {
     displayName: "Just A. User",
     emailAddress: "justauser@test.com"
   }).save();
-  testExperience = await new ExperienceModel({
-    title: "Test title",
-      place: {
-        address: { someProperty: "value" },
-        location: {
-          type: "Point",
-          coordinates: [125.6, 10.1]
-        }
-      },
-      description: "Test description",
-      experienceDate: "2023-10-12",
-      creatorId: testUser._id
-  }).save();
+  testExperience = await new ExperienceModel(createExperiences(1)[0]).save();
   testComment = await new CommentModel({
     experienceId: testExperience._id,
     text: "This is some random comment about an experience",
