@@ -11,6 +11,8 @@ export interface Experience {
   title: string;
   place: Place;
   description: string;
+  foodPhotoUrl: string;
+  personPhotoUrl?: string;
   recipe?: string;
   experienceDate: string;
   createdDate?: string;

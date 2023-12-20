@@ -6,9 +6,13 @@ import { Express } from "express";
 import mongoose from "mongoose";
 import ExperienceModel from "../../../../models/experience.model";
 import { performLogin, performLogout, upgradePermissions } from "../../../../utils/testUtils";
+import fs from "fs";
+import path from "path";
 
 let mongoServer: MongoMemoryServer;
 let app: Express;
+let testFoodPhotoBuffer: Buffer;
+let testPersonPhotoBuffer: Buffer;
 
 const convertObjectIdToString: any = (obj: any): any => {
   if (typeof obj !== 'object' || obj === null) return obj;
@@ -34,6 +38,9 @@ describe("PATCH /experiences", () => {
     const uri = mongoServer.getUri();
     await mongoose.connect(uri);
     app = setupApp(uri);
+
+    testFoodPhotoBuffer = fs.readFileSync(path.join(__dirname, "..", "..", "..", "assets", "testFoodPhoto.png"));
+    testPersonPhotoBuffer = fs.readFileSync(path.join(__dirname, "..", "..", "..", "assets", "testPersonPhoto.jpg"));
   });
 
   beforeEach(async () => {
@@ -57,7 +64,10 @@ describe("PATCH /experiences", () => {
 
     const res = await request(app)
       .patch(`/experiences/${insertedExperience._id}`)
-      .send(updatedExperience);
+      .field("experience", JSON.stringify(updatedExperience))
+      .attach("foodPhoto", testFoodPhotoBuffer, "testFoodPhoto.png")
+      .attach("personPhoto", testPersonPhotoBuffer, "testPersonPhoto.jpg")
+      .set("Content-Type", "multipart/form-data");
 
     expect(res.status).toBe(401);
   });
@@ -77,7 +87,10 @@ describe("PATCH /experiences", () => {
   
       const res = await request(app)
         .patch(`/experiences/${insertedExperience._id}`)
-        .send(updatedExperience)
+        .field("experience", JSON.stringify(updatedExperience))
+        .attach("foodPhoto", testFoodPhotoBuffer, "testFoodPhoto.png")
+        .attach("personPhoto", testPersonPhotoBuffer, "testPersonPhoto.jpg")
+        .set("Content-Type", "multipart/form-data")
         .set("Cookie", sessionCookie);
   
       expect(res.status).toBe(403);
@@ -106,13 +119,29 @@ describe("PATCH /experiences", () => {
 
       const res = await request(app)
         .patch(`/experiences/${insertedExperience._id}`)
-        .send(updatedExperience)
+        .field("experience", JSON.stringify(updatedExperience))
+        .attach("foodPhoto", testFoodPhotoBuffer, "testFoodPhoto.png")
+        .attach("personPhoto", testPersonPhotoBuffer, "testPersonPhoto.jpg")
+        .set("Content-Type", "multipart/form-data")
         .set("Cookie", sessionCookie);
 
       expect(res.status).toBe(200);
       
       const retrievedExperience = await ExperienceModel.findById(insertedExperience._id);
-      expect(retrievedExperience?.toObject()).toEqual(updatedExperience);
+      expect(retrievedExperience).toBeDefined();
+      const {
+        foodPhotoUrl: retrievedFoodPhotoUrl,
+        personPhotoUrl: retrievedPersonPhotoUrl,
+        ...retrievedRest
+      } = retrievedExperience!.toObject();
+      const {
+        foodPhotoUrl: updatedFoodPhotoUrl,
+        personPhotoUrl: updatedPersonPhotoUrl,
+        ...updatedRest
+      } = updatedExperience;
+      expect(retrievedRest).toEqual(updatedRest);
+      expect(retrievedFoodPhotoUrl).not.toBe(updatedFoodPhotoUrl);
+      expect(retrievedPersonPhotoUrl).not.toBe(updatedPersonPhotoUrl);
     } catch(err) {
       console.log(`sessionCookie: ${sessionCookie}`);
       console.log(`testUser: ${JSON.stringify(testUser)}`);
@@ -138,13 +167,29 @@ describe("PATCH /experiences", () => {
 
       const res = await request(app)
         .patch(`/experiences/${insertedExperience._id}`)
-        .send(updatedExperience)
+        .field("experience", JSON.stringify(updatedExperience))
+        .attach("foodPhoto", testFoodPhotoBuffer, "testFoodPhoto.png")
+        .attach("personPhoto", testPersonPhotoBuffer, "testPersonPhoto.jpg")
+        .set("Content-Type", "multipart/form-data")
         .set("Cookie", sessionCookie);
 
       expect(res.status).toBe(200);
       
       const retrievedExperience = await ExperienceModel.findById(insertedExperience._id);
-      expect(retrievedExperience?.toObject()).toEqual(updatedExperience);
+      expect(retrievedExperience).toBeDefined();
+      const {
+        foodPhotoUrl: retrievedFoodPhotoUrl,
+        personPhotoUrl: retrievedPersonPhotoUrl,
+        ...retrievedRest
+      } = retrievedExperience!.toObject();
+      const {
+        foodPhotoUrl: updatedFoodPhotoUrl,
+        personPhotoUrl: updatedPersonPhotoUrl,
+        ...updatedRest
+      } = updatedExperience;
+      expect(retrievedRest).toEqual(updatedRest);
+      expect(retrievedFoodPhotoUrl).not.toBe(updatedFoodPhotoUrl);
+      expect(retrievedPersonPhotoUrl).not.toBe(updatedPersonPhotoUrl);
     } catch(err) {
       console.log(`sessionCookie: ${sessionCookie}`);
       console.log(`testUser: ${JSON.stringify(testUser)}`);
@@ -170,13 +215,29 @@ describe("PATCH /experiences", () => {
 
       const res = await request(app)
         .patch(`/experiences/${insertedExperience._id}`)
-        .send(updatedExperience)
+        .field("experience", JSON.stringify(updatedExperience))
+        .attach("foodPhoto", testFoodPhotoBuffer, "testFoodPhoto.png")
+        .attach("personPhoto", testPersonPhotoBuffer, "testPersonPhoto.jpg")
+        .set("Content-Type", "multipart/form-data")
         .set("Cookie", sessionCookie);
 
       expect(res.status).toBe(200);
       
       const retrievedExperience = await ExperienceModel.findById(insertedExperience._id);
-      expect(retrievedExperience?.toObject()).toEqual(updatedExperience);
+      expect(retrievedExperience).toBeDefined();
+      const {
+        foodPhotoUrl: retrievedFoodPhotoUrl,
+        personPhotoUrl: retrievedPersonPhotoUrl,
+        ...retrievedRest
+      } = retrievedExperience!.toObject();
+      const {
+        foodPhotoUrl: updatedFoodPhotoUrl,
+        personPhotoUrl: updatedPersonPhotoUrl,
+        ...updatedRest
+      } = updatedExperience;
+      expect(retrievedRest).toEqual(updatedRest);
+      expect(retrievedFoodPhotoUrl).not.toBe(updatedFoodPhotoUrl);
+      expect(retrievedPersonPhotoUrl).not.toBe(updatedPersonPhotoUrl);
     } catch(err) {
       console.log(`sessionCookie: ${sessionCookie}`);
       console.log(`testUser: ${JSON.stringify(testUser)}`);
@@ -201,7 +262,10 @@ describe("PATCH /experiences", () => {
 
       const res = await request(app)
         .patch(`/experiences/${insertedExperience._id}`)
-        .send(updatedExperience)
+        .field("experience", JSON.stringify(updatedExperience))
+        .attach("foodPhoto", testFoodPhotoBuffer, "testFoodPhoto.png")
+        .attach("personPhoto", testPersonPhotoBuffer, "testPersonPhoto.jpg")
+        .set("Content-Type", "multipart/form-data")
         .set("Cookie", sessionCookie);
 
       expect(res.status).toBe(400);

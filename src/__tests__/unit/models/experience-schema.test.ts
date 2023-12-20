@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import { ObjectId } from "mongodb";
 import ExperienceModel from "../../../models/experience.model";
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import { createExperiences } from "../../../utils/testDataGen";
+import { create } from "domain";
 
 let mongoServer: MongoMemoryServer;
 
@@ -24,19 +26,7 @@ afterAll(async () => {
 
 describe('Experience Model Test', () => {
   it('should save a new experience successfully', async () => {
-    const experience = new ExperienceModel({
-      title: "Test title",
-      place: {
-        address: { someProperty: "value" },
-        location: {
-          type: "Point",
-          coordinates: [125.6, 10.1]
-        }
-      },
-      description: "Test description",
-      experienceDate: "2023-10-12",
-      creatorId: new ObjectId(346237257)
-    });
+    const experience = new ExperienceModel(createExperiences(1)[0]);
     try {
       const savedExperience = await experience.save();
       expect(savedExperience._id).toBeDefined();

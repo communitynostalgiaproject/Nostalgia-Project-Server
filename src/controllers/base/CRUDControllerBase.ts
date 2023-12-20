@@ -15,7 +15,7 @@ export abstract class CRUDControllerBase<T> {
         const document = new this.model(req.body);
         const savedDocument = await document.save();
 
-        res.status(200).send(savedDocument);
+        res.status(201).send(savedDocument);
     } catch (err) {
       console.error(err);
       next(this.convertMongoError(err));

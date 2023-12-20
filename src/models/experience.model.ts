@@ -48,6 +48,8 @@ const ExperienceSchema: Schema = new Schema({
       message: (props: any) => `${props.value} is not a valid date string`
     }
   },
+  foodPhotoUrl: { type: String, required: true },
+  personPhotoUrl: String,
   createdDate: { type: String, default: new Date().toISOString() },
   mood: String,
   foodtype: String,
