@@ -36,6 +36,10 @@ const UserSchema = new Schema({
   firstLogin: {
     type: Boolean,
     default: true
+  },
+  loginCount: {
+    type: Number,
+    default: 1
   }
 });
 
