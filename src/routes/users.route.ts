@@ -1,12 +1,15 @@
 import { Router } from "express";
+import { createAuthorizationMiddleware, isModerator } from "../middleware/authChecks";
+import UserModel from "../models/user.model";
 import UserController from "../controllers/users.controller";
 
 const router = Router();
+const isUser = createAuthorizationMiddleware(UserModel, (user, document) => {
+  return user._id.equals(document._id);
+});
 
-router.post("/", UserController.create);
-router.get("/", UserController.read);
-router.get("/:documentId", UserController.readById);
-router.patch("/:documentId", UserController.update);
-router.delete("/:documentId", UserController.delete);
+router.get("/", isModerator, UserController.read);
+router.get("/:documentId", isModerator, UserController.readById);
+router.delete("/:documentId", isUser, UserController.delete);
 
 export default router;

@@ -5,6 +5,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Express } from "express";
 import mongoose from "mongoose";
 import UserModel from "../../../../models/user.model";
+import { performLogin, performLogout, upgradePermissions } from "../../../../utils/testUtils";
 
 let mongoServer: MongoMemoryServer;
 let app: Express;
@@ -53,7 +54,7 @@ describe("GET /users", () => {
     }
   });
 
-  it("should return a 200 code upon successfully returning all users without the 'limit' query param", async () => {
+  it("returns a 401 code if user is not logged in", async () => {
     const testUsers = createUsers(6);
     const insertedUsers = await UserModel.insertMany(testUsers);
 
@@ -65,38 +66,61 @@ describe("GET /users", () => {
     
     const res = await request(app).get(`/users`);
     
-    expect(res.status).toBe(200);
-    expect(res.body).toEqual(userArr);
+    expect(res.status).toBe(401);
   });
 
-  it("should return a 200 code when successfully returning a limited amount of users", async () => {
-    const testUsers = createUsers(6);
-    await UserModel.insertMany(testUsers);
-    
-    const res = await request(app)
-    .get(`/users`)
-    .query({limit: 2});
-    
-    expect(res.status).toBe(200);
-    expect(res.body.length).toEqual(2);
-  });
+  it("returns a 403 code if user is not authorized", async () => {
+    const { sessionCookie, testUser } = await performLogin(app);
+    expect(sessionCookie).toBeDefined();
+    expect(testUser).toBeDefined();
+    expect(testUser.isModerator).toBe(false);
+    expect(testUser.isAdmin).toBe(false);
 
-  it("should return a 200 code when successfully returning all users when limit query param exceeds amount of documents in dB", async () => {
-    const testUsers = createUsers(6);
-    const insertedUsers = await UserModel.insertMany(testUsers);
-
-    let userArr = [];
-    for (let userObj of insertedUsers) {
-      let user = convertValueToString(userObj.toObject());
-      userArr.push(user);
+    try {
+      const testUsers = createUsers(6);
+      const insertedUsers = await UserModel.insertMany(testUsers);
+  
+      let userArr = [];
+      for (let userObj of insertedUsers) {
+        let user = convertValueToString(userObj.toObject());
+        userArr.push(user);
+      }
+      
+      const res = await request(app)
+        .get(`/users`)
+        .set("Cookie", sessionCookie);
+      
+      expect(res.status).toBe(403);
+    } catch (err) {
+      throw err;
+    } finally {
+      await performLogout(app);
     }
-    
-    const res = await request(app)
-    .get(`/users`)
-    .query({limit: 30});
-    
-    expect(res.status).toBe(200);
-    expect(res.body).toEqual(userArr);
   });
 
+  it("returns a 200 code and a list of users upon success", async () => {
+    const { sessionCookie, testUser } = await performLogin(app);
+    expect(sessionCookie).toBeDefined();
+    expect(testUser).toBeDefined();
+    await upgradePermissions(app, {
+      testUser,
+      makeModerator: true
+    });
+
+    try {
+      const testUsers = createUsers(10);
+      await UserModel.insertMany(testUsers);
+   
+      const res = await request(app)
+        .get(`/users`)
+        .set("Cookie", sessionCookie);
+      
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body)).toBe(true);
+    } catch (err) {
+      throw err;
+    } finally {
+      await performLogout(app);
+    }
+  });
 });

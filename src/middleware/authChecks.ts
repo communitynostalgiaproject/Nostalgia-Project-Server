@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { UnauthorizedUserError, NotLoggedInError, NotFoundError, ValidationError } from "../utils/customErrors";
 import { ObjectId } from "mongodb";
+import { User } from "../../types/user";
 
 export const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
   if (req.isAuthenticated()) {
@@ -38,4 +39,16 @@ export const createAuthorizationMiddleware = (model: any, checkPermission: (user
       next(err);
     }
   };
+};
+
+export const isModerator = (req: Request, res: Response, next: NextFunction) => {
+  if (!req.isAuthenticated() || !req.user) {
+    return next(new NotLoggedInError("User must be logged in"));
+  }
+
+  const { isModerator, isAdmin } = req.user as User;
+  if (isModerator || isAdmin) {
+    return next();
+  }
+  next(new UnauthorizedUserError("User is not a moderator"));
 };
