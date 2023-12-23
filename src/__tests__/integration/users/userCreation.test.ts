@@ -32,6 +32,7 @@ describe("User creation tests", () => {
     try {
       expect(testUser).toBeDefined();
       expect(testUser.firstLogin).toBe(true);
+      expect(testUser.loginCount).toBe(1);
     } catch(err) {
       throw err;
     } finally {
@@ -52,6 +53,7 @@ describe("User creation tests", () => {
       expect(secondLoginUser).toBeDefined();
       expect(secondLoginUser._id).toBe(testUser._id);
       expect(secondLoginUser.firstLogin).toBe(false);
+      expect(secondLoginUser.loginCount).toBe(2);
     } catch(err) {
       throw err;
     } finally {

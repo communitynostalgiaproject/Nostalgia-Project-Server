@@ -10,24 +10,25 @@ import UserModel from '../models/user.model';
    */
 export const authCallback = async (accessToken: string, refreshToken: string, profile: any, done: VerifyCallback) => {
   try {
-    const userDoc = await UserModel.findOne({googleId: profile.id});
+    let userDoc = await UserModel.findOne({googleId: profile.id});
 
     if (userDoc) {
       if (userDoc.firstLogin) {
         userDoc.firstLogin = false;
-        await userDoc.save();
       }
-      return done(undefined, userDoc);
+      userDoc.loginCount += 1;
     }
     else {
-      const newUser = new UserModel({
+      userDoc = new UserModel({
         googleId: profile.id,
         emailAddress: profile.emails?.[0].value,
         displayName: profile.displayName
       });
-      await newUser.save();
-      done(undefined, newUser);
     }
+
+    await userDoc.save()
+
+    return done(undefined, userDoc);
   } catch(err) {
     console.error(err);
     done(JSON.stringify(err), undefined);
