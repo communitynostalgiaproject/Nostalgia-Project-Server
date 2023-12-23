@@ -9,4 +9,5 @@ export interface User {
   isAdmin: boolean;
   joinedDate: Date;
   firstLogin: boolean;
+  loginCount: number;
 }
