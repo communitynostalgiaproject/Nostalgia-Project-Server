@@ -1,5 +1,6 @@
 import request from "supertest";
 import UserModel from "../models/user.model";
+import BanModel from "../models/ban.model";
 import { Express } from "express";
 
 const getSessionCookie = (httpResponse: any) => {
@@ -11,7 +12,7 @@ const getSessionCookie = (httpResponse: any) => {
 
 interface PerformLoginOptions {
   googleId?: string;
-}
+};
 
 export const performLogin = async (app: Express, options: PerformLoginOptions = {}) => {
   const {
@@ -26,7 +27,7 @@ export const performLogin = async (app: Express, options: PerformLoginOptions = 
     sessionCookie,
     testUser
   };
-}
+};
 
 export const performLogout = async (app: Express, deleteUserId?: string) => {
   try {
@@ -35,13 +36,13 @@ export const performLogout = async (app: Express, deleteUserId?: string) => {
   } catch(err) {
     console.log(`Unable to perform logout functions: ${err}`);
   }
-}
+};
 
 interface UpgradePermissionsOptions {
   testUser: any;
   makeModerator?: boolean;
   makeAdmin?: boolean;
-}
+};
 
 export const upgradePermissions = async (app: Express, options: UpgradePermissionsOptions) => {
   const {
@@ -58,4 +59,19 @@ export const upgradePermissions = async (app: Express, options: UpgradePermissio
   } catch(err) {
     console.log(`Unable to make user moderator: ${err}`);
   }
-}
+};
+
+export const banUser = async (options: any) => {
+  const {
+    userId
+  } = options;
+
+  try {
+    await BanModel.create({
+      userId,
+      reason: "Test ban"
+    });
+  } catch(err) {
+    console.log(`Unable to ban user: ${err}`);
+  }
+};
