@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import UserModel from "../../../models/user.model";  
-import BanModel from "../../../models/reaction.model";
+import BanModel from "../../../models/ban.model";
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { User } from "@projectTypes/user";
 import { createUsers } from "../../../utils/testDataGen";
@@ -50,7 +50,7 @@ describe("Ban model test", () => {
       reason: "Spam"
     });
 
-    const savedDocument = await newDocument.save();
+    const savedDocument = (await newDocument.save());
     expect(savedDocument._id).toBeDefined();
     expect(savedDocument.createdDate.toDateString()).toBe((new Date).toDateString());
     expect(savedDocument.status).toBe("active");
