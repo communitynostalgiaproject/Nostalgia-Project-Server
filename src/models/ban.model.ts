@@ -15,11 +15,9 @@ const BanSchema = new Schema({
     type: String,
     required: true
   },
-  status: {
-    type: String,
-    required: true,
-    enum: ["active", "restored"],
-    default: "active"
+  active: {
+    type: Boolean,
+    default: true
   },
   banCount: {
     type: Number,

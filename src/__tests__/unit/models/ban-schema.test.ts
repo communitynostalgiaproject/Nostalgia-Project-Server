@@ -4,6 +4,7 @@ import BanModel from "../../../models/ban.model";
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { User } from "@projectTypes/user";
 import { createUsers } from "../../../utils/testDataGen";
+import { ObjectId } from "mongodb";
 
 let mongoServer: MongoMemoryServer;
 let testUser: User;
@@ -44,6 +45,14 @@ describe("Ban model test", () => {
     await expect(newDocument.save()).rejects.toThrowError();
   });
 
+  it("fails to save without reason", async () => {
+    const newDocument = new BanModel({
+        userId: new ObjectId(34345)
+    });
+
+    await expect(newDocument.save()).rejects.toThrowError();
+  });
+
   it("applies correct default values", async () => {
     const newDocument = new BanModel({
       userId: testUser._id,
@@ -53,7 +62,7 @@ describe("Ban model test", () => {
     const savedDocument = (await newDocument.save());
     expect(savedDocument._id).toBeDefined();
     expect(savedDocument.createdDate.toDateString()).toBe((new Date).toDateString());
-    expect(savedDocument.status).toBe("active");
+    expect(savedDocument.active).toBe(true);
     expect(savedDocument.banCount).toBe(1);
   });
 });
