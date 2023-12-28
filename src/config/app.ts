@@ -39,11 +39,11 @@ export const setupApp = (mongoUri: string) => {
   // API routes
   app.use("/experiences", experienceRouter);
   experienceRouter.use("/:experienceId/comments", commentRouter);
+  userRouter.use("/:userId/bans", banRouter);
   app.use("/users", userRouter);
   app.use("/flags", flagRouter);
   app.use("/reactions", reactionRouter);
   app.use("/auth", authRouter);
-  app.use("/users/:userId/bans", banRouter);
 
   // Error handling middleware
   app.use(errorHandler);

@@ -3,6 +3,7 @@ import { Document } from "mongoose";
 import { Request, Response, NextFunction } from "express";
 import { CRUDControllerBase } from "./base/CRUDControllerBase";
 import { MAX_BANS } from "../config/constants";
+import { NotFoundError } from "../utils/customErrors";
 import BanModel from "../models/ban.model";
 
 export class BanController extends CRUDControllerBase<Ban & Document> {
@@ -23,16 +24,29 @@ export class BanController extends CRUDControllerBase<Ban & Document> {
         });
         
         await newBan.save();
-        res.status(201).json(newBan);
+        res.status(200).json(newBan);
       } else if (!existingBan.active) {
         existingBan.active = true;
         existingBan.reason = reason;
         existingBan.banCount += 1;
         await existingBan.save();
-        res.status(201).json(existingBan);
+        res.status(200).json(existingBan);
       } else {
         res.status(409).json({ message: "User is already banned" });
       }
+    } catch(err) {
+      this.handleError(err, next);
+    }
+  };
+
+  findBan = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { userId } = req.params;
+      const doc = await this.model.findOne({ userId });
+
+      if (!doc) return next(new NotFoundError("No existing ban"));
+
+      res.status(200).json(doc);
     } catch(err) {
       this.handleError(err, next);
     }
