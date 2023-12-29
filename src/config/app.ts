@@ -2,6 +2,7 @@ import express from "express";
 import morgan from "morgan";
 import session from "express-session";
 import passport from "passport";
+import mongoStore from "connect-mongo";
 
 // Import routers
 import experienceRouter from "../routes/experiences.route";
@@ -31,7 +32,14 @@ export const setupApp = (mongoUri: string) => {
   app.use(session({
     secret: `${process.env.SESSION_SECRET}`,
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: true,
+    store: mongoStore.create({
+      mongoUrl: process.env.MONGODB_URI,
+      dbName: "session-data"
+    }),
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24
+    }
   }));
   app.use(passport.initialize());
   app.use(passport.session());
