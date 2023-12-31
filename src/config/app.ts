@@ -3,6 +3,7 @@ import morgan from "morgan";
 import session from "express-session";
 import passport from "passport";
 import mongoStore from "connect-mongo";
+import { Request, Response, NextFunction } from "express";
 
 // Import routers
 import experienceRouter from "../routes/experiences.route";
@@ -45,6 +46,7 @@ export const setupApp = (mongoUri: string) => {
   app.use(passport.session());
 
   // API routes
+  app.get("/", (req: Request, res: Response) => res.status(200).json({ message: "Ping received!" }));
   app.use("/experiences", experienceRouter);
   experienceRouter.use("/:experienceId/comments", commentRouter);
   userRouter.use("/:userId/bans", banRouter);

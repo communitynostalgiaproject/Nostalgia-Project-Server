@@ -1,8 +1,6 @@
-FROM node:latest
-WORKDIR /usr/src/app
-COPY package*.json ./
+FROM public.ecr.aws/lambda/nodejs:18
+COPY package.json package-lock.json ./
 RUN npm install
 COPY . .
 RUN npm run build
-EXPOSE 5000
-CMD [ "npm", "start" ]
+CMD ["dist/lambda.handler"]
