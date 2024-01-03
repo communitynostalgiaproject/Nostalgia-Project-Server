@@ -3,13 +3,14 @@ import { setupApp } from "../../../../config/app";
 import { createExperiences } from "../../../../utils/testDataGen";
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Express } from "express";
-import { performLogin } from "../../../../utils/testUtils";
+import { performLogin, banUser } from "../../../../utils/testUtils";
 import mongoose from "mongoose";
 import fs from "fs";
 import path from "path";
 
 let mongoServer: MongoMemoryServer;
 let app: Express;
+let testUser: any;
 let sessionCookie: string;
 let testFoodPhotoBuffer: Buffer;
 let testPersonPhotoBuffer: Buffer;
@@ -39,6 +40,7 @@ describe("POST /experiences", () => {
 
     const loginResults = await performLogin(app);
     sessionCookie = loginResults.sessionCookie;
+    testUser = loginResults.testUser;
 
     testFoodPhotoBuffer = fs.readFileSync(path.join(__dirname, "..", "..", "..", "assets", "testFoodPhoto.png"));
     testPersonPhotoBuffer = fs.readFileSync(path.join(__dirname, "..", "..", "..", "assets", "testPersonPhoto.jpg"));
@@ -92,5 +94,20 @@ describe("POST /experiences", () => {
       .set("Cookie", sessionCookie);
 
     expect(res.status).toBe(400);
+  });
+
+  it("should return a 403 code if user is banned", async () => {
+    await banUser({ userId: testUser._id });
+    const testExperience = createExperiences(1)[0];
+
+    const res = await request(app)
+      .post("/experiences")
+      .field("experience", JSON.stringify(testExperience))
+      .attach("foodPhoto", testFoodPhotoBuffer, "testFoodPhoto.png")
+      .attach("personPhoto", testPersonPhotoBuffer, "testPersonPhoto.jpg")
+      .set("Content-Type", "multipart/form-data")
+      .set("Cookie", sessionCookie);
+
+    expect(res.status).toBe(201);
   });
 });

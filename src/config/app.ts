@@ -10,6 +10,7 @@ import userRouter from "../routes/users.route";
 import flagRouter from "../routes/flags.route";
 import authRouter from "../routes/auth.route";
 import reactionRouter from "../routes/reactions.route";
+import banRouter from "../routes/bans.route";
 
 // Import middleware
 import errorHandler from "../middleware/errorHandler";
@@ -38,6 +39,7 @@ export const setupApp = (mongoUri: string) => {
   // API routes
   app.use("/experiences", experienceRouter);
   experienceRouter.use("/:experienceId/comments", commentRouter);
+  userRouter.use("/:userId/bans", banRouter);
   app.use("/users", userRouter);
   app.use("/flags", flagRouter);
   app.use("/reactions", reactionRouter);

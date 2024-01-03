@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+ import { NextFunction, Request, Response } from 'express';
 import { Model, Error } from 'mongoose';
 import { ValidationError, NotFoundError } from '../../utils/customErrors';
 import { DEFAULT_LIMIT } from '../../config/constants';
@@ -17,8 +17,7 @@ export abstract class CRUDControllerBase<T> {
 
         res.status(201).send(savedDocument);
     } catch (err) {
-      console.error(err);
-      next(this.convertMongoError(err));
+      this.handleError(err, next);
     }
   }
 
@@ -31,8 +30,7 @@ export abstract class CRUDControllerBase<T> {
 
       res.status(200).send(document);
     } catch(err) {
-      console.error(err);
-      next(this.convertMongoError(err));
+      this.handleError(err, next);
     }
   }
 
@@ -66,8 +64,7 @@ export abstract class CRUDControllerBase<T> {
       const processedResults = this.processReadResults(req, docs);
       res.status(200).send(processedResults);
     } catch(err) {
-      console.error(err);
-      next(this.convertMongoError(err));
+      this.handleError(err, next);
     }
   }
 
@@ -82,8 +79,7 @@ export abstract class CRUDControllerBase<T> {
   
       res.status(200).send();
     } catch(err) { 
-      console.error(err);
-      next(this.convertMongoError(err));
+      this.handleError(err, next);
     }
   }
 
@@ -96,8 +92,7 @@ export abstract class CRUDControllerBase<T> {
   
       res.status(200).send();
     } catch(err) {
-      console.error(err);
-      next(this.convertMongoError(err));
+      this.handleError(err, next);
     }
   }
 
@@ -132,5 +127,10 @@ export abstract class CRUDControllerBase<T> {
     }
 
     return err;
+  }
+
+  protected handleError = (err: any, next: NextFunction): void => {
+    console.error(err);
+    next(this.convertMongoError(err));
   }
 }

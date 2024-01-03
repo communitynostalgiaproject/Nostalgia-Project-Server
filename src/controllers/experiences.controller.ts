@@ -6,13 +6,12 @@ import { ValidationError } from "../utils/customErrors";
 import { FilesRequest } from "@projectTypes/filesRequest";
 import { ImageUploadRequest } from "../services/fileUploadRequest.service";
 import { MockImageScaler, SharpImageScaler } from "../services/imageScaler.service";
-import { MockVirusScanner, VirusScanner, VirusTotalScanner } from "../services/virusScanner.service";
+import { MockVirusScanner, VirusTotalScanner } from "../services/virusScanner.service";
 import { MockFileStorage, S3StorageService } from "../services/fileStorage.service";
-import ExperienceModel from "../models/experience.model";
-import fs from "fs";
 import { IMAGE_MAX_WIDTH } from "../config/constants";
-import exp from "constants";
-import { vi } from "@faker-js/faker";
+import ExperienceModel from "../models/experience.model";
+import BanModel from "../models/ban.model";
+import fs from "fs";
 
 export class ExperienceController extends CRUDControllerBase<Experience & Document> {
   constructor(model: any) {
@@ -25,6 +24,12 @@ export class ExperienceController extends CRUDControllerBase<Experience & Docume
       const experience = JSON.parse(req.body.experience);
       const foodPhoto = extendedReq.files['foodPhoto'][0];
       const personPhoto = extendedReq.files['personPhoto'][0];
+      const userBanned = await this.checkBanStatus(experience.creatorId);
+
+      if (userBanned) {
+        res.status(403).json({ message: "User is banned" });
+        return;
+      }
 
       const uploadRequest = this.createUploadRequest();
 
@@ -164,6 +169,14 @@ export class ExperienceController extends CRUDControllerBase<Experience & Docume
     ) return new MockImageScaler();
 
     return new SharpImageScaler();
+  }
+
+  private checkBanStatus = async (userId: string): Promise<boolean> => {
+    const ban = await BanModel.findOne({ userId });
+
+    if (ban && ban.active) return true;
+
+    return false;
   }
 
   protected injectReadProjectionString = (req: Request): string => {
