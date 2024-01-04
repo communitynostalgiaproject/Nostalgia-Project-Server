@@ -26,6 +26,12 @@ export const setupApp = (mongoUri: string) => {
   configurePassport(passport);
 
   const app = express();
+  const sessionStore = process.env.NODE_ENV === "test"
+    ? undefined
+    : mongoStore.create({
+      mongoUrl: process.env.MONGODB_URI,
+      dbName: "session-data"
+    });
 
   // Global middlewares
   app.use(express.json());
@@ -34,10 +40,7 @@ export const setupApp = (mongoUri: string) => {
     secret: `${process.env.SESSION_SECRET}`,
     resave: false,
     saveUninitialized: true,
-    store: mongoStore.create({
-      mongoUrl: process.env.MONGODB_URI,
-      dbName: "session-data"
-    }),
+    store: sessionStore,
     cookie: {
       maxAge: 1000 * 60 * 60 * 24
     }
