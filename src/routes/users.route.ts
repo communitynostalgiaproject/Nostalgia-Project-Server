@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createAuthorizationMiddleware, isModerator } from "../middleware/authChecks";
+import { createAuthorizationMiddleware, isModerator, isAuthenticated } from "../middleware/authChecks";
 import UserModel from "../models/user.model";
 import UserController from "../controllers/users.controller";
 
@@ -9,6 +9,7 @@ const isUser = createAuthorizationMiddleware(UserModel, (user, document) => {
 });
 
 router.get("/", isModerator, UserController.read);
+router.get("/fetchData", isAuthenticated, UserController.fetchUserData);
 router.get("/:documentId", isModerator, UserController.readById);
 router.delete("/:documentId", isUser, UserController.delete);
 
