@@ -3,7 +3,8 @@ import morgan from "morgan";
 import session from "express-session";
 import passport from "passport";
 import mongoStore from "connect-mongo";
-import { Request, Response, NextFunction } from "express";
+import cors from "cors";
+import { Request, Response } from "express";
 
 // Import routers
 import experienceRouter from "../routes/experiences.route";
@@ -34,6 +35,10 @@ export const setupApp = (mongoUri: string) => {
     });
 
   // Global middlewares
+  app.use(cors({
+    origin: process.env.REDIRECT_URI,
+    credentials: true
+  }));
   app.use(express.json());
   app.use(morgan("dev"));
   app.use(session({
