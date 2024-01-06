@@ -21,8 +21,6 @@ export class UserController extends CRUDControllerBase<User & Document> {
   };
 
   fetchUserData = async (req: Request, res: Response, next: NextFunction) => {
-    console.log("Fetching user data...");
-    console.log(`User data: ${JSON.stringify(req.user)}`);
     try {
       res.status(200).json(req.user);
     } catch(err) {
