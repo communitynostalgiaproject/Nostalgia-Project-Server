@@ -1,0 +1,36 @@
+# Dependency directories
+node_modules/
+npm-debug.log
+
+# Environment configuration
+.env
+
+# Build directory
+dist/
+
+# Git directory
+.git/
+.gitignore
+
+# Docker files
+Dockerfile
+.dockerignore
+
+# Testing
+__tests__/
+
+# Continuous integration
+.github/
+
+# Various IDE and editor directories
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Build output
+build/
