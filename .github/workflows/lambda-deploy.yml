@@ -3,7 +3,8 @@ name: Deploy to AWS Lambda
 on:
   push:
     branches:
-      - test
+      - master
+      - development
 
 jobs:
   deploy:
@@ -23,17 +24,27 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Build, tag, and push image to Amazon ECR
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+      
+    - name: Set up variables for different environments
       run: |
-        docker build -f Dockerfile.lambda -t $ECR_REGISTRY/$ECR_REPOSITORY .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY
+        if [[ $GITHUB_REF == 'refs/heads/master' ]]; then
+          echo "LAMBDA_FUNCTION_NAME=${{ secrets.PROD_LAMBDA_FUNCTION_NAME }}" >> $GITHUB_ENV
+          echo "ECR_REPOSITORY=${{ secrets.PROD_ECR_REPOSITORY }}" >> $GITHUB_ENV
+        elif [[ $GITHUB_REF == 'refs/heads/development' ]]; then
+          echo "LAMBDA_FUNCTION_NAME=${{ secrets.TEST_LAMBDA_FUNCTION_NAME }}" >> $GITHUB_ENV
+          echo "ECR_REPOSITORY=${{ secrets.TEST_ECR_REPOSITORY }}" >> $GITHUB_ENV
+        fi
+        echo "ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}" >> $GITHUB_ENV
+        echo "IMAGE_TAG=${{ github.sha }}" >> $GITHUB_ENV
+
+    - name: Build, tag, and push image to Amazon ECR
+      run: |
+        docker build -f Dockerfile.lambda -t $ECR_REGISTRY/$ECR_REPOSITORY:IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
     - name: Update Lambda function
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
       run: |
-        aws lambda update-function-code --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:latest | jq 'del(.Environment.Variables)'
+        aws lambda update-function-code --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG | jq 'del(.Environment.Variables)'
