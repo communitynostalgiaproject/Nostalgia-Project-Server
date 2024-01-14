@@ -36,4 +36,4 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
       run: |
-        aws lambda update-function-code --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:latest
+        aws lambda update-function-code --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:latest | jq 'del(.Environment.Variables)'
