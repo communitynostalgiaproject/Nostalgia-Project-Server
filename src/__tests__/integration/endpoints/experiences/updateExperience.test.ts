@@ -151,6 +151,146 @@ describe("PATCH /experiences", () => {
     }
   });
 
+  it("successfully updates the image if no food or person photos are included", async () => {
+    const { sessionCookie, testUser } = await performLogin(app);
+    
+    try {
+      const testExperience = createExperiences(1)[0];
+      const insertedExperience = await new ExperienceModel({
+        ...testExperience,
+        creatorId: testUser._id
+      }).save();
+      const updatedExperience = {
+        ...insertedExperience.toObject(),
+        description: "This description has been updated."
+      };
+
+      const res = await request(app)
+        .patch(`/experiences/${insertedExperience._id}`)
+        .field("experience", JSON.stringify(updatedExperience))
+        .set("Content-Type", "multipart/form-data")
+        .set("Cookie", sessionCookie);
+
+      expect(res.status).toBe(200);
+      
+      const retrievedExperience = await ExperienceModel.findById(insertedExperience._id);
+      expect(retrievedExperience).toBeDefined();
+      const {
+        foodPhotoUrl: retrievedFoodPhotoUrl,
+        personPhotoUrl: retrievedPersonPhotoUrl,
+        ...retrievedRest
+      } = retrievedExperience!.toObject();
+      const {
+        foodPhotoUrl: updatedFoodPhotoUrl,
+        personPhotoUrl: updatedPersonPhotoUrl,
+        ...updatedRest
+      } = updatedExperience;
+      expect(retrievedRest).toEqual(updatedRest);
+      expect(retrievedFoodPhotoUrl).toBe(updatedFoodPhotoUrl);
+      expect(retrievedPersonPhotoUrl).toBe(updatedPersonPhotoUrl);
+    } catch(err) {
+      console.log(`sessionCookie: ${sessionCookie}`);
+      console.log(`testUser: ${JSON.stringify(testUser)}`);
+      throw err;
+    } finally {
+      await performLogout(app, testUser._id);
+    }
+  });
+
+  it("successfully updates the image if only a new food photo is included", async () => {
+    const { sessionCookie, testUser } = await performLogin(app);
+    
+    try {
+      const testExperience = createExperiences(1)[0];
+      const insertedExperience = await new ExperienceModel({
+        ...testExperience,
+        creatorId: testUser._id
+      }).save();
+      const updatedExperience = {
+        ...insertedExperience.toObject(),
+        description: "This description has been updated."
+      };
+
+      const res = await request(app)
+        .patch(`/experiences/${insertedExperience._id}`)
+        .field("experience", JSON.stringify(updatedExperience))
+        .attach("foodPhoto", testFoodPhotoBuffer, "testFoodPhoto.png")
+        .set("Content-Type", "multipart/form-data")
+        .set("Cookie", sessionCookie);
+
+      expect(res.status).toBe(200);
+      
+      const retrievedExperience = await ExperienceModel.findById(insertedExperience._id);
+      expect(retrievedExperience).toBeDefined();
+      const {
+        foodPhotoUrl: retrievedFoodPhotoUrl,
+        personPhotoUrl: retrievedPersonPhotoUrl,
+        ...retrievedRest
+      } = retrievedExperience!.toObject();
+      const {
+        foodPhotoUrl: updatedFoodPhotoUrl,
+        personPhotoUrl: updatedPersonPhotoUrl,
+        ...updatedRest
+      } = updatedExperience;
+      expect(retrievedRest).toEqual(updatedRest);
+      expect(retrievedFoodPhotoUrl).not.toBe(updatedFoodPhotoUrl);
+      expect(retrievedPersonPhotoUrl).toBe(updatedPersonPhotoUrl);
+    } catch(err) {
+      console.log(`sessionCookie: ${sessionCookie}`);
+      console.log(`testUser: ${JSON.stringify(testUser)}`);
+      throw err;
+    } finally {
+      await performLogout(app, testUser._id);
+    }
+  });
+
+  it("successfully updates the image if only a new person photo is included", async () => {
+    const { sessionCookie, testUser } = await performLogin(app);
+    
+    try {
+      const testExperience = createExperiences(1)[0];
+      const insertedExperience = await new ExperienceModel({
+        ...testExperience,
+        creatorId: testUser._id
+      }).save();
+      const updatedExperience = {
+        ...insertedExperience.toObject(),
+        description: "This description has been updated."
+      };
+
+      const res = await request(app)
+        .patch(`/experiences/${insertedExperience._id}`)
+        .field("experience", JSON.stringify(updatedExperience))
+        .attach("personPhoto", testPersonPhotoBuffer, "testPersonPhoto.jpg")
+        .set("Content-Type", "multipart/form-data")
+        .set("Cookie", sessionCookie);
+
+      expect(res.status).toBe(200);
+      
+      const retrievedExperience = await ExperienceModel.findById(insertedExperience._id);
+      expect(retrievedExperience).toBeDefined();
+      const {
+        foodPhotoUrl: retrievedFoodPhotoUrl,
+        personPhotoUrl: retrievedPersonPhotoUrl,
+        ...retrievedRest
+      } = retrievedExperience!.toObject();
+      const {
+        foodPhotoUrl: updatedFoodPhotoUrl,
+        personPhotoUrl: updatedPersonPhotoUrl,
+        ...updatedRest
+      } = updatedExperience;
+      expect(retrievedRest).toEqual(updatedRest);
+      expect(retrievedFoodPhotoUrl).toBe(updatedFoodPhotoUrl);
+      expect(retrievedPersonPhotoUrl).not.toBe(updatedPersonPhotoUrl);
+    } catch(err) {
+      console.log(`sessionCookie: ${sessionCookie}`);
+      console.log(`testUser: ${JSON.stringify(testUser)}`);
+      throw err;
+    } finally {
+      await performLogout(app, testUser._id);
+    }
+  });
+
   it("should allow moderators to update experiences that aren't theirs", async () => {
     const { sessionCookie, testUser } = await performLogin(app);
     await upgradePermissions(app, { testUser, makeModerator: true });

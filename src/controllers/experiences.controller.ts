@@ -1,4 +1,4 @@
-import e, { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 import { Experience } from "@projectTypes/experience";
 import { Document } from "mongoose";
 import { CRUDControllerBase } from "./base/CRUDControllerBase";
@@ -12,24 +12,19 @@ import { IMAGE_MAX_WIDTH } from "../config/constants";
 import ExperienceModel from "../models/experience.model";
 import BanModel from "../models/ban.model";
 import fs from "fs";
+import { User } from "@projectTypes/user";
 
 export class ExperienceController extends CRUDControllerBase<Experience & Document> {
   constructor(model: any) {
     super(model);
-  }
+  };
 
   create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const extendedReq = req as FilesRequest;
       const experience = JSON.parse(req.body.experience);
       const foodPhoto = extendedReq.files['foodPhoto'][0];
-      const personPhoto = extendedReq.files['personPhoto'][0];
-      const userBanned = await this.checkBanStatus(experience.creatorId);
-
-      if (userBanned) {
-        res.status(403).json({ message: "User is banned" });
-        return;
-      }
+      const personPhoto = extendedReq.files['personPhoto']?.[0];
 
       const uploadRequest = this.createUploadRequest();
 
@@ -59,14 +54,14 @@ export class ExperienceController extends CRUDControllerBase<Experience & Docume
       console.error(err);
       next(this.convertMongoError(err));
     }
-  }
+  };
 
   update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const extendedReq = req as FilesRequest;
       const experience = JSON.parse(req.body.experience);
-      const foodPhoto = extendedReq.files['foodPhoto'][0];
-      const personPhoto = extendedReq.files['personPhoto'][0];
+      const foodPhoto = extendedReq.files['foodPhoto']?.[0];
+      const personPhoto = extendedReq.files['personPhoto']?.[0];
       let newFoodPhotoUrl: string | undefined;
       let newPersonPhotoUrl: string | undefined;
 
@@ -104,7 +99,7 @@ export class ExperienceController extends CRUDControllerBase<Experience & Docume
       console.error(err);
       next(this.convertMongoError(err));
     }
-  }
+  };
 
   delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -126,7 +121,7 @@ export class ExperienceController extends CRUDControllerBase<Experience & Docume
       console.error(err);
       next(this.convertMongoError(err));
     }
-  }
+  };
 
   private createUploadRequest = () => {
     const storageService = this.createStorageService();
@@ -139,7 +134,7 @@ export class ExperienceController extends CRUDControllerBase<Experience & Docume
       storageService,
       IMAGE_MAX_WIDTH
     );
-  }
+  };
 
   private createStorageService = () => {
     if (
@@ -169,15 +164,7 @@ export class ExperienceController extends CRUDControllerBase<Experience & Docume
     ) return new MockImageScaler();
 
     return new SharpImageScaler();
-  }
-
-  private checkBanStatus = async (userId: string): Promise<boolean> => {
-    const ban = await BanModel.findOne({ userId });
-
-    if (ban && ban.active) return true;
-
-    return false;
-  }
+  };
 
   protected injectReadProjectionString = (req: Request): string => {
     const { locationsOnly } = req.query;
@@ -213,7 +200,7 @@ export class ExperienceController extends CRUDControllerBase<Experience & Docume
         }
       }
     };
-  }
+  };
 
   protected convertBbox = (bbox: string) => {
     const nums = bbox.split(",").map((coord: string) => Number(coord));
@@ -225,7 +212,7 @@ export class ExperienceController extends CRUDControllerBase<Experience & Docume
       lowerLeft: [nums[0], nums[1]],
       upperRight: [nums[2], nums[3]]
     };
-  }
+  };
 }
 
 export default new ExperienceController(ExperienceModel);
