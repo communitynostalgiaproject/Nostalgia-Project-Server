@@ -8,6 +8,7 @@ export default (err: CustomError, req: Request, res: Response, next: NextFunctio
   if (err.statusCode) {
       res.status(err.statusCode).send({ message: err.message });
   } else {
+      console.error(err);
       res.status(500).send({ message: 'Internal Server Error' });
   }
 };
