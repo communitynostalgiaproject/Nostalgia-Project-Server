@@ -5,7 +5,7 @@ import ExperienceController from "../controllers/experiences.controller";
 import ExperienceModel from "../models/experience.model";
 
 const router = Router();
-const upload = multer({ dest: "/tmp" });
+const upload = multer({ dest: "/tmp", limits: { fieldSize: 5 * 1024 * 1024 } });
 const isAuthorized = createAuthorizationMiddleware(ExperienceModel, (user, document) => {
   return user._id.equals(document.creatorId) || user.isModerator || user.isAdmin;
 });
