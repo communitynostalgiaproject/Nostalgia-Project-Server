@@ -1,7 +1,14 @@
 import ConfigurationModel from "../models/configuration.model";
+import { startSession } from "mongoose";
 import { Configuration } from "@projectTypes/configuration";
 
-export class ConfigurationService {
+export interface ConfigurationService {
+  getConfiguration: (key: string) => Promise<Configuration | undefined>;
+  setConfiguration: (key: string, value: string) => Promise<Configuration>;
+  setConfigurations: (configUpdates: { key: string, value: string }[]) => Promise<void>;
+}
+
+export class MongoDBConfigurationService implements MongoDBConfigurationService {
   constructor() {};
 
   async getConfiguration(key: string): Promise<Configuration | undefined> {
@@ -23,6 +30,33 @@ export class ConfigurationService {
     } catch (error) {
       console.error('Error setting configuration:', error);
       throw error;
+    }
+  }
+
+  // Performs transactional updates
+  async setConfigurations(configUpdates: { key: string, value: string }[]): Promise<void> {
+    const session = await startSession();
+    session.startTransaction();
+
+    try {
+      const updateOperations = configUpdates.map(config => {
+        return {
+          updateOne: {
+            filter: { key: config.key },
+            update: { $set: { value: config.value } },
+            upsert: true
+          }
+        };
+      });
+
+      await ConfigurationModel.bulkWrite(updateOperations);
+      await session.commitTransaction();
+    } catch (error) {
+      await session.abortTransaction();
+      console.error(`Error updating configurations: ${error}`);
+      throw error;
+    } finally {
+      session.endSession();
     }
   }
 }
