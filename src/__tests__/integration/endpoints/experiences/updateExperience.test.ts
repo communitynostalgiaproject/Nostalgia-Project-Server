@@ -37,7 +37,7 @@ describe("PATCH /experiences", () => {
     mongoServer = await MongoMemoryServer.create();
     const uri = mongoServer.getUri();
     await mongoose.connect(uri);
-    app = setupApp(uri);
+    app = await setupApp(uri);
 
     testFoodPhotoBuffer = fs.readFileSync(path.join(__dirname, "..", "..", "..", "assets", "testFoodPhoto.png"));
     testPersonPhotoBuffer = fs.readFileSync(path.join(__dirname, "..", "..", "..", "assets", "testPersonPhoto.jpg"));

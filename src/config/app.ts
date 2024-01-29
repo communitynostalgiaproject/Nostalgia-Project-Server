@@ -22,7 +22,7 @@ import errorHandler from "../middleware/errorHandler";
 import connectDB from "./mongodbSetup";
 import configurePassport from "../config/passportConfig";
 
-export const setupApp = (mongoUri: string) => {
+export const setupApp = async (mongoUri: string) => {
   connectDB(mongoUri);
   configurePassport(passport);
 
