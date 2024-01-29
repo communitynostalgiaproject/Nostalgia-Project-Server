@@ -4,19 +4,19 @@ import { Document } from "mongoose";
 import { CRUDControllerBase } from "./base/CRUDControllerBase";
 import { ValidationError } from "../utils/customErrors";
 import { FilesRequest } from "@projectTypes/filesRequest";
-import { ImageUploadRequest } from "../services/fileUploadRequest.service";
-import { MockImageScaler, SharpImageScaler } from "../services/imageScaler.service";
-import { MockVirusScanner, VirusTotalScanner } from "../services/virusScanner.service";
-import { MockFileStorage, S3StorageService } from "../services/fileStorage.service";
-import { IMAGE_MAX_WIDTH } from "../config/constants";
+import { ImageUploader } from "../services/fileUploader.service";
+import { FileStorage } from "../services/fileStorage.service";
 import ExperienceModel from "../models/experience.model";
-import BanModel from "../models/ban.model";
 import fs from "fs";
-import { User } from "@projectTypes/user";
 
 export class ExperienceController extends CRUDControllerBase<Experience & Document> {
-  constructor(model: any) {
-    super(model);
+  private imgUploader: ImageUploader;
+  private imgStorage: FileStorage;
+
+  constructor(imgUploader: ImageUploader, imgStorage: FileStorage) {
+    super(ExperienceModel);
+    this.imgUploader = imgUploader;
+    this.imgStorage = imgStorage
   };
 
   create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -26,16 +26,14 @@ export class ExperienceController extends CRUDControllerBase<Experience & Docume
       const foodPhoto = extendedReq.files['foodPhoto'][0];
       const personPhoto = extendedReq.files['personPhoto']?.[0];
 
-      const uploadRequest = this.createUploadRequest();
-
       if (!experience) throw new ValidationError("Missing experience JSON");
       if (!foodPhoto) throw new ValidationError("Missing food photo");
 
-      const foodPhotoUrl = await uploadRequest.uploadFile(
+      const foodPhotoUrl = await this.imgUploader.uploadFile(
         fs.readFileSync(foodPhoto.path),
         `${foodPhoto.filename}.${foodPhoto.mimetype.split("/")[1]}`
       );
-      const personPhotoUrl = personPhoto ? await uploadRequest.uploadFile(
+      const personPhotoUrl = personPhoto ? await this.imgUploader.uploadFile(
         fs.readFileSync(personPhoto.path),
         `${personPhoto.filename}.${personPhoto.mimetype.split("/")[1]}`
       ) : undefined;
@@ -65,15 +63,13 @@ export class ExperienceController extends CRUDControllerBase<Experience & Docume
       let newFoodPhotoUrl: string | undefined;
       let newPersonPhotoUrl: string | undefined;
 
-      const uploadRequest = this.createUploadRequest();
-
       if (!experience) throw new ValidationError("Missing experience JSON");
 
-      if (foodPhoto) newFoodPhotoUrl = await uploadRequest.uploadFile(
+      if (foodPhoto) newFoodPhotoUrl = await this.imgUploader.uploadFile(
         fs.readFileSync(foodPhoto.path),
         experience.foodPhotoUrl.split("/").pop()!
       );
-      if (personPhoto) newPersonPhotoUrl = await uploadRequest.uploadFile(
+      if (personPhoto) newPersonPhotoUrl = await this.imgUploader.uploadFile(
         fs.readFileSync(personPhoto.path),
         experience.personPhotoUrl 
           ? experience.personPhotoUrl.split("/").pop()!
@@ -105,12 +101,11 @@ export class ExperienceController extends CRUDControllerBase<Experience & Docume
     try {
       const { documentId } = req.params;
       const experience = await this.model.findById(documentId);
-      const storageService = this.createStorageService();
 
       if (!experience) throw new ValidationError("Experience not found");
 
-      if (experience.foodPhotoUrl) await storageService.deleteFile(experience.foodPhotoUrl.split("/").pop()!);
-      if (experience.personPhotoUrl) await storageService.deleteFile(experience.personPhotoUrl.split("/").pop()!);
+      if (experience.foodPhotoUrl) await this.imgStorage.deleteFile(await this.imgStorage.getFileId(experience.foodPhotoUrl));
+      if (experience.personPhotoUrl) await this.imgStorage.deleteFile(await this.imgStorage.getFileId(experience.personPhotoUrl));
 
       const deleteResult = await this.model.deleteOne({ _id: documentId });
 
@@ -121,49 +116,6 @@ export class ExperienceController extends CRUDControllerBase<Experience & Docume
       console.error(err);
       next(this.convertMongoError(err));
     }
-  };
-
-  private createUploadRequest = () => {
-    const storageService = this.createStorageService();
-    const virusScanner = this.createVirusScanner();
-    const imageScaler = this.createImageScaler();
-
-    return new ImageUploadRequest(
-      virusScanner,
-      imageScaler,
-      storageService,
-      IMAGE_MAX_WIDTH
-    );
-  };
-
-  private createStorageService = () => {
-    if (
-      process.env.NODE_ENV === "test"
-      || process.env.BYPASS_FILE_STORAGE
-    ) return new MockFileStorage();
-
-    return  new S3StorageService(process.env.AWS_S3_BUCKET_NAME!, process.env.AWS_REGION!);
-  };
-
-
-
-  private createVirusScanner = () => {
-    if (
-      process.env.NODE_ENV === "test" 
-      || !process.env.VIRUS_TOTAL_API_KEY 
-      || process.env.BYPASS_VIRUS_SCANNING
-    ) return new MockVirusScanner();
-
-    return new VirusTotalScanner(process.env.VIRUS_TOTAL_API_KEY!);
-  };
-
-  private createImageScaler = () => {
-    if (
-      process.env.NODE_ENV === "test"
-      || process.env.BYPASS_IMAGE_SCALING
-    ) return new MockImageScaler();
-
-    return new SharpImageScaler();
   };
 
   protected injectReadProjectionString = (req: Request): string => {
@@ -213,6 +165,4 @@ export class ExperienceController extends CRUDControllerBase<Experience & Docume
       upperRight: [nums[2], nums[3]]
     };
   };
-}
-
-export default new ExperienceController(ExperienceModel);
+};
