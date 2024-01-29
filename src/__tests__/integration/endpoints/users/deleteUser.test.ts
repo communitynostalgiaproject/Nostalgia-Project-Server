@@ -15,7 +15,7 @@ describe("DELETE /users/{userId}", () => {
     mongoServer = await MongoMemoryServer.create();
     const uri = mongoServer.getUri();
     await mongoose.connect(uri);
-    app = setupApp(uri);
+    app = await setupApp(uri);
   });
 
   beforeEach(async () => {

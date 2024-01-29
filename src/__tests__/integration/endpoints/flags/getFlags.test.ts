@@ -23,7 +23,7 @@ describe("GET /flags", () => {
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
     const uri = mongoServer.getUri();
-    app = setupApp(uri);
+    app = await setupApp(uri);
 
     testUsers = await UserModel.insertMany(createUsers(5));
     testExperiences = await ExperienceModel.insertMany(createExperiences(10, testUsers.map((user: User) => `${user._id}`)));

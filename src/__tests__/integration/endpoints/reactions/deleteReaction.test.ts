@@ -15,7 +15,7 @@ describe("DELETE /reactions/{reactionId}", () => {
     mongoServer = await MongoMemoryServer.create();
     const uri = mongoServer.getUri();
     await mongoose.connect(uri);
-    app = setupApp(uri);
+    app = await setupApp(uri);
   });
   
   afterAll(async () => {
