@@ -4,16 +4,16 @@ import { Document } from "mongoose";
 import { CRUDControllerBase } from "./base/CRUDControllerBase";
 import { ValidationError } from "../utils/customErrors";
 import { FilesRequest } from "@projectTypes/filesRequest";
-import { ImageUploader } from "../services/fileUploader.service";
+import { FileUploader } from "../services/fileUploader.service";
 import { FileStorage } from "../services/fileStorage.service";
 import ExperienceModel from "../models/experience.model";
 import fs from "fs";
 
 export class ExperienceController extends CRUDControllerBase<Experience & Document> {
-  private imgUploader: ImageUploader;
+  private imgUploader: FileUploader;
   private imgStorage: FileStorage;
 
-  constructor(imgUploader: ImageUploader, imgStorage: FileStorage) {
+  constructor(imgUploader: FileUploader, imgStorage: FileStorage) {
     super(ExperienceModel);
     this.imgUploader = imgUploader;
     this.imgStorage = imgStorage
@@ -44,8 +44,16 @@ export class ExperienceController extends CRUDControllerBase<Experience & Docume
         personPhotoUrl
       });
 
-      fs.unlinkSync(foodPhoto.path);
-      if (personPhoto) fs.unlinkSync(personPhoto.path);
+      fs.unlink(foodPhoto.path, (err) => {
+        if (err) {
+          console.error(`Error deleting photo: ${err}`);
+        }
+      });
+      if (personPhoto) fs.unlink(personPhoto.path, (err) => {
+        if (err) {
+          console.error(`Error deleting photo: ${err}`);
+        }
+      });
 
       res.status(201).json(newExperience);
     } catch (err) {
@@ -76,8 +84,16 @@ export class ExperienceController extends CRUDControllerBase<Experience & Docume
           : `${personPhoto.filename}.${personPhoto.mimetype.split("/")[1]}`
       );
 
-      if (foodPhoto) fs.unlinkSync(foodPhoto.path);
-      if (personPhoto) fs.unlinkSync(personPhoto.path);
+      if (foodPhoto) fs.unlink(foodPhoto.path, (err) => {
+        if (err) {
+          console.error(`Error deleting photo: ${err}`);
+        }
+      });
+      if (personPhoto) fs.unlink(personPhoto.path, (err) => {
+        if (err) {
+          console.error(`Error deleting photo: ${err}`);
+        }
+      });
 
       const {
         _id,

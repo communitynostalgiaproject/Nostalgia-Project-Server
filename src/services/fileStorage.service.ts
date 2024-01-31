@@ -13,7 +13,7 @@ export interface FileStorage {
   storeFile(fileBuffer: Buffer, fileName: string): Promise<string>;
   getFileId(filePath: string): Promise<string>;
   deleteFile(fileId: string): Promise<void>;
-}
+};
 
 export class MockFileStorage implements FileStorage {
   storeFile = async (fileBuffer: Buffer, fileId: string): Promise<string> => {
@@ -27,7 +27,7 @@ export class MockFileStorage implements FileStorage {
   deleteFile = async (fileName: string): Promise<void> => {
     return;
   };
-}
+};
 
 export class S3StorageService implements FileStorage {
   private bucketName: string;
@@ -97,6 +97,9 @@ export class ImgurStorageService implements FileStorage {
   
       return { accessToken: accessToken.value, refreshToken: refreshToken.value };
     } catch(err) {
+      if (err instanceof AxiosError) {
+        console.error(`Error fetching Imgur tokens: ${err.message}`);
+      }
       console.error(`Error fetching Imgur tokens: ${err}`);
       throw err;
     }
@@ -106,18 +109,21 @@ export class ImgurStorageService implements FileStorage {
     try {
       await this.verifyToken();
       const formData = new FormData();
-      formData.append("image", fileBuffer);
-      const response = await axios.post('https://api.imgur.com/3/upload', formData, {
+      formData.append("image", fileBuffer, fileName);
+
+      console.log(`Uploading file: ${fileName}, Size: ${fileBuffer.length} bytes`);
+      const response = await axios.post("https://api.imgur.com/3/image", formData, {
         headers: {
-          'Authorization': `Bearer ${this.accessToken}`,
-          'Content-Type': 'application/octet-stream'
-        }
+          "Authorization": `Bearer ${this.accessToken}`,
+          ...formData.getHeaders()
+        },
+        maxBodyLength: Infinity
       });
 
       return response.data.data.link; // URL of the uploaded image
     } catch (error) {
-      console.error('Error uploading to Imgur:', error);
-      throw new Error('Failed to upload image to Imgur');
+      console.error("Error uploading to Imgur:", error);
+      throw new Error("Failed to upload image to Imgur");
     }
   };
 
@@ -127,27 +133,29 @@ export class ImgurStorageService implements FileStorage {
 
   async deleteFile(imageHash: string): Promise<void> {
     try {
+      await this.verifyToken();
       await axios.delete(`https://api.imgur.com/3/image/${imageHash}`, {
         headers: {
-          'Authorization': `Bearer ${this.accessToken}`
+          "Authorization": `Bearer ${this.accessToken}`
         }
       });
     } catch (err) {
-      console.error('Error deleting from Imgur:', err);
+      console.error("Error deleting from Imgur:", err);
       throw err;
     }
   };
 
   async verifyToken() {
     try {
-      await axios.get("https://api.imgur.com/3/account/me/settings", {
+      const res = await axios.get("https://api.imgur.com/3/account/me/settings", {
         headers: {
           "Authorization": `Bearer ${this.accessToken}`
         }
       });
+
     } catch(err) {
-      if (err instanceof AxiosError && err.status === 403) {
-        await this.updateToken();
+      if (err instanceof AxiosError && err.response && err.response.status === 403) {
+        await this.updateTokens();
         return;
       }
       console.error(`Error verifying Imgur access token: ${err}`);
@@ -155,7 +163,8 @@ export class ImgurStorageService implements FileStorage {
     }
   };
 
-  async updateToken() {
+  async updateTokens() {
+    console.log("Updating Imgur tokens");
     try {
       var data = new FormData();
       data.append("refresh_token", this.refreshToken);

@@ -22,5 +22,5 @@ export class SharpImageScaler implements ImageScaler {
       console.error('Error scaling image:', error);
       throw new Error('Image scaling failed');
     }
-  }
-}
+  };
+};

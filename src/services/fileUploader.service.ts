@@ -2,11 +2,17 @@ import { VirusScanner } from "./virusScanner.service";
 import { ImageScaler } from "./imageScaler.service";
 import { FileStorage } from "./fileStorage.service";
 
-export interface fileUploader {
+export interface FileUploader {
   uploadFile(fileBuffer: Buffer, fileName: string): Promise<string>;
 }
 
-export class ImageUploader implements fileUploader {
+export class MockFileUploader implements FileUploader {
+  async uploadFile(fileBuffer: Buffer, fileName: string): Promise<string> {
+    return "thisisatest.com/29835309";
+  };
+};
+
+export class ImageUploader implements FileUploader {
   private readonly virusScanner: VirusScanner;
   private readonly imageScaler: ImageScaler;
   private readonly fileStorage: FileStorage;
@@ -25,8 +31,9 @@ export class ImageUploader implements fileUploader {
       throw new Error('File is not safe');
     }
 
-    const scaledImage = await this.imageScaler.scaleImage(fileBuffer, this.maxWidth);
-    const fileUrl = await this.fileStorage.storeFile(scaledImage, fileName);
+    // const scaledImage = await this.imageScaler.scaleImage(fileBuffer, this.maxWidth);
+    // const fileUrl = await this.fileStorage.storeFile(scaledImage, fileName);
+    const fileUrl = await this.fileStorage.storeFile(fileBuffer, fileName);
     return fileUrl;
   };
 };
