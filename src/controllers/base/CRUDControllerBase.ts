@@ -8,7 +8,7 @@ export abstract class CRUDControllerBase<T> {
 
   constructor(model: Model<T>) {
       this.model = model;
-  }
+  };
 
   create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -19,7 +19,7 @@ export abstract class CRUDControllerBase<T> {
     } catch (err) {
       this.handleError(err, next);
     }
-  }
+  };
 
   readById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -28,11 +28,11 @@ export abstract class CRUDControllerBase<T> {
 
       if (!document) throw new NotFoundError("Document not found");
 
-      res.status(200).send(document);
+      res.status(200).send(this.processReadResults(req, document));
     } catch(err) {
       this.handleError(err, next);
     }
-  }
+  };
 
   read = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -66,7 +66,7 @@ export abstract class CRUDControllerBase<T> {
     } catch(err) {
       this.handleError(err, next);
     }
-  }
+  };
 
   update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -81,7 +81,7 @@ export abstract class CRUDControllerBase<T> {
     } catch(err) { 
       this.handleError(err, next);
     }
-  }
+  };
 
   delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -94,22 +94,22 @@ export abstract class CRUDControllerBase<T> {
     } catch(err) {
       this.handleError(err, next);
     }
-  }
+  };
 
   // Overwrite this method to modify the query before it is sent to the database
   protected modifyReadQuery = async (query: any): Promise<any> => {
     return query;
-  }
+  };
 
   // Overwrite this method to inject a read projection string into the query
   protected injectReadProjectionString = (req: Request): string => {
     return "";
-  }
+  };
 
   // Overwrite this method to process results of a read operation before sending them back to the client
-  protected processReadResults = (req: Request, results: any): any => {
+  protected processReadResults = (req: Request, results: T | T[]): any => {
     return results;
-  }
+  };
 
   protected convertMongoError = (err: any): any => {
     if (err instanceof Error.ValidationError) {
@@ -127,10 +127,10 @@ export abstract class CRUDControllerBase<T> {
     }
 
     return err;
-  }
+  };
 
   protected handleError = (err: any, next: NextFunction): void => {
     console.error(err);
     next(this.convertMongoError(err));
-  }
-}
+  };
+};
