@@ -5,8 +5,8 @@ import { Request, Response, NextFunction } from "express";
 import UserModel from "../models/user.model";
 
 export class UserController extends CRUDControllerBase<User & Document> {
-  constructor(model: any) {
-    super(model);
+  constructor() {
+    super(UserModel);
   }
 
   protected modifyReadQuery = async (query: any): Promise<any> => {
@@ -51,6 +51,4 @@ export class UserController extends CRUDControllerBase<User & Document> {
       this.handleError(err, next);
     }
   };
-}
-
-export default new UserController(UserModel);
+};
