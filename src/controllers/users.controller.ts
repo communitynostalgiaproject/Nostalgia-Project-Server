@@ -20,29 +20,20 @@ export class UserController extends CRUDControllerBase<User & Document> {
     return query;
   };
   
-  protected processReadResults = (req: Request, results: User & Document | (User & Document)[]): any => {
+  protected processReadResults = (req: Request, results: (User & Document)[]) => {
     const loggedInUser = req.user ? req.user as User : undefined;
     const isModerator = loggedInUser && (loggedInUser.isModerator || loggedInUser.isAdmin);
-    let processedResults;
+    const processedResults: any[] = [];
 
-    if (Array.isArray(results)) {
-      processedResults = [];
-      results.forEach((user: any) => {
-        const isLoggedInAsUser = loggedInUser && loggedInUser._id === user._id;
+    results.forEach((user: any) => {
+      const isLoggedInAsUser = loggedInUser && loggedInUser._id === user._id;
 
-        if (isLoggedInAsUser || isModerator) {
-          processedResults.push(user);
-        } else {
-          processedResults.push(this.removeSensitiveData(user));
-        }
-      });
-    } else {
-      const isLoggedInAsUser = loggedInUser && loggedInUser._id === results._id;
-
-      processedResults = isLoggedInAsUser || isModerator 
-        ? results 
-        : this.removeSensitiveData(results);
-    }
+      if (isLoggedInAsUser || isModerator) {
+        processedResults.push(user);
+      } else {
+        processedResults.push(this.removeSensitiveData(user));
+      }
+    });
 
     return processedResults;
   };

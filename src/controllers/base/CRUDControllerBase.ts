@@ -28,7 +28,7 @@ export abstract class CRUDControllerBase<T> {
 
       if (!document) throw new NotFoundError("Document not found");
 
-      res.status(200).send(this.processReadResults(req, document));
+      res.status(200).send(this.processReadResults(req, [document])[0]);
     } catch(err) {
       this.handleError(err, next);
     }
@@ -107,7 +107,7 @@ export abstract class CRUDControllerBase<T> {
   };
 
   // Overwrite this method to process results of a read operation before sending them back to the client
-  protected processReadResults = (req: Request, results: T | T[]): any => {
+  protected processReadResults = (req: Request, results: T[]): any[] => {
     return results;
   };
 
