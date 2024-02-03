@@ -9,9 +9,10 @@ const isUser = createAuthorizationMiddleware(UserModel, (user, document) => {
 });
 const userController = new UserController();
 
-router.get("/", isModerator, userController.read);
+router.get("/", userController.read);
 router.get("/fetchData", isAuthenticated, userController.fetchUserData);
-router.get("/:documentId", isModerator, userController.readById);
+router.get("/:documentId", userController.readById);
+router.patch("/:documentId", isUser, userController.update);
 router.delete("/:documentId", isUser, userController.delete);
 
 export default router;
