@@ -26,7 +26,7 @@ export class UserController extends CRUDControllerBase<User & Document> {
     const processedResults: any[] = [];
 
     results.forEach((user: any) => {
-      const isLoggedInAsUser = loggedInUser && loggedInUser._id === user._id;
+      const isLoggedInAsUser = loggedInUser && `${loggedInUser._id}` === `${user._id}`;
 
       if (isLoggedInAsUser || isModerator) {
         processedResults.push(user);
