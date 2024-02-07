@@ -131,6 +131,46 @@ describe("GET /experiences", () => {
     });
   });
 
+  it("returns all experiences except for those in 'excludedIds'", async () => {
+    const numExperiences = 11;
+    const numExcluded = 5;
+    const randomExperiences = createExperiences(numExperiences);
+    const boundingBox = {
+      lowerLeft: [0, 0],
+      upperRight: [20, 20]
+    }
+    randomExperiences.forEach((experience, i) => {
+      experience.place.location.coordinates = [
+        faker.location.longitude({
+          min: boundingBox.lowerLeft[1] + 1,
+          max: boundingBox.upperRight[1] - 1,
+          precision: 4
+        }),
+        faker.location.latitude({
+          min: boundingBox.lowerLeft[0] + 1,
+          max: boundingBox.upperRight[0] - 1,
+          precision: 4
+        })
+      ];
+    });
+    const insertedExperiences = await ExperienceModel.insertMany(randomExperiences);
+
+    const excludedIds: string[] = insertedExperiences.map((experience: any) => experience._id.toString()).slice(0, numExcluded);
+
+    const res = await request(app)
+      .get(`/experiences`)
+      .query({
+        bbox: "0,0,20,20",
+        excludedIds
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.length).toBe(numExperiences - numExcluded);
+    res.body.forEach((experience: any) => {
+      expect(excludedIds).not.toContain(experience._id);
+    });
+  });
+
   it("should return a 200 code and an empty list when no experiences exist within the given bounding box", async () => {
     const randomExperiences = createExperiences(30);
     const boundingBox = {
