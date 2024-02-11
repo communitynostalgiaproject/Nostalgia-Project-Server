@@ -8,7 +8,7 @@ export interface FileUploader {
 
 export class MockFileUploader implements FileUploader {
   async uploadFile(fileBuffer: Buffer, fileName: string): Promise<string> {
-    return "thisisatest.com/29835309";
+    return "no_image";
   };
 };
 
