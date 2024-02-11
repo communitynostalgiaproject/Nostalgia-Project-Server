@@ -2,7 +2,11 @@ import { Router } from "express";
 import { isAuthenticated, createAuthorizationMiddleware, checkBanStatus } from "../middleware/authChecks";
 import multer from "multer";
 import { MongoDBConfigurationService } from "../services/configuration.service";
+<<<<<<< HEAD
 import { MockFileStorage, FileStorage } from "../services/fileStorage.service";
+=======
+import { MockFileStorage } from "../services/fileStorage.service";
+>>>>>>> development
 import { MockFileUploader } from "../services/fileUploader.service";
 import { MockVirusScanner } from "../services/virusScanner.service";
 import { MockImageScaler } from "../services/imageScaler.service";
