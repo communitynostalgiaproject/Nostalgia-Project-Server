@@ -1,11 +1,12 @@
 import request from "supertest";
 import { setupApp } from "../../../../config/app";
-import { createUsers } from "../../../../utils/testDataGen";
+import { createUsers, createExperiences } from "../../../../utils/testDataGen";
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Express } from "express";
 import { performLogin, performLogout, upgradePermissions } from "../../../../utils/testUtils";
 import mongoose from "mongoose";
 import UserModel from "../../../../models/user.model";
+import ExperienceModel from "../../../../models/experience.model";
 
 let mongoServer: MongoMemoryServer;
 let app: Express;
@@ -72,6 +73,108 @@ describe("DELETE /users/{userId}", () => {
       
       const retrievedUser = await UserModel.findById(testUser._id);
       expect(retrievedUser).toBeNull();
+    } catch (err) {
+      throw err;
+    } finally {
+      await performLogout(app);
+    }
+  });
+
+  it("deletes a user's experience posts if passed 'deletePosts=true' query param", async () => {
+    const { sessionCookie, testUser } = await performLogin(app);
+    expect(sessionCookie).toBeDefined();
+    expect(testUser).toBeDefined();
+
+    try {
+      const testExperiences = createExperiences(5, [testUser._id]);
+      const insertedExperiences = await ExperienceModel.insertMany(testExperiences);
+
+      insertedExperiences.forEach((experience: any) => {
+        expect(experience._id).toBeDefined();
+        expect(experience.creatorId.toString()).toBe(testUser._id.toString());
+      });
+
+      const res = await request(app)
+        .delete(`/users/${testUser._id}?deletePosts=true`)
+        .set("Cookie", sessionCookie);
+  
+      expect(res.status).toBe(200);
+      
+      const retrievedUser = await UserModel.findById(testUser._id);
+      expect(retrievedUser).toBeNull();
+
+      insertedExperiences.forEach(async (experience: any) => {
+        const retrievedExperience = await ExperienceModel.findById(experience._id);
+        expect(retrievedExperience).toBeNull();
+      });
+    } catch (err) {
+      throw err;
+    } finally {
+      await performLogout(app);
+    }
+  });
+
+  it("does not delete a user's experience posts if passed 'deletePosts=false' query param", async () => {
+    const { sessionCookie, testUser } = await performLogin(app);
+    expect(sessionCookie).toBeDefined();
+    expect(testUser).toBeDefined();
+
+    try {
+      const testExperiences = createExperiences(5, [testUser._id]);
+      const insertedExperiences = await ExperienceModel.insertMany(testExperiences);
+
+      insertedExperiences.forEach((experience: any) => {
+        expect(experience._id).toBeDefined();
+        expect(experience.creatorId.toString()).toBe(testUser._id.toString());
+      });
+
+      const res = await request(app)
+        .delete(`/users/${testUser._id}?deletePosts=false`)
+        .set("Cookie", sessionCookie);
+  
+      expect(res.status).toBe(200);
+      
+      const retrievedUser = await UserModel.findById(testUser._id);
+      expect(retrievedUser).toBeNull();
+
+      insertedExperiences.forEach(async (experience: any) => {
+        const retrievedExperience = await ExperienceModel.findById(experience._id);
+        expect(retrievedExperience).toBeDefined();
+      });
+    } catch (err) {
+      throw err;
+    } finally {
+      await performLogout(app);
+    }
+  });
+
+  it("does not delete a user's experience posts if 'deletePosts' query param is not present", async () => {
+    const { sessionCookie, testUser } = await performLogin(app);
+    expect(sessionCookie).toBeDefined();
+    expect(testUser).toBeDefined();
+
+    try {
+      const testExperiences = createExperiences(5, [testUser._id]);
+      const insertedExperiences = await ExperienceModel.insertMany(testExperiences);
+
+      insertedExperiences.forEach((experience: any) => {
+        expect(experience._id).toBeDefined();
+        expect(experience.creatorId.toString()).toBe(testUser._id.toString());
+      });
+
+      const res = await request(app)
+        .delete(`/users/${testUser._id}`)
+        .set("Cookie", sessionCookie);
+  
+      expect(res.status).toBe(200);
+      
+      const retrievedUser = await UserModel.findById(testUser._id);
+      expect(retrievedUser).toBeNull();
+
+      insertedExperiences.forEach(async (experience: any) => {
+        const retrievedExperience = await ExperienceModel.findById(experience._id);
+        expect(retrievedExperience).toBeDefined();
+      });
     } catch (err) {
       throw err;
     } finally {

@@ -3,6 +3,7 @@ import { CRUDControllerBase } from "./base/CRUDControllerBase";
 import { Document } from "mongoose";
 import { Request, Response, NextFunction } from "express";
 import UserModel from "../models/user.model";
+import ExperienceModel from "../models/experience.model";
 
 export class UserController extends CRUDControllerBase<User & Document> {
   constructor() {
@@ -48,6 +49,12 @@ export class UserController extends CRUDControllerBase<User & Document> {
     const { displayName } = updateObject;
 
     return { displayName };
+  };
+
+  protected afterDelete = async (req: Request, documentId: string) => {
+    const { deletePosts } = req.query;
+
+    if (deletePosts) await ExperienceModel.deleteMany({creatorId: documentId});
   };
 
   fetchUserData = async (req: Request, res: Response, next: NextFunction) => {
