@@ -77,7 +77,9 @@ export abstract class CRUDControllerBase<T> {
         __v,
         ...rest
       } = req.body;
-      await this.model.updateOne({ _id }, rest);
+
+      const processedUpdateObj = this.processUpdateObject(req, rest);
+      await this.model.updateOne({ _id }, processedUpdateObj);
   
       res.status(200).send();
     } catch(err) { 
@@ -111,6 +113,11 @@ export abstract class CRUDControllerBase<T> {
   // Overwrite this method to process results of a read operation before sending them back to the client
   protected processReadResults = (req: Request, results: T[]): any[] => {
     return results;
+  };
+
+  // Overwrite this method to inspect and change the object passed to Mongoose update in Update method
+  protected processUpdateObject = (req: Request, updateObject: any): any => {
+    return updateObject;
   };
 
   protected convertMongoError = (err: any): any => {

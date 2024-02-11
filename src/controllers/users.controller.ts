@@ -44,6 +44,12 @@ export class UserController extends CRUDControllerBase<User & Document> {
     return { _id, displayName };
   };
 
+  protected processUpdateObject = (req: Request, updateObject: any) => {
+    const { displayName } = updateObject;
+
+    return { displayName };
+  };
+
   fetchUserData = async (req: Request, res: Response, next: NextFunction) => {
     try {
       res.status(200).json(req.user);

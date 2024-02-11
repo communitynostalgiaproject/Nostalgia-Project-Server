@@ -101,6 +101,40 @@ describe("PATCH /users/{userId}", () => {
     }
   });
 
+  it("only allow a user's display name to be updated via the API", async () => {
+    const { sessionCookie, testUser } = await performLogin(app);
+    expect(sessionCookie).toBeDefined();
+    expect(testUser).toBeDefined();
+    expect(testUser.displayName).not.toBe("Updated");
+    expect(testUser.isModerator).toBe(false);
+    expect(testUser.isAdmin).toBe(false);
+
+    const updatedUser = {
+      ...testUser,
+      displayName: "Updated",
+      isModerator: true,
+      isAdmin: true
+    };
+
+    try {
+      const res = await request(app)
+        .patch(`/users/${testUser._id}`)
+        .send(updatedUser)
+        .set("Cookie", sessionCookie);
+  
+      expect(res.status).toBe(200);
+      
+      const retrievedUser = await UserModel.findById(testUser._id);
+      expect(retrievedUser?.displayName).toBe(updatedUser.displayName);
+      expect(retrievedUser?.isModerator).toBe(false);
+      expect(retrievedUser?.isAdmin).toBe(false);
+    } catch (err) {
+      throw err;
+    } finally {
+      await performLogout(app);
+    }
+  });
+
   it("returns a 400 code if invalid ID is passed", async () => {
     const { sessionCookie, testUser } = await performLogin(app);
     expect(sessionCookie).toBeDefined();
