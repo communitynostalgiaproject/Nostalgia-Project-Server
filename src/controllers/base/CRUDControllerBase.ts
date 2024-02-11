@@ -41,6 +41,7 @@ export abstract class CRUDControllerBase<T> {
         offset,
         createdBefore,
         createdAfter,
+        excludedIds,
         ...rest
       } = req.query;
 
@@ -53,6 +54,7 @@ export abstract class CRUDControllerBase<T> {
 
       if (createdBefore) query.createdDate = { $lt: new Date(`${createdBefore}`) };
       if (createdAfter) query.createdDate = { ...query.createdDate, $gt: new Date(`${createdAfter}`) };
+      if (excludedIds) query._id = { $nin: excludedIds };
 
       const finalQuery = await this.modifyReadQuery(query);
       const projectionString = this.injectReadProjectionString(req);
