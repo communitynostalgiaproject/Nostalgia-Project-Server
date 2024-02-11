@@ -3,13 +3,13 @@ import FormData from "form-data";
 
 export interface VirusScanner {
   scanFile(fileBuffer: Buffer, fileName: String): Promise<boolean>;
-}
+};
 
 export class MockVirusScanner implements VirusScanner {
-  scanFile = async (fileBuffer: Buffer, fileName: string): Promise<boolean> => {
+  async scanFile(fileBuffer: Buffer, fileName: String): Promise<boolean> {
     return true;
-  }
-}
+  };
+};
 
 export class VirusTotalScanner implements VirusScanner {
   private readonly apiKey: string;

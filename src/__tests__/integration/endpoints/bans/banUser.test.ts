@@ -37,7 +37,7 @@ describe("POST /users/:userId/bans", () => {
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
-    app = setupApp(mongoUri);
+    app = await setupApp(mongoUri);
   });
 
   beforeEach(async () => {

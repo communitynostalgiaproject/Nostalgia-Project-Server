@@ -31,7 +31,7 @@ describe("POST /reactions", () => {
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
-    app = setupApp(mongoUri);
+    app = await setupApp(mongoUri);
 
     const loginResults = await performLogin(app);
     sessionCookie = loginResults.sessionCookie;
