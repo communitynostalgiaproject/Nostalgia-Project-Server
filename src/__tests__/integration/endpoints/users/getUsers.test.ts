@@ -54,43 +54,35 @@ describe("GET /users", () => {
     }
   });
 
-  it("returns a 401 code if user is not logged in", async () => {
-    const testUsers = createUsers(6);
-    const insertedUsers = await UserModel.insertMany(testUsers);
-
-    let userArr = [];
-    for (let userObj of insertedUsers) {
-      let user = convertValueToString(userObj.toObject());
-      userArr.push(user);
-    }
-    
-    const res = await request(app).get(`/users`);
-    
-    expect(res.status).toBe(401);
-  });
-
-  it("returns a 403 code if user is not authorized", async () => {
+  it("returns 200 code and array of user data with sensitive information removed if user is not a moderator", async () => {
     const { sessionCookie, testUser } = await performLogin(app);
     expect(sessionCookie).toBeDefined();
     expect(testUser).toBeDefined();
-    expect(testUser.isModerator).toBe(false);
-    expect(testUser.isAdmin).toBe(false);
 
     try {
-      const testUsers = createUsers(6);
-      const insertedUsers = await UserModel.insertMany(testUsers);
-  
-      let userArr = [];
-      for (let userObj of insertedUsers) {
-        let user = convertValueToString(userObj.toObject());
-        userArr.push(user);
-      }
-      
+      const testUsers = createUsers(10);
+      await UserModel.insertMany(testUsers);
+   
       const res = await request(app)
         .get(`/users`)
         .set("Cookie", sessionCookie);
       
-      expect(res.status).toBe(403);
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body)).toBe(true);
+
+      res.body.forEach((user: any) => {
+        const isTestUser = user._id === testUser._id;
+
+        if (isTestUser) {
+          expect(user.googleId).toBeDefined();
+          expect(user.isModerator).toBeDefined();
+          expect(user.emailAddress).toBeDefined();
+        } else {
+          expect(user.googleId).not.toBeDefined();
+          expect(user.isModerator).not.toBeDefined();
+          expect(user.emailAddress).not.toBeDefined();
+        }
+      });
     } catch (err) {
       throw err;
     } finally {
@@ -98,7 +90,7 @@ describe("GET /users", () => {
     }
   });
 
-  it("returns a 200 code and a list of users upon success", async () => {
+  it("returns a 200 code and an array of users with all user data if user is logged in as moderator", async () => {
     const { sessionCookie, testUser } = await performLogin(app);
     expect(sessionCookie).toBeDefined();
     expect(testUser).toBeDefined();
@@ -117,6 +109,11 @@ describe("GET /users", () => {
       
       expect(res.status).toBe(200);
       expect(Array.isArray(res.body)).toBe(true);
+      res.body.forEach((user: any) => {
+        expect(user.googleId).toBeDefined();
+        expect(user.isModerator).toBeDefined();
+        expect(user.emailAddress).toBeDefined();
+      });
     } catch (err) {
       throw err;
     } finally {

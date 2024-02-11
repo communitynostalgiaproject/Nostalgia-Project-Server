@@ -4,9 +4,7 @@ import { Reaction } from "@projectTypes/reaction";
 import ReactionModel from "../models/reaction.model";
 
 export class ReactionController extends CRUDControllerBase<Reaction & Document> {
-  constructor(model: any) {
-    super(model);
+  constructor() {
+    super(ReactionModel);
   };
-}
-
-export default new ReactionController(ReactionModel);
+};

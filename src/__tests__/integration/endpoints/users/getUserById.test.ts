@@ -56,31 +56,28 @@ describe("GET /users/{userId}", () => {
       }
   });
 
-  it("returns a 401 code if user is not logged in.", async () => {
-      const testUser = createUsers(1)[0];
-      const insertedUser = await new UserModel(testUser).save();
-      
-      const res = await request(app).get(`/users/${insertedUser._id}`);
-  
-      expect(res.status).toBe(401);
-  });
-
-  it("returns a 403 code if user is not authorized.", async () => {
+  it("returns a 200 code and the requested record with sensitive data removed if logged in user is not a moderator and is not the user", async () => {
     const { sessionCookie, testUser } = await performLogin(app);
     expect(sessionCookie).toBeDefined();
     expect(testUser).toBeDefined();
-    expect(testUser.isModerator).toBe(false);
-    expect(testUser.isAdmin).toBe(false);
 
     try {
-      const testUser = createUsers(1)[0];
-      const insertedUser = await new UserModel(testUser).save();
+      const testOtherUser = createUsers(1)[0];
+      const insertedUser = await new UserModel(testOtherUser).save();
       
       const res = await request(app)
         .get(`/users/${insertedUser._id}`)
         .set("Cookie", sessionCookie);
   
-      expect(res.status).toBe(403);
+      expect(res.status).toBe(200);
+      expect(res.body._id).toBeDefined()
+      expect(`${res.body._id}`).toBe(`${insertedUser._id}`);
+      expect(res.body.displayName).toBeDefined();
+      expect(res.body.displayName).toBe(insertedUser.displayName);
+
+      expect(res.body.googleId).not.toBeDefined();
+      expect(res.body.isModerator).not.toBeDefined();
+      expect(res.body.emailAddress).not.toBeDefined();
     } catch (err) {
       throw err;
     } finally {
@@ -88,7 +85,35 @@ describe("GET /users/{userId}", () => {
     }
   });
 
-  it("returns a 200 code and the requested record if found", async () => {
+  it("returns a 200 code and the requested record with all data if user is logged in as the user", async () => {
+    const { sessionCookie, testUser } = await performLogin(app);
+    expect(sessionCookie).toBeDefined();
+    expect(testUser).toBeDefined();
+      
+    try {
+      const res = await request(app)
+        .get(`/users/${testUser._id}`)
+        .set("Cookie", sessionCookie);
+  
+      expect(res.status).toBe(200);
+      expect(res.body._id).toBeDefined()
+      expect(`${res.body._id}`).toBe(`${testUser._id}`);
+      expect(res.body.displayName).toBeDefined();
+      expect(res.body.displayName).toBe(testUser.displayName);
+      expect(res.body.googleId).toBeDefined();
+      expect(res.body.googleId).toBe(testUser.googleId);
+      expect(res.body.isModerator).toBeDefined();
+      expect(res.body.isModerator).toBe(testUser.isModerator);
+      expect(res.body.emailAddress).toBeDefined();
+      expect(res.body.emailAddress).toBe(testUser.emailAddress);
+    } catch (err) {
+      throw err;
+    } finally {
+      await performLogout(app);
+    }
+  });
+
+  it("returns a 200 code and the requested record with all data if user is logged in as a moderator", async () => {
     const { sessionCookie, testUser } = await performLogin(app);
     expect(sessionCookie).toBeDefined();
     expect(testUser).toBeDefined();
@@ -106,7 +131,16 @@ describe("GET /users/{userId}", () => {
         .set("Cookie", sessionCookie);
   
       expect(res.status).toBe(200);
-      expect(res.body).toEqual(convertValueToString(insertedUser.toObject()));
+      expect(res.body._id).toBeDefined()
+      expect(`${res.body._id}`).toBe(`${insertedUser._id}`);
+      expect(res.body.displayName).toBeDefined();
+      expect(res.body.displayName).toBe(insertedUser.displayName);
+      expect(res.body.googleId).toBeDefined();
+      expect(res.body.googleId).toBe(insertedUser.googleId);
+      expect(res.body.isModerator).toBeDefined();
+      expect(res.body.isModerator).toBe(insertedUser.isModerator);
+      expect(res.body.emailAddress).toBeDefined();
+      expect(res.body.emailAddress).toBe(insertedUser.emailAddress);
     } catch (err) {
       throw err;
     } finally {
