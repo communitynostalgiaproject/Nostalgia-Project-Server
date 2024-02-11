@@ -139,7 +139,7 @@ describe("DELETE /users/{userId}", () => {
 
       insertedExperiences.forEach(async (experience: any) => {
         const retrievedExperience = await ExperienceModel.findById(experience._id);
-        expect(retrievedExperience).toBeDefined();
+        expect(retrievedExperience).not.toBeNull();
       });
     } catch (err) {
       throw err;
@@ -173,7 +173,7 @@ describe("DELETE /users/{userId}", () => {
 
       insertedExperiences.forEach(async (experience: any) => {
         const retrievedExperience = await ExperienceModel.findById(experience._id);
-        expect(retrievedExperience).toBeDefined();
+        expect(retrievedExperience).not.toBeNull();
       });
     } catch (err) {
       throw err;

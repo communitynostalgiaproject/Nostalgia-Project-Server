@@ -54,7 +54,7 @@ export class UserController extends CRUDControllerBase<User & Document> {
   protected afterDelete = async (req: Request, documentId: string) => {
     const { deletePosts } = req.query;
 
-    if (deletePosts) await ExperienceModel.deleteMany({creatorId: documentId});
+    if (deletePosts && deletePosts === "true") await ExperienceModel.deleteMany({creatorId: documentId});
   };
 
   fetchUserData = async (req: Request, res: Response, next: NextFunction) => {
