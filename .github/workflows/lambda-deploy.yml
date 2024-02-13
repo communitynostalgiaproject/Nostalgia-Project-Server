@@ -45,3 +45,21 @@ jobs:
     - name: Update Lambda function
       run: |
         aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG | jq 'del(.Environment.Variables)'
+
+    - name: Delete old images from ECR
+      env:
+        AWS_PAGER: "cat"
+      run: |
+        # Fetch the list of image digests excluding the latest one
+        image_digests_to_delete=$(aws ecr list-images --repository-name $ECR_REPOSITORY --query 'imageIds[?imageTag!=`'"$IMAGE_TAG"'`].[imageDigest]' --output text)
+        
+        # Check if there's anything to delete
+        if [ -z "$image_digests_to_delete" ]; then
+          echo "No old images to delete."
+        else
+          for digest in $image_digests_to_delete; do
+            aws ecr batch-delete-image --repository-name $ECR_REPOSITORY --image-ids imageDigest=$digest
+            echo "Deleted image with digest: $digest"
+          done
+        fi
+

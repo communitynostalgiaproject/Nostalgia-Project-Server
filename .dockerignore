@@ -4,6 +4,8 @@ npm-debug.log
 
 # Environment configuration
 .env
+.secrets
+*.event.json
 
 # Build directory
 dist/
