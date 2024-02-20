@@ -9,7 +9,7 @@ import mongoose from "mongoose";
 
 let mongoServer: MongoMemoryServer;
 let app: Express;
-let mockExperienceId: string;
+let mockExperienceId = createRandomId();
 
 const removeMongooseDocFields: any = (obj: any) => {
   if (typeof obj !== 'object' || obj === null) return obj;
@@ -28,13 +28,11 @@ const removeMongooseDocFields: any = (obj: any) => {
   return newObj;
 };
 
-describe("PUT /reactions", () => {
+describe("PUT /experiences/{experienceId}/reactions", () => {
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
     app = await setupApp(mongoUri);
-
-    mockExperienceId = createRandomId();
   });
 
   afterEach(async() => {
