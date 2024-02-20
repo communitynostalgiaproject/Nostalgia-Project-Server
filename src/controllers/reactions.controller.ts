@@ -39,18 +39,6 @@ export class ReactionController extends CRUDControllerBase<Reaction & Document> 
     }
   };
 
-  byUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const { _id: userId } = req.user as User;
-      const { experienceId } = req.params;
-  
-      const results = await this.model.find({ userId, experienceId });
-      res.status(200).send(results);
-    } catch (err) {
-      this.handleError(err, next);
-    }
-  };
-
   protected async modifyReadQuery(req: Request, query: any) {
     const { experienceId } = req.params;
 

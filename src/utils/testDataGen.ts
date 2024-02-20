@@ -9,6 +9,16 @@ export const createRandomId = () => {
   return new ObjectId(randomInt(99999)).toString();
 };
 
+export const createRandomIds = (n: number) => {
+  const ids = [];
+
+  for (let i = 0; i < n; i++) {
+    ids.push(new ObjectId(randomInt(99999)).toString())
+  }
+  
+  return ids;
+};
+
 export const createUsers = (n: number, areModerators = false, areAdmins = false) => {
   if (n < 1) return [];
 

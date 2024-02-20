@@ -11,7 +11,6 @@ const reactionController = new ReactionController();
 
 router.put("/", isAuthenticated, reactionController.create);
 router.put("/remove", isAuthenticated, reactionController.remove);
-router.get("/byUser", isAuthenticated, reactionController.byUser);
 router.get("/", reactionController.read);
 router.get("/:documentId", reactionController.readById);
 router.delete("/:documentId", isAuthorized, reactionController.delete);
