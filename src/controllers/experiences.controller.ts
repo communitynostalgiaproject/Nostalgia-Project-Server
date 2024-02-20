@@ -154,7 +154,7 @@ export class ExperienceController extends CRUDControllerBase<Experience & Docume
     return results;
   };
 
-  protected modifyReadQuery = async (query: any): Promise<any> => {
+  protected modifyReadQuery = async (req: Request, query: any): Promise<any> => {
     const { bbox, locationsOnly, ...rest } = query;
 
     if (!bbox) return rest;

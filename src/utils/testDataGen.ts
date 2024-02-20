@@ -5,6 +5,10 @@ import { Experience } from "@projectTypes/experience";
 import { ObjectId } from "mongodb";
 import { GENERIC_FOOD_PHOTO_URL, GENERIC_PERSON_PHOTO_URL } from "../config/constants";
 
+export const createRandomId = () => {
+  return new ObjectId(randomInt(99999)).toString();
+};
+
 export const createUsers = (n: number, areModerators = false, areAdmins = false) => {
   if (n < 1) return [];
 
@@ -12,7 +16,7 @@ export const createUsers = (n: number, areModerators = false, areAdmins = false)
 
   for (let i = 0; i < n; i++) {
     users.push({
-      googleId: new ObjectId(randomInt(99999)).toString(),
+      googleId: createRandomId(),
       displayName: faker.person.fullName(),
       emailAddress: faker.internet.email().toLowerCase(),
       isModerator: areModerators,
@@ -254,7 +258,7 @@ export const createExperiences = (n: number, userIds: string[] = []) => {
       flavourProfile: flavourProfiles[randomInt(flavourProfiles.length)],
       periodOfLifeAssociation: periodOfLifeAssociations[randomInt(periodOfLifeAssociations.length)],
       placesToGetFood: createRandomPlaces(randomInt(3)),
-      creatorId: userIds.length ? userIds[randomInt(userIds.length)] : new ObjectId(randomInt(999999))
+      creatorId: userIds.length ? userIds[randomInt(userIds.length)] : createRandomId()
     } as Experience);
   }
 
@@ -294,8 +298,8 @@ export const createReactions = (n: number, experienceIds: string[] = [], userIds
 
   for (let i = 0; i < n; i++) {
     reactions.push({
-      experienceId: experienceIds.length ? experienceIds[randomInt(experienceIds.length)]: new ObjectId(randomInt(999999)),
-      userId: userIds.length ? userIds[randomInt(userIds.length)] : new ObjectId(randomInt(999999)),
+      experienceId: experienceIds.length ? experienceIds[randomInt(experienceIds.length)]: createRandomId(),
+      userId: userIds.length ? userIds[randomInt(userIds.length)] : createRandomId(),
       createdDate: faker.date.past(),
       reaction: ["meToo", "thanksForSharing", "willTry"][randomInt(3)]
     });

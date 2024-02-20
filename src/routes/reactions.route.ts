@@ -3,15 +3,17 @@ import { isAuthenticated, createAuthorizationMiddleware } from "../middleware/au
 import { ReactionController } from "../controllers/reactions.controller";
 import ReactionModel from "../models/reaction.model";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 const isAuthorized = createAuthorizationMiddleware(ReactionModel, (user, document) => {
   return user._id.equals(document.userId);
 });
 const reactionController = new ReactionController();
 
-router.post("/", isAuthenticated, reactionController.create);
-router.get("/:documentId", reactionController.readById);
+router.put("/", isAuthenticated, reactionController.create);
+router.put("/remove", isAuthenticated, reactionController.remove);
+router.get("/byUser", isAuthenticated, reactionController.byUser);
 router.get("/", reactionController.read);
+router.get("/:documentId", reactionController.readById);
 router.delete("/:documentId", isAuthorized, reactionController.delete);
 
 export default router;

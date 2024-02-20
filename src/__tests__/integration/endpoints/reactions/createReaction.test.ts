@@ -1,14 +1,15 @@
 import request from "supertest";
 import { setupApp } from "../../../../config/app";
-import { createReactions } from "../../../../utils/testDataGen";
+import { createRandomId } from "../../../../utils/testDataGen";
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Express } from "express";
-import { performLogin } from "../../../../utils/testUtils";
+import { performLogin, performLogout } from "../../../../utils/testUtils";
+import ReactionModel from "../../../../models/reaction.model";
 import mongoose from "mongoose";
 
 let mongoServer: MongoMemoryServer;
 let app: Express;
-let sessionCookie: string;
+let mockExperienceId: string;
 
 const removeMongooseDocFields: any = (obj: any) => {
   if (typeof obj !== 'object' || obj === null) return obj;
@@ -27,14 +28,17 @@ const removeMongooseDocFields: any = (obj: any) => {
   return newObj;
 };
 
-describe("POST /reactions", () => {
+describe("PUT /reactions", () => {
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
     app = await setupApp(mongoUri);
 
-    const loginResults = await performLogin(app);
-    sessionCookie = loginResults.sessionCookie;
+    mockExperienceId = createRandomId();
+  });
+
+  afterEach(async() => {
+    ReactionModel.deleteMany({});
   });
   
   afterAll(async () => {
@@ -45,39 +49,85 @@ describe("POST /reactions", () => {
   });
 
   it("should return a 401 code if user is not logged in", async () => {
-    const testReaction = createReactions(1)[0];
+    const testReaction = {
+      reaction: "meToo"
+    };
 
     const res = await request(app)
-      .post("/reactions")
+      .put(`/experiences/${mockExperienceId}/reactions`)
       .send(testReaction)
       .set("Content-Type", "application/json");
 
     expect(res.status).toBe(401);
   });
 
-  it("should return a 201 code on success", async () => {
-    const testReaction = createReactions(1)[0];
+  it("should return a 201 code after creating a reaction", async () => {
+    const { sessionCookie, testUser } = await performLogin(app);
+    
+    try {
+      const testReaction = {
+        reaction: "meToo"
+      };
+  
+      const res = await request(app)
+        .put(`/experiences/${mockExperienceId}/reactions`)
+        .send(testReaction)
+        .set("Content-Type", "application/json")
+        .set("Cookie", sessionCookie);
+  
+      expect(res.status).toBe(201);
+    } catch (err) {
+      throw err;
+    } finally {
+      await performLogout(app, testUser);
+    }
+  });
 
-    const res = await request(app)
-      .post("/reactions")
-      .send(testReaction)
-      .set("Content-Type", "application/json")
-      .set("Cookie", sessionCookie);
-
-    expect(res.status).toBe(201);
+  it("should return a 200 code if reaction already exists", async () => {
+    const { sessionCookie, testUser } = await performLogin(app);
+    
+    try {
+      const existingReaction = await ReactionModel.create({
+        userId: testUser._id,
+        experienceId: mockExperienceId,
+        reaction: "meToo"
+      });
+      expect(existingReaction._id).toBeDefined();
+      expect(existingReaction.reaction).toBe("meToo");
+  
+      const res = await request(app)
+        .put(`/experiences/${mockExperienceId}/reactions`)
+        .send({reaction: existingReaction.reaction})
+        .set("Content-Type", "application/json")
+        .set("Cookie", sessionCookie);
+  
+      expect(res.status).toBe(200);
+    } catch (err) {
+      throw err;
+    } finally {
+      await performLogout(app, testUser);
+    }
   });
 
   it("should return a 400 code if invalid object was submitted", async () => {
-    const testReaction = {
-      reaction: "whatever"
-    };
-
-    const res = await request(app)
-      .post("/reactions")
-      .send(testReaction)
-      .set("Content-Type", "application/json")
-      .set("Cookie", sessionCookie);
-
-    expect(res.status).toBe(400);
+    const { sessionCookie, testUser } = await performLogin(app);
+    
+    try {
+      const testReaction = {
+        reaction: "whatever"
+      };
+  
+      const res = await request(app)
+        .put(`/experiences/${mockExperienceId}/reactions`)
+        .send(testReaction)
+        .set("Content-Type", "application/json")
+        .set("Cookie", sessionCookie);
+  
+      expect(res.status).toBe(400);
+    } catch (err) {
+      throw err;
+    } finally {
+      await performLogout(app, testUser);
+    }
   });
 });

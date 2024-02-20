@@ -56,7 +56,7 @@ export abstract class CRUDControllerBase<T> {
       if (createdAfter) query.createdDate = { ...query.createdDate, $gt: new Date(`${createdAfter}`) };
       if (excludedIds) query._id = { $nin: excludedIds };
 
-      const finalQuery = await this.modifyReadQuery(query);
+      const finalQuery = await this.modifyReadQuery(req, query);
       const projectionString = this.injectReadProjectionString(req);
       const docs = await this.model
         .find(finalQuery, projectionString)
@@ -101,7 +101,7 @@ export abstract class CRUDControllerBase<T> {
   };
 
   // Overwrite this method to modify the query before it is sent to the database
-  protected modifyReadQuery = async (query: any): Promise<any> => {
+  protected async modifyReadQuery(req: Request, query: any): Promise<any> {
     return query;
   };
 
