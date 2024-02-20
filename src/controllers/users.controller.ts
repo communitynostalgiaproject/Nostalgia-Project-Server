@@ -9,7 +9,7 @@ export class UserController extends CRUDControllerBase<User & Document> {
     super(UserModel);
   }
 
-  protected modifyReadQuery = async (query: any): Promise<any> => {
+  protected modifyReadQuery = async (req: Request, query: any): Promise<any> => {
     const {
       createdDate,
       ...rest
