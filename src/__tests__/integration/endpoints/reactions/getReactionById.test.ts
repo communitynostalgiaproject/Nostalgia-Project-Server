@@ -1,6 +1,6 @@
 import request from "supertest";
 import { setupApp } from "../../../../config/app";
-import { createReactions } from "../../../../utils/testDataGen";
+import { createReactions, createRandomId } from "../../../../utils/testDataGen";
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Express } from "express";
 import mongoose from "mongoose";
@@ -8,8 +8,9 @@ import ReactionModel from "../../../../models/reaction.model";
 
 let mongoServer: MongoMemoryServer;
 let app: Express;
+const mockExperienceId = createRandomId();
 
-describe("GET /reaction/{reactionId}", () => {
+describe("GET /experiences/{experienceId}/reaction/{reactionId}", () => {
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
     const uri = mongoServer.getUri();
@@ -33,14 +34,14 @@ describe("GET /reaction/{reactionId}", () => {
     const insertedReaction = await new ReactionModel(testReaction).save();
     console.log(`insertedReaction: ${insertedReaction}`);
 
-    const res = await request(app).get(`/reactions/${insertedReaction._id}`);
+    const res = await request(app).get(`/experiences/${mockExperienceId}/reactions/${insertedReaction._id}`);
 
     expect(res.status).toBe(200);
     expect(res.body._id).toEqual(insertedReaction._id.toString());
   });
 
   it("should return a 404 code if experience with provided id doesn't exist", async () => {
-    const res = await request(app).get("/reactions/653d557c56be3d6d264edda2");
+    const res = await request(app).get(`/experiences/${mockExperienceId}/reactions/653d557c56be3d6d264edda2`);
 
     expect(res.status).toBe(404);
   });
