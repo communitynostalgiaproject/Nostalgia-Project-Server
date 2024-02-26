@@ -1,0 +1,744 @@
+openapi: 3.0.0
+info:
+  title: Community Nostalgia Project API
+  version: "1.0"
+
+paths:
+  /auth/mock:
+    get:
+      summary: Mock authentication for testing
+      responses:
+        '200':
+          description: Successfully authenticated with mock strategy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  user:
+                    $ref: '#/components/schemas/User'
+  /auth/google:
+    get:
+      summary: Initiates Google OAuth authentication
+      responses:
+        '302':
+          description: Redirects to Google for authentication
+  /auth/google/callback:
+    get:
+      summary: Google OAuth callback endpoint
+      responses:
+        '200':
+          description: Google authentication successful
+
+  /experiences:
+    post:
+      summary: Create a new experience
+      operationId: createExperience
+      tags:
+        - Experiences
+      security:
+        - googleAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                experience:
+                  type: string
+                  description: A stringified JSON object containing information about the experience.
+                foodPhoto:
+                  type: string
+                  format: binary
+                  description: Photo of the food associated with the experience.
+                personPhoto:
+                  type: string
+                  format: binary
+                  description: Photo of the person associated with the experience, if any.
+      responses:
+        '201':
+          description: Experience created successfully.
+        '400':
+          description: Bad Request (invalid JSON format, etc.)
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden due to ban status or lack of permissions.
+
+    get:
+      summary: Get a list of experiences
+      operationId: getExperiences
+      tags:
+        - Experiences
+      responses:
+        '200':
+          description: An array of experiences.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Experience'
+
+  /experiences/{experienceId}:
+    get:
+      summary: Get a specific experience by ID
+      operationId: getExperienceById
+      tags:
+        - Experiences
+      parameters:
+        - in: path
+          name: experienceId
+          required: true
+          schema:
+            type: string
+          description: The ID of the experience to retrieve.
+      responses:
+        '200':
+          description: Specific experience data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Experience'
+
+    patch:
+      summary: Update a specific experience
+      operationId: updateExperience
+      tags:
+        - Experiences
+      security:
+        - googleAuth: []
+      parameters:
+        - in: path
+          name: experienceId
+          required: true
+          schema:
+            type: string
+          description: The ID of the experience to update.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                experience:
+                  type: string
+                  description: A stringified JSON object describing the experience.
+                foodPhoto:
+                  type: string
+                  format: binary
+                personPhoto:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Experience updated successfully.
+        '400':
+          description: Bad Request (invalid JSON format, etc.)
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden due to ban status or lack of permissions.
+
+    delete:
+      summary: Delete a specific experience
+      operationId: deleteExperience
+      tags:
+        - Experiences
+      security:
+        - googleAuth: []
+      parameters:
+        - in: path
+          name: experienceId
+          required: true
+          schema:
+            type: string
+          description: The ID of the experience to delete.
+      responses:
+        '200':
+          description: Experience deleted successfully.
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden due to lack of permissions.
+
+  /experiences/{experienceId}/reactions:
+    put:
+      summary: Create or update a reaction
+      operationId: createOrUpdateReaction
+      tags:
+        - Reactions
+      parameters:
+        - in: path
+          name: experienceId
+          required: true
+          schema:
+            type: string
+          description: The ID of the experience the reaction is to.
+      security:
+        - googleAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reaction:
+                  type: string
+                  enum: ["meToo", "thanksForSharing", "willTry"]
+                  description: "Type of reaction."
+      responses:
+        '200':
+          description: Reaction created or updated successfully.
+        '401':
+          description: Unauthorized
+    get:
+      summary: Get a list of all reactions
+      operationId: getAllReactions
+      tags:
+        - Reactions
+      parameters:
+        - in: path
+          name: experienceId
+          required: true
+          schema:
+            type: string
+          description: The ID of the experience the reaction is to.
+      responses:
+        '200':
+          description: An array of reactions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reaction'
+
+  /experiences/{experienceId}/reactions/remove:
+    put:
+      summary: Remove a reaction
+      operationId: removeReaction
+      tags:
+        - Reactions
+      parameters:
+        - in: path
+          name: experienceId
+          required: true
+          schema:
+            type: string
+          description: The ID of the experience the reaction is to.
+      security:
+        - googleAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reaction:
+                  type: string
+                  enum: ["meToo", "thanksForSharing", "willTry"]
+                  description: "Type of reaction."
+      responses:
+        '200':
+          description: Reaction removed successfully.
+        '401':
+          description: Unauthorized
+
+  /experiences/{experienceId}/reactions/{reactionId}:
+    get:
+      summary: Get a specific reaction by ID
+      operationId: getReactionById
+      tags:
+        - Reactions
+      parameters:
+        - in: path
+          name: experienceId
+          required: true
+          schema:
+            type: string
+          description: The ID of the experience the reaction is to.
+        - in: path
+          name: reactionId
+          required: true
+          schema:
+            type: string
+          description: The ID of the reaction to retrieve.
+      responses:
+        '200':
+          description: Specific reaction data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reaction'
+
+    delete:
+      summary: Delete a specific reaction
+      operationId: deleteReaction
+      tags:
+        - Reactions
+      parameters:
+        - in: path
+          name: experienceId
+          required: true
+          schema:
+            type: string
+          description: The ID of the experience the reaction is to.
+        - in: path
+          name: reactionId
+          required: true
+          schema:
+            type: string
+          description: The ID of the reaction to delete.
+      security:
+        - googleAuth: []
+      responses:
+        '200':
+          description: Reaction deleted successfully.
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden due to lack of authorization.
+
+  /users:
+    get:
+      summary: Retrieve a list of all users
+      operationId: getAllUsers
+      tags:
+        - Users
+      responses:
+        '200':
+          description: A list of users.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+  /users/fetchData:
+    get:
+      summary: Fetch data for the authenticated user
+      operationId: fetchUserData
+      tags:
+        - Users
+      security:
+        - googleAuth: []
+      responses:
+        '200':
+          description: User data fetched successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /users/{userId}:
+    get:
+      summary: Retrieve a specific user by ID
+      operationId: getUserById
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Specific user retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    patch:
+      summary: Update a specific user's details
+      operationId: updateUser
+      tags:
+        - Users
+      security:
+        - googleAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                displayName:
+                  type: string
+                  description: Name to be displayed on user's posts
+      responses:
+        '200':
+          description: User updated successfully.
+
+    delete:
+      summary: Delete a specific user
+      operationId: deleteUser
+      tags:
+        - Users
+      security:
+        - googleAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: User deleted successfully.
+
+  /flags:
+    post:
+      summary: Create a new flag
+      operationId: createFlag
+      tags:
+        - Flags
+      security:
+        - googleAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Flag'
+      responses:
+        '201':
+          description: Flag created successfully.
+        '401':
+          description: Unauthorized
+    get:
+      summary: Get a list of all flags
+      operationId: getAllFlags
+      tags:
+        - Flags
+      responses:
+        '200':
+          description: An array of flags.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Flag'
+
+  /flags/{documentId}:
+    get:
+      summary: Get a specific flag by ID
+      operationId: getFlagById
+      tags:
+        - Flags
+      parameters:
+        - in: path
+          name: documentId
+          required: true
+          schema:
+            type: string
+          description: The ID of the flag to retrieve.
+      responses:
+        '200':
+          description: Specific flag data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Flag'
+
+    patch:
+      summary: Update a specific flag
+      operationId: updateFlag
+      tags:
+        - Flags
+      security:
+        - googleAuth: []
+      parameters:
+        - in: path
+          name: documentId
+          required: true
+          schema:
+            type: string
+          description: The ID of the flag to update.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Flag'
+      responses:
+        '200':
+          description: Flag updated successfully.
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden due to lack of moderator/admin privileges.
+
+    delete:
+      summary: Delete a specific flag
+      operationId: deleteFlag
+      tags:
+        - Flags
+      security:
+        - googleAuth: []
+      parameters:
+        - in: path
+          name: documentId
+          required: true
+          schema:
+            type: string
+          description: The ID of the flag to delete.
+      responses:
+        '204':
+          description: Flag deleted successfully.
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden due to lack of moderator/admin privileges.
+
+components:
+  securitySchemes:
+    googleAuth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://accounts.google.com/o/oauth2/auth
+          tokenUrl: https://oauth2.googleapis.com/token
+          scopes:
+            profile: Access to user's profile
+            email: Access to user's email
+
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+        googleId:
+          type: string
+        displayName:
+          type: string
+        emailAddress:
+          type: string
+        isModerator:
+          type: boolean
+        isAdmin:
+          type: boolean
+        joinedDate:
+          type: string
+          format: date-time
+        firstLogin:
+          type: boolean
+        loginCount:
+          type: integer
+
+    Experience:
+      type: object
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+        place:
+          type: object
+          $ref: "#/components/schemas/Place"
+        description:
+          type: string
+        foodPhotoUrl:
+          type: string
+        personPhotoUrl:
+          type: string
+        recipe:
+          type: string
+        experienceDate:
+          type: string
+          format: date
+        createdDate:
+          type: string
+          format: date-time
+        mood:
+          type: string
+        foodtype:
+          type: string
+        personItRemindsThemOf:
+          type: string
+        flavourProfile:
+          type: string
+        periodOfLifeAssociation:
+          type: string
+        placesToGetFood:
+          type: array
+          items:
+            $ref: '#/components/schemas/Place'
+        creatorId:
+          type: string
+
+    Place:
+      type: object
+      properties:
+        address:
+          type: object
+          $ref: '#/components/schemas/PeliasGeoJSONProperties'
+        location:
+          type: object
+          $ref: '#/components/schemas/GeoJSONPoint'
+    
+    PeliasGeoJSONProperties:
+      type: object
+      properties:
+        gid:
+          type: string
+        sourceId:
+          type: string
+        label:
+          type: string
+        name:
+          type: string
+        accuracy:
+          type: string
+          enum: [point, centroid]
+        continent:
+          type: string
+        continentGid:
+          type: string
+        country:
+          type: string
+        countryGid:
+          type: string
+        neighbourhood:
+          type: string
+        neighbourhoodGid:
+          type: string
+        borough:
+          type: string
+        boroughGid:
+          type: string
+        postalcode:
+          type: string
+        street:
+          type: string
+        housenumber:
+          type: string
+        locality:
+          type: string
+        localityGid:
+          type: string
+        county:
+          type: string
+        region:
+          type: string
+        regionA:
+          type: string
+      additionalProperties: true
+
+    GeoJSONPoint:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [Point]
+        coordinates:
+          type: array
+          items:
+            type: number
+          minItems: 2
+          maxItems: 3
+          description: "An array of numbers representing the longitude, latitude, and optionally altitude."
+
+    Reaction:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: "Unique identifier for the Reaction."
+        reaction:
+          type: string
+          enum: ["meToo", "thanksForSharing", "willTry"]
+          description: "Type of reaction."
+        userId:
+          type: string
+          description: "Identifier of the user who made the reaction."
+        experienceId:
+          type: string
+          description: "Identifier of the experience to which the reaction is made."
+        createdDate:
+          type: string
+          format: date-time
+          description: "Date and time when the reaction was created."
+
+    Ban:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: "Unique identifier for the Ban."
+        userId:
+          type: string
+          description: "Identifier of the user who is banned."
+        createdDate:
+          type: string
+          format: date-time
+          description: "Date and time when the ban was issued."
+        reason:
+          type: string
+          description: "Reason for the ban."
+        active:
+          type: boolean
+          description: "Indicates whether the ban is currently active."
+        banCount:
+          type: integer
+          description: "Number of times the user has been banned."
+
+    Flag:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: "Unique identifier for the Flag."
+        contentId:
+          type: string
+          description: "Identifier of the content being flagged."
+        contentType:
+          type: string
+          enum: ["Experience", "Comment"]
+          description: "Type of content being flagged."
+        userId:
+          type: string
+          description: "Identifier of the user who flagged the content."
+        createdDate:
+          type: string
+          format: date-time
+          description: "Date and time when the flag was created."
+        priority:
+          type: string
+          enum: ["low", "medium", "high"]
+          description: "Priority level of the flag."
+        reason:
+          type: string
+          enum: ["spam", "hate-speech", "misinformation", "other"]
+          description: "Reason for flagging the content."
+        userComment:
+          type: string
+          description: "Comments from the user who flagged the content."
+        moderatorComments:
+          type: array
+          items:
+            type: string
+          description: "Comments from moderators on the flag."
+        resolved:
+          type: boolean
+          description: "Indicates whether the flag has been resolved."
+        contentDeleted:
+          type: boolean
+          description: "Indicates whether the content associated with the flag has been deleted."
+        resolvedBy:
+          type: string
+          description: "Identifier of the moderator who resolved the flag."
