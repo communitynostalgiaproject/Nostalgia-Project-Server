@@ -462,8 +462,10 @@ paths:
     post:
       summary: Create a new ban
       description: Creates a new ban record. Requires moderator privileges.
+      tags:
+        - Bans
       security:
-        - bearerAuth: []
+        - googleAuth: []
       parameters:
         - in: path
           name: userId
@@ -489,6 +491,8 @@ paths:
     get:
       summary: Find ban record for user if it exists
       description: Retrieves a list of bans or a specific ban based on query parameters.
+      tags:
+        - Bans
       parameters:
         - in: query
           name: userId
@@ -508,8 +512,10 @@ paths:
     delete:
       summary: Reinstate a user
       description: Removes a ban record, effectively reinstating the user. Requires moderator privileges.
+      tags:
+        - Bans
       security:
-        - bearerAuth: []
+        - googleAuth: []
       parameters:
         - in: path
           name: userId
