@@ -32,7 +32,7 @@ jobs:
 
     - name: Move file to docs folder and adjust file permissions
       run: |
-        mv redoc-static.html docs
+        mv redoc-static.html docs/index.html
         chmod -c 644 docs/redoc-static.html
 
     - name: Upload artifacts
