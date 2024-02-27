@@ -358,6 +358,19 @@ paths:
       operationId: getAllUsers
       tags:
         - Users
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          required: false
+          description: The maximum number of results to fetch
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          required: false
+          description: Number of results to skip
       responses:
         '200':
           description: A list of users.

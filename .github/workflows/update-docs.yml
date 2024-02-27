@@ -30,22 +30,16 @@ jobs:
     - name: Build documentation
       run: npx @redocly/cli build-docs docs/openapi.yml
 
-    - name: Fix permissions
+    - name: Adjust file permissions and package site for GitHub Pages
       run: |
-        mkdir docs_page
-        mv redoc-static.html docs_page
-        chmod -c 644 docs_page/redoc-static.html
-        chmod -c 755 docs_page
-        echo "::warning title=Invalid file permissions automatically fixed::Permissions fixed for redoc-static.html"
-
-    - name: Package site for GitHub Pages
-      run: |
-        tar -czvf github-pages.tar.gz docs_page
+        chmod -c 644 redoc-static.html
+        tar -czvf github-pages.tar.gz redoc-static.html
+        gzip github-pages.tar
 
     - name: Upload artifacts
       uses: actions/upload-pages-artifact@v3
       with:
-        path: "./github-pages.tar.gz"
+        path: "github-pages.tar.gz"
 
     - name: Deploy to GitHub Pages
       id: deployment
