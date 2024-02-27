@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     
     steps:
@@ -30,18 +30,23 @@ jobs:
     - name: Build documentation
       run: npx @redocly/cli build-docs docs/openapi.yml
 
-    - name: Adjust file permissions and package site for GitHub Pages
+    - name: Move file to docs folder and adjust file permissions
       run: |
-        chmod -c 644 redoc-static.html
-        tar -czvf github-pages.tar redoc-static.html
-        gzip github-pages.tar
+        mv redoc-static.html docs
+        chmod -c 644 docs/redoc-static.html
 
     - name: Upload artifacts
       uses: actions/upload-pages-artifact@v3
       with:
-        path: "github-pages.tar.gz"
+        path: "docs"
 
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4
-
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{steps.deployment.outputs.page_url}}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

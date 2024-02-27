@@ -478,8 +478,8 @@ paths:
         '401':
           description: Unauthenticated
     get:
-      summary: Get a list of all flags
-      operationId: getAllFlags
+      summary: Get a list of flags
+      operationId: getFlags
       tags:
         - Flags
       parameters:
