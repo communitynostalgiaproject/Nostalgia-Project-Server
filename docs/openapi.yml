@@ -448,7 +448,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Flag'
 
-  /flags/{documentId}:
+  /flags/{flagId}:
     get:
       summary: Get a specific flag by ID
       operationId: getFlagById
@@ -456,7 +456,7 @@ paths:
         - Flags
       parameters:
         - in: path
-          name: documentId
+          name: flagId
           required: true
           schema:
             type: string
@@ -478,7 +478,7 @@ paths:
         - googleAuth: []
       parameters:
         - in: path
-          name: documentId
+          name: flagId
           required: true
           schema:
             type: string
@@ -506,7 +506,7 @@ paths:
         - googleAuth: []
       parameters:
         - in: path
-          name: documentId
+          name: flagId
           required: true
           schema:
             type: string
