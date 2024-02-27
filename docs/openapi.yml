@@ -4,6 +4,21 @@ info:
   version: "1.0"
 
 paths:
+  /:
+    get:
+      summary: Health check endpoint
+      responses:
+        '200':
+          description: Health check success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    enum:
+                      - "Ping received!"
   /auth/mock:
     get:
       summary: Mock authentication for testing
