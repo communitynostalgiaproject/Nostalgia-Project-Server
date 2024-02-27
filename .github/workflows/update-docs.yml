@@ -30,6 +30,16 @@ jobs:
     - name: Build documentation
       run: npx @redocly/cli build-docs docs/openapi.yml
 
+    - name: Fix permissions
+      run: |
+        chmod -c 644 redoc-static.html
+        chmod -c 755 ./ # Ensure the root directory has the correct permissions
+        echo "::warning title=Invalid file permissions automatically fixed::Permissions fixed for redoc-static.html"
+
+    - name: Package site for GitHub Pages
+      run: |
+        tar -czvf github-pages.tar.gz redoc-static.html
+
     - name: Upload artifacts
       uses: actions/upload-pages-artifact@v3
       with:
