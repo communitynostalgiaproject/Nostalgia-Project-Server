@@ -879,26 +879,3 @@ components:
         resolvedBy:
           type: string
           description: "Identifier of the moderator who resolved the flag."
-    
-    Ban:
-      type: object
-      properties:
-        _id:
-          type: string
-          description: The unique identifier for the ban
-        userId:
-          type: string
-          description: The ID of the banned user
-        createdDate:
-          type: string
-          format: date-time
-          description: The date the ban was created
-        reason:
-          type: string
-          description: The reason for the ban
-        active:
-          type: boolean
-          description: Whether the ban is currently active
-        banCount:
-          type: integer
-          description: The total number of times the user has been banned
