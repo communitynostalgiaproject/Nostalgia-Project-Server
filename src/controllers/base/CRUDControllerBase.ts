@@ -90,9 +90,11 @@ export abstract class CRUDControllerBase<T> {
   delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { documentId } = req.params;
+      this.beforeDelete(req, documentId);
       const deleteResult = await this.model.deleteOne({ _id: documentId });
 
       if (deleteResult.deletedCount === 0) throw(new Error("Unable to delete document"));
+      this.afterDelete(req, documentId);
   
       res.status(200).send();
     } catch(err) {
@@ -119,6 +121,13 @@ export abstract class CRUDControllerBase<T> {
   protected processUpdateObject = (req: Request, updateObject: any): any => {
     return updateObject;
   };
+
+  // Overwrite this method to perform an action BEFORE a document is deleted from the DB
+  protected beforeDelete = (req: Request, documentId: string): void => {};
+
+  // Overwrite this method to perform an action AFTER a document is deleted from the DB
+  protected afterDelete = (req: Request, documentId: string): void => {};
+
 
   protected convertMongoError = (err: any): any => {
     if (err instanceof Error.ValidationError) {
