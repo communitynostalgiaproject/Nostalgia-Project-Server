@@ -183,7 +183,7 @@ paths:
 
   /experiences/{experienceId}/reactions:
     put:
-      summary: Create or update a reaction
+      summary: Create a reaction
       operationId: createOrUpdateReaction
       tags:
         - Reactions

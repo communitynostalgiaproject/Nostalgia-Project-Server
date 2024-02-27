@@ -43,7 +43,7 @@ jobs:
     - name: Upload artifacts
       uses: actions/upload-pages-artifact@v3
       with:
-        path: "./redoc-static.html"
+        path: "./redoc-static.github-pages.tar.gz"
 
     - name: Deploy to GitHub Pages
       id: deployment
