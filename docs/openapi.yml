@@ -88,6 +88,25 @@ paths:
       operationId: getExperiences
       tags:
         - Experiences
+      parameters:
+        - in: query
+          name: bbox
+          schema:
+            type: string
+          required: false
+          description: The map bounding box within which to search
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          required: false
+          description: The maximum number of results to fetch
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          required: false
+          description: Number of results to skip
       responses:
         '200':
           description: An array of experiences.

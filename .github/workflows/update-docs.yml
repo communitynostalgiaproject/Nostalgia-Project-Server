@@ -32,13 +32,15 @@ jobs:
 
     - name: Fix permissions
       run: |
-        chmod -c 644 redoc-static.html
-        chmod -c 755 ./ # Ensure the root directory has the correct permissions
+        mkdir docs_page
+        mv redoc-static.html docs_page
+        chmod -c 644 docs_page/redoc-static.html
+        chmod -c 755 docs_page
         echo "::warning title=Invalid file permissions automatically fixed::Permissions fixed for redoc-static.html"
 
     - name: Package site for GitHub Pages
       run: |
-        tar -czvf github-pages.tar.gz redoc-static.html
+        tar -czvf github-pages.tar.gz docs_page
 
     - name: Upload artifacts
       uses: actions/upload-pages-artifact@v3
