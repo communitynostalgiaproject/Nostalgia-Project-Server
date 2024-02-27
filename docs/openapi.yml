@@ -243,6 +243,18 @@ paths:
           schema:
             type: string
           description: The ID of the experience the reaction is to.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          required: false
+          description: The maximum number of results to fetch
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          required: false
+          description: Number of results to skip
       responses:
         '200':
           description: An array of reactions.
