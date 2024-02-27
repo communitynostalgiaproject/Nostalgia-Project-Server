@@ -79,7 +79,7 @@ paths:
         '400':
           description: Bad Request (invalid JSON format, etc.)
         '401':
-          description: Unauthorized
+          description: Unauthenticated
         '403':
           description: Forbidden due to ban status or lack of permissions.
 
@@ -155,9 +155,9 @@ paths:
         '400':
           description: Bad Request (invalid JSON format, etc.)
         '401':
-          description: Unauthorized
+          description: Unauthenticated
         '403':
-          description: Forbidden due to ban status or lack of permissions.
+          description: Forbidden
 
     delete:
       summary: Delete a specific experience
@@ -177,7 +177,7 @@ paths:
         '200':
           description: Experience deleted successfully.
         '401':
-          description: Unauthorized
+          description: Unauthenticated
         '403':
           description: Forbidden due to lack of permissions.
 
@@ -211,7 +211,7 @@ paths:
         '200':
           description: Reaction created or updated successfully.
         '401':
-          description: Unauthorized
+          description: Unauthenticated
     get:
       summary: Get a list of all reactions
       operationId: getAllReactions
@@ -264,7 +264,7 @@ paths:
         '200':
           description: Reaction removed successfully.
         '401':
-          description: Unauthorized
+          description: Unauthenticated
 
   /experiences/{experienceId}/reactions/{reactionId}:
     get:
@@ -317,7 +317,7 @@ paths:
         '200':
           description: Reaction deleted successfully.
         '401':
-          description: Unauthorized
+          description: Unauthenticated
         '403':
           description: Forbidden due to lack of authorization.
 
@@ -432,7 +432,7 @@ paths:
         '201':
           description: Flag created successfully.
         '401':
-          description: Unauthorized
+          description: Unauthenticated
     get:
       summary: Get a list of all flags
       operationId: getAllFlags
@@ -493,7 +493,7 @@ paths:
         '200':
           description: Flag updated successfully.
         '401':
-          description: Unauthorized
+          description: Unauthenticated
         '403':
           description: Forbidden due to lack of moderator/admin privileges.
 
@@ -515,7 +515,7 @@ paths:
         '204':
           description: Flag deleted successfully.
         '401':
-          description: Unauthorized
+          description: Unauthenticated
         '403':
           description: Forbidden due to lack of moderator/admin privileges.
 
