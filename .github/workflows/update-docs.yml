@@ -1,0 +1,41 @@
+name: Build and Deploy OpenAPI Documentation
+
+on:
+  push:
+    paths:
+      - "docs/openapi.yml"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/configure-pages@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: "18"
+
+    - name: Build documentation
+      run: npx @redocly/cli build-docs docs/openapi.yml
+
+    - name: Upload artifacts
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: "./redoc-static.html"
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
+
