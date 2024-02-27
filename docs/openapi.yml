@@ -436,7 +436,7 @@ paths:
               properties:
                 displayName:
                   type: string
-                  description: Name to be displayed on user's posts
+                  description: Display name of user
       responses:
         '200':
           description: User updated successfully.
