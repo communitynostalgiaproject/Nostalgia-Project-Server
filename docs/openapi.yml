@@ -458,6 +458,71 @@ paths:
         '204':
           description: User deleted successfully.
 
+  /users/{userId}/bans:
+    post:
+      summary: Create a new ban
+      description: Creates a new ban record. Requires moderator privileges.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+          description: The ID of the user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  description: Reason for banning the user
+      responses:
+        '201':
+          description: Ban created successfully
+        '403':
+          description: Forbidden - Requires moderator privileges
+    get:
+      summary: Find ban record for user if it exists
+      description: Retrieves a list of bans or a specific ban based on query parameters.
+      parameters:
+        - in: query
+          name: userId
+          schema:
+            type: string
+          required: false
+          description: The user ID to filter bans by.
+      responses:
+        '200':
+          description: A list of bans or a single ban record
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ban'
+    delete:
+      summary: Reinstate a user
+      description: Removes a ban record, effectively reinstating the user. Requires moderator privileges.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+          description: The ID of the user.
+      responses:
+        '200':
+          description: User successfully reinstated
+        '403':
+          description: Forbidden - Requires moderator privileges
+
   /flags:
     post:
       summary: Create a new flag
@@ -575,71 +640,6 @@ paths:
           description: Unauthenticated
         '403':
           description: Forbidden due to lack of moderator/admin privileges.
-
-  /users/{userId}/bans:
-    post:
-      summary: Create a new ban
-      description: Creates a new ban record. Requires moderator privileges.
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: userId
-          required: true
-          schema:
-            type: string
-          description: The ID of the user.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                reason:
-                  type: string
-                  description: Reason for banning the user
-      responses:
-        '201':
-          description: Ban created successfully
-        '403':
-          description: Forbidden - Requires moderator privileges
-    get:
-      summary: Find ban record for user if it exists
-      description: Retrieves a list of bans or a specific ban based on query parameters.
-      parameters:
-        - in: query
-          name: userId
-          schema:
-            type: string
-          required: false
-          description: The user ID to filter bans by.
-      responses:
-        '200':
-          description: A list of bans or a single ban record
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Ban'
-    delete:
-      summary: Reinstate a user
-      description: Removes a ban record, effectively reinstating the user. Requires moderator privileges.
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: userId
-          required: true
-          schema:
-            type: string
-          description: The ID of the user.
-      responses:
-        '200':
-          description: User successfully reinstated
-        '403':
-          description: Forbidden - Requires moderator privileges
 
 components:
   securitySchemes:
