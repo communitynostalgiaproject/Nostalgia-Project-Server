@@ -482,6 +482,19 @@ paths:
       operationId: getAllFlags
       tags:
         - Flags
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          required: false
+          description: The maximum number of results to fetch
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          required: false
+          description: Number of results to skip
       responses:
         '200':
           description: An array of flags.

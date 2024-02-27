@@ -33,7 +33,7 @@ jobs:
     - name: Adjust file permissions and package site for GitHub Pages
       run: |
         chmod -c 644 redoc-static.html
-        tar -czvf github-pages.tar.gz redoc-static.html
+        tar -czvf github-pages.tar redoc-static.html
         gzip github-pages.tar
 
     - name: Upload artifacts
