@@ -8,6 +8,7 @@ import {
 import axios, { AxiosError} from "axios";
 import FormData from "form-data";
 import { ConfigurationService } from "./configuration.service";
+import { InternalServerError } from "../utils/customErrors";
 
 export interface FileStorage {
   storeFile(fileBuffer: Buffer, fileName: string): Promise<string>;
@@ -98,10 +99,10 @@ export class ImgurStorageService implements FileStorage {
       return { accessToken: accessToken.value, refreshToken: refreshToken.value };
     } catch(err) {
       if (err instanceof AxiosError) {
-        console.error(`Error fetching Imgur tokens: ${err.message}`);
+        throw new InternalServerError(`Error fetching Imgur tokens: ${JSON.stringify(err?.response?.data)}`);
       }
-      console.error(`Error fetching Imgur tokens: ${err}`);
-      throw err;
+
+      throw new InternalServerError(`Error fetching Imgur tokens: ${err}`);
     }
   };
 
@@ -121,9 +122,12 @@ export class ImgurStorageService implements FileStorage {
       });
 
       return response.data.data.link; // URL of the uploaded image
-    } catch (error) {
-      console.error("Error uploading to Imgur:", error);
-      throw new Error("Failed to upload image to Imgur");
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        throw new InternalServerError(`Error uploading to Imgur: ${JSON.stringify(err?.response?.data) }`);
+      }
+
+      throw new InternalServerError(`Error uploading to Imgur: ${err}`);
     }
   };
 
@@ -140,8 +144,10 @@ export class ImgurStorageService implements FileStorage {
         }
       });
     } catch (err) {
-      console.error("Error deleting from Imgur:", err);
-      throw err;
+      if (err instanceof AxiosError) {
+        throw new InternalServerError(`Error deleting image from Imgur: ${JSON.stringify(err.response?.data) }`);
+      }
+      throw new InternalServerError(`Error deleting from Imgur: ${err}`);
     }
   };
 
@@ -157,9 +163,8 @@ export class ImgurStorageService implements FileStorage {
       if (err instanceof AxiosError && err.response && err.response.status === 403) {
         await this.updateTokens();
         return;
-      }
-      console.error(`Error verifying Imgur access token: ${err}`);
-      throw err;
+      } 
+      throw new InternalServerError(`Error verifying Imgur access token: ${err}`);
     }
   };
 
@@ -197,8 +202,11 @@ export class ImgurStorageService implements FileStorage {
         }
       ]);
     } catch(err) {
-      console.error(`Unable to update Imgur tokens: ${err}`);
-      throw err;
+      if (err instanceof AxiosError) {
+        throw new InternalServerError(`Error updating Imgur tokens: ${JSON.stringify(err?.response?.data)}`);
+      }
+
+      throw new InternalServerError(`Error updating Imgur tokens: ${err}`);
     }
   }
 };
