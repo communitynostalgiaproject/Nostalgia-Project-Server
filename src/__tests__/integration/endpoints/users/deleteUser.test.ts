@@ -59,7 +59,7 @@ describe("DELETE /users/{userId}", () => {
     }
   });
 
-  it("returns a 200 code upon success", async () => {
+  it("returns a 204 code upon success", async () => {
     const { sessionCookie, testUser } = await performLogin(app);
     expect(sessionCookie).toBeDefined();
     expect(testUser).toBeDefined();
@@ -69,7 +69,7 @@ describe("DELETE /users/{userId}", () => {
         .delete(`/users/${testUser._id}`)
         .set("Cookie", sessionCookie);
   
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(204);
       
       const retrievedUser = await UserModel.findById(testUser._id);
       expect(retrievedUser).toBeNull();
@@ -98,7 +98,7 @@ describe("DELETE /users/{userId}", () => {
         .delete(`/users/${testUser._id}?deletePosts=true`)
         .set("Cookie", sessionCookie);
   
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(204);
       
       const retrievedUser = await UserModel.findById(testUser._id);
       expect(retrievedUser).toBeNull();
@@ -132,7 +132,7 @@ describe("DELETE /users/{userId}", () => {
         .delete(`/users/${testUser._id}?deletePosts=false`)
         .set("Cookie", sessionCookie);
   
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(204);
       
       const retrievedUser = await UserModel.findById(testUser._id);
       expect(retrievedUser).toBeNull();
@@ -166,7 +166,7 @@ describe("DELETE /users/{userId}", () => {
         .delete(`/users/${testUser._id}`)
         .set("Cookie", sessionCookie);
   
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(204);
       
       const retrievedUser = await UserModel.findById(testUser._id);
       expect(retrievedUser).toBeNull();

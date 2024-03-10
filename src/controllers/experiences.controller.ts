@@ -121,7 +121,7 @@ export class ExperienceController extends CRUDControllerBase<Experience & Docume
       experience = await this.model.findById(documentId);
       await this.model.deleteOne({ _id: documentId });
 
-      res.status(200).send();
+      res.status(204).send();
     } catch(err) {
       console.error(err);
       next(this.convertMongoError(err));

@@ -73,7 +73,7 @@ describe("DELETE /flags/{flagId}", () => {
     }
   });
 
-  it("deletes the record and returns a 200 code if the user is a moderator", async () => {
+  it("deletes the record and returns a 204 code if the user is a moderator", async () => {
     const { sessionCookie, testUser } = await performLogin(app);
     await upgradePermissions(app, { testUser,  makeModerator: true });
 
@@ -89,7 +89,7 @@ describe("DELETE /flags/{flagId}", () => {
         .delete(`/flags/${testFlag._id.toString()}`)
         .set("Cookie", sessionCookie);
   
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(204);
   
       const retrievedFlag = await FlagModel.findById(testFlag._id);
       expect(retrievedFlag).toBeNull();
@@ -102,7 +102,7 @@ describe("DELETE /flags/{flagId}", () => {
     }
   });
 
-  it("deletes the record and returns a 200 code if the user is an admin", async () => {
+  it("deletes the record and returns a 204 code if the user is an admin", async () => {
     const { sessionCookie, testUser } = await performLogin(app);
     await upgradePermissions(app, { testUser, makeAdmin: true });
 
@@ -118,7 +118,7 @@ describe("DELETE /flags/{flagId}", () => {
         .delete(`/flags/${testFlag._id.toString()}`)
         .set("Cookie", sessionCookie);
   
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(204);
   
       const retrievedFlag = await FlagModel.findById(testFlag._id);
       expect(retrievedFlag).toBeNull();

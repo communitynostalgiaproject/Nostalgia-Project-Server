@@ -72,7 +72,7 @@ describe("DELETE/experiences/{experienceId}/reactions/{reactionId}", () => {
         .delete(`/experiences/${mockExperienceId}/reactions/${insertedReaction._id}`)
         .set("Cookie", sessionCookie);
 
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(204);
       
       const retrievedExperience = await ReactionModel.findById(insertedReaction._id);
       expect(retrievedExperience).toBeNull();

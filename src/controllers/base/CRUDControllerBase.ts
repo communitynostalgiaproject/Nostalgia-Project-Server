@@ -97,7 +97,7 @@ export abstract class CRUDControllerBase<T> {
         this.afterDelete(req, documentId);
       };
   
-      res.status(200).send();
+      res.status(204).send();
     } catch(err) {
       this.handleError(err, next);
     }
