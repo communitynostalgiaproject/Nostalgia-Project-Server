@@ -181,20 +181,4 @@ describe("DELETE /users/{userId}", () => {
       await performLogout(app);
     }
   });
-
-  it("returns a 400 code if invalid ID is passed", async () => {
-    const { sessionCookie } = await performLogin(app);
-
-    try {
-      const res = await request(app)
-        .delete(`/users/1234`)
-        .set("Cookie", sessionCookie);
-
-      expect(res.status).toBe(400);
-    } catch (err) {
-      throw err;
-    } finally {
-      await performLogout(app);
-    }
-  });
 });

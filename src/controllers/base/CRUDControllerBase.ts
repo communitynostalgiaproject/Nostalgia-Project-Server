@@ -93,8 +93,9 @@ export abstract class CRUDControllerBase<T> {
       this.beforeDelete(req, documentId);
       const deleteResult = await this.model.deleteOne({ _id: documentId });
 
-      if (deleteResult.deletedCount === 0) throw(new Error("Unable to delete document"));
-      this.afterDelete(req, documentId);
+      if (deleteResult.deletedCount > 0) {
+        this.afterDelete(req, documentId);
+      };
   
       res.status(200).send();
     } catch(err) {

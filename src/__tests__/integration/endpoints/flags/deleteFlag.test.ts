@@ -130,23 +130,4 @@ describe("DELETE /flags/{flagId}", () => {
       await performLogout(app, testUser._id);
     }
   });
-
-  it("should return a 400 code when given an invalid ID", async () => {
-    const { sessionCookie, testUser } = await performLogin(app);
-    await upgradePermissions(app, { testUser, makeAdmin: true });
-
-    try {
-      const res = await request(app)
-        .delete(`/flags/111111111111`)
-        .set("Cookie", sessionCookie);
-
-      expect(res.status).toBe(400);
-    } catch(err) {
-      console.log(`sessionCookie: ${sessionCookie}`);
-      console.log(`testUser: ${JSON.stringify(testUser)}`);
-      throw err;
-    } finally {
-      await performLogout(app, testUser._id);
-    }
-  });
 });
