@@ -1,67 +1,9 @@
-import {
-  S3Client,
-  PutObjectCommand,
-  PutObjectCommandInput,
-  DeleteObjectCommand,
-  DeleteObjectCommandInput
-} from "@aws-sdk/client-s3";
-import axios, { AxiosError} from "axios";
+import { FileStorage } from ".";
+import { ConfigurationService } from "../configuration.service";
+import { InternalServerError } from "../../utils/customErrors";
+import axios, { AxiosError } from "axios";
 import FormData from "form-data";
-import { ConfigurationService } from "./configuration.service";
-import { InternalServerError } from "../utils/customErrors";
 
-export interface FileStorage {
-  storeFile(fileBuffer: Buffer, fileName: string): Promise<string>;
-  getFileId(filePath: string): Promise<string>;
-  deleteFile(fileId: string): Promise<void>;
-};
-
-export class MockFileStorage implements FileStorage {
-  storeFile = async (fileBuffer: Buffer, fileId: string): Promise<string> => {
-    return `https://mockstorage.com/${fileId}`;
-  };
-
-  getFileId = async (filePath: string): Promise<string> => {
-    return "mockId";
-  };
-
-  deleteFile = async (fileName: string): Promise<void> => {
-    return;
-  };
-};
-
-export class S3StorageService implements FileStorage {
-  private bucketName: string;
-  private s3Client: S3Client;
-
-  constructor(bucketName: string, region: string) {
-    this.s3Client = new S3Client({ region });
-    this.bucketName = bucketName;
-  };
-
-  async storeFile(fileBuffer: Buffer, fileId: string): Promise<string> {
-    const params = {
-      Bucket: this.bucketName,
-      Key: fileId,
-      Body: fileBuffer
-    } as PutObjectCommandInput;
-    await this.s3Client.send(new PutObjectCommand(params));
-    return `https://${this.bucketName}.s3.amazonaws.com/${fileId}`;
-  };
-
-  async getFileId(fileUrl: string): Promise<string> {
-    return `${fileUrl.split("/").pop()}`;  
-  };
-
-  async deleteFile(fileId: string): Promise<void> {
-    const params = {
-      Bucket: this.bucketName,
-      Key: fileId,
-    } as DeleteObjectCommandInput;
-
-    await this.s3Client.send(new DeleteObjectCommand(params));
-  };
-}
 
 export class ImgurStorageService implements FileStorage {
   private accessToken: string;
@@ -95,9 +37,9 @@ export class ImgurStorageService implements FileStorage {
       if (!refreshToken) {
         throw Error("IMGUR_REFRESH_TOKEN configuration not set");
       }
-  
+
       return { accessToken: accessToken.value, refreshToken: refreshToken.value };
-    } catch(err) {
+    } catch (err) {
       if (err instanceof AxiosError) {
         throw new InternalServerError(`Error fetching Imgur tokens: ${JSON.stringify(err?.response?.data)}`);
       }
@@ -124,7 +66,7 @@ export class ImgurStorageService implements FileStorage {
       return response.data.data.link; // URL of the uploaded image
     } catch (err) {
       if (err instanceof AxiosError) {
-        throw new InternalServerError(`Error uploading to Imgur: ${JSON.stringify(err?.response?.data) }`);
+        throw new InternalServerError(`Error uploading to Imgur: ${JSON.stringify(err?.response?.data)}`);
       }
 
       throw new InternalServerError(`Error uploading to Imgur: ${err}`);
@@ -145,7 +87,7 @@ export class ImgurStorageService implements FileStorage {
       });
     } catch (err) {
       if (err instanceof AxiosError) {
-        throw new InternalServerError(`Error deleting image from Imgur: ${JSON.stringify(err.response?.data) }`);
+        throw new InternalServerError(`Error deleting image from Imgur: ${JSON.stringify(err.response?.data)}`);
       }
       throw new InternalServerError(`Error deleting from Imgur: ${err}`);
     }
@@ -159,11 +101,11 @@ export class ImgurStorageService implements FileStorage {
         }
       });
 
-    } catch(err) {
+    } catch (err) {
       if (err instanceof AxiosError && err.response && err.response.status === 403) {
         await this.updateTokens();
         return;
-      } 
+      }
       throw new InternalServerError(`Error verifying Imgur access token: ${err}`);
     }
   };
@@ -175,10 +117,10 @@ export class ImgurStorageService implements FileStorage {
       data.append("refresh_token", this.refreshToken);
       data.append("client_id", this.clientId);
       data.append("client_secret", this.clientSecret);
-      data.append("grant_type", "refresh_token"); 
+      data.append("grant_type", "refresh_token");
 
       const res = await axios.post(
-        "https://api.imgur.com/oauth2/token", 
+        "https://api.imgur.com/oauth2/token",
         data,
         {
           headers: {
@@ -201,7 +143,7 @@ export class ImgurStorageService implements FileStorage {
           value: refresh_token
         }
       ]);
-    } catch(err) {
+    } catch (err) {
       if (err instanceof AxiosError) {
         throw new InternalServerError(`Error updating Imgur tokens: ${JSON.stringify(err?.response?.data)}`);
       }
