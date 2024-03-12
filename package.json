@@ -9,6 +9,7 @@
     "test": "jest",
     "build": "tsc",
     "seed-db": "npm run build && node dist/utils/seedDatabase.js",
+    "set-config": "npm run build && node dist/utils/setDBConfig.js",
     "ci-install": "npm ci"
   },
   "author": "",

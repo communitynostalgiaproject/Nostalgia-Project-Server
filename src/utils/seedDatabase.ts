@@ -17,19 +17,6 @@ const numFlags = 150;
 connectDB(process.env.MONGODB_URI as string);
 
 async function seedData() {
-  const imgurAccessToken = process.env.IMGUR_ACCESS_TOKEN;
-  const imgurRefreshToken = process.env.IMGUR_REFRESH_TOKEN;
-
-  if (imgurAccessToken) await ConfigurationModel.create({
-    key: "IMGUR_ACCESS_TOKEN",
-    value: imgurAccessToken
-  });
-
-  if (imgurRefreshToken) await ConfigurationModel.create({
-    key: "IMGUR_REFRESH_TOKEN",
-    value: imgurRefreshToken
-  });
-
   const existingUserCount = await UserModel.countDocuments();
   const existingExperienceCount = await ExperienceModel.countDocuments();
   const existingFlagCount = await FlagModel.countDocuments();

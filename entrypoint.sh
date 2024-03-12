@@ -8,5 +8,17 @@ if [ "$SEED_DB" = "true" ]; then
   npm run seed-db
 fi
 
+# Check if IMGUR_ACCESS_TOKEN and IMGUR_REFRESH_TOKEN are both set in the environment
+if [ ! -z "$IMGUR_ACCESS_TOKEN" ] && [ ! -z "$IMGUR_REFRESH_TOKEN" ]; then
+  echo "Imgur tokens are set, running set-config..."
+  npm run set-config
+elif [ ! -z "$IMGUR_ACCESS_TOKEN" ]; then
+  echo "Imgur access token not set. Skipping set-config"
+elif [ ! -z "$IMGUR_REFRESH_TOKEN" ]; then
+echo "Imgur refresh token not set. Skipping set-config"
+else
+  echo "Imgur tokens not set. Skipping set-config."
+fi
+
 # Proceed to run the main container command
 exec "$@"
