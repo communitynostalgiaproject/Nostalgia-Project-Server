@@ -5,5 +5,6 @@ export interface FileStorage {
 };
 
 export { MockFileStorage } from "./mockFileStorage.service";
+export { LocalStorage } from "./localStorage.service";
 export { S3StorageService } from "./s3Storage.service";
 export { ImgurStorageService } from "./imgurStorage.service";

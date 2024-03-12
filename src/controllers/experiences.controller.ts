@@ -5,7 +5,7 @@ import { CRUDControllerBase } from "./base/CRUDControllerBase";
 import { ValidationError } from "../utils/customErrors";
 import { FilesRequest } from "@projectTypes/filesRequest";
 import { FileUploader } from "../services/fileUploader.service";
-import { FileStorage } from "../services/fileStorage.service";
+import { FileStorage } from "../services/fileStorage";
 import ExperienceModel from "../models/experience.model";
 import fs from "fs";
 
@@ -126,16 +126,10 @@ export class ExperienceController extends CRUDControllerBase<Experience & Docume
       console.error(err);
       next(this.convertMongoError(err));
     } finally {
-      if (experience?.foodPhotoUrl) {
-        let splitUrl = experience.foodPhotoUrl.split("/");
-        let imageHash = splitUrl[splitUrl.length - 1].split(".")[0];
-        await this.imgStorage.deleteFile(await this.imgStorage.getFileId(imageHash));
-      }
-      if (experience?.personPhotoUrl) {
-        let splitUrl = experience.personPhotoUrl.split("/");
-        let imageHash = splitUrl[splitUrl.length - 1].split(".")[0];
-        await this.imgStorage.deleteFile(await this.imgStorage.getFileId(imageHash));
-      }
+      if (experience?.foodPhotoUrl) await this.imgStorage
+        .deleteFile(await this.imgStorage.getFileId(experience.foodPhotoUrl));
+      if (experience?.personPhotoUrl) await this.imgStorage
+        .deleteFile(await this.imgStorage.getFileId(experience.personPhotoUrl));
     }
   };
 

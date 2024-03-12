@@ -1,9 +1,9 @@
 import {
   FileStorage,
-  MockFileStorage,
+  LocalStorage,
   S3StorageService,
   ImgurStorageService,
-} from "./fileStorage.service";
+} from "./fileStorage";
 import { ConfigurationService } from "./configuration.service";
 import { VirusScanner, VirusTotalScanner } from "./virusScanner.service";
 import { ImageScaler, SharpImageScaler } from "./imageScaler.service";
@@ -12,6 +12,12 @@ import { FileUploader, ImageUploader } from "./fileUploader.service";
 abstract class ServiceFactory<T> {
   abstract create(...args: any[]): Promise<T>;
 };
+
+export class LocalStorageFactory extends ServiceFactory<FileStorage> {
+  async create(storageDir: string, baseUrl: string): Promise<FileStorage> {
+    return new LocalStorage(storageDir, baseUrl);
+  }
+}
 
 export class S3StorageFactory extends ServiceFactory<FileStorage> {
   async create(bucketName: string, region: string): Promise<FileStorage> {

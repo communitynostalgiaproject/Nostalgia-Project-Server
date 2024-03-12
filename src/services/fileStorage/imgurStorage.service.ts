@@ -74,13 +74,13 @@ export class ImgurStorageService implements FileStorage {
   };
 
   async getFileId(fileUrl: string): Promise<string> {
-    return `${fileUrl.split("/").pop()}`;
+    return `${fileUrl.split("/").pop()?.split(".")[0]}`;
   };
 
-  async deleteFile(imageHash: string): Promise<void> {
+  async deleteFile(fileId: string): Promise<void> {
     try {
       await this.verifyToken();
-      await axios.delete(`https://api.imgur.com/3/image/${imageHash}`, {
+      await axios.delete(`https://api.imgur.com/3/image/${fileId}`, {
         headers: {
           "Authorization": `Bearer ${this.accessToken}`
         }
