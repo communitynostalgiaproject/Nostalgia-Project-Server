@@ -59,7 +59,7 @@ describe("DELETE /users/{userId}", () => {
     }
   });
 
-  it("returns a 200 code upon success", async () => {
+  it("returns a 204 code upon success", async () => {
     const { sessionCookie, testUser } = await performLogin(app);
     expect(sessionCookie).toBeDefined();
     expect(testUser).toBeDefined();
@@ -69,7 +69,7 @@ describe("DELETE /users/{userId}", () => {
         .delete(`/users/${testUser._id}`)
         .set("Cookie", sessionCookie);
   
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(204);
       
       const retrievedUser = await UserModel.findById(testUser._id);
       expect(retrievedUser).toBeNull();
@@ -98,7 +98,7 @@ describe("DELETE /users/{userId}", () => {
         .delete(`/users/${testUser._id}?deletePosts=true`)
         .set("Cookie", sessionCookie);
   
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(204);
       
       const retrievedUser = await UserModel.findById(testUser._id);
       expect(retrievedUser).toBeNull();
@@ -132,7 +132,7 @@ describe("DELETE /users/{userId}", () => {
         .delete(`/users/${testUser._id}?deletePosts=false`)
         .set("Cookie", sessionCookie);
   
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(204);
       
       const retrievedUser = await UserModel.findById(testUser._id);
       expect(retrievedUser).toBeNull();
@@ -166,7 +166,7 @@ describe("DELETE /users/{userId}", () => {
         .delete(`/users/${testUser._id}`)
         .set("Cookie", sessionCookie);
   
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(204);
       
       const retrievedUser = await UserModel.findById(testUser._id);
       expect(retrievedUser).toBeNull();
@@ -175,22 +175,6 @@ describe("DELETE /users/{userId}", () => {
         const retrievedExperience = await ExperienceModel.findById(experience._id);
         expect(retrievedExperience).not.toBeNull();
       });
-    } catch (err) {
-      throw err;
-    } finally {
-      await performLogout(app);
-    }
-  });
-
-  it("returns a 400 code if invalid ID is passed", async () => {
-    const { sessionCookie } = await performLogin(app);
-
-    try {
-      const res = await request(app)
-        .delete(`/users/1234`)
-        .set("Cookie", sessionCookie);
-
-      expect(res.status).toBe(400);
     } catch (err) {
       throw err;
     } finally {

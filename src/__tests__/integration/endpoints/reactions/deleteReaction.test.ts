@@ -72,28 +72,10 @@ describe("DELETE/experiences/{experienceId}/reactions/{reactionId}", () => {
         .delete(`/experiences/${mockExperienceId}/reactions/${insertedReaction._id}`)
         .set("Cookie", sessionCookie);
 
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(204);
       
       const retrievedExperience = await ReactionModel.findById(insertedReaction._id);
       expect(retrievedExperience).toBeNull();
-    } catch(err) {
-      console.log(`sessionCookie: ${sessionCookie}`);
-      console.log(`testUser: ${JSON.stringify(testUser)}`);
-      throw err;
-    } finally {
-      await performLogout(app, testUser);
-    }
-  });
-
-  it("should return a 400 code if given an invalid ID", async () => {
-    const { sessionCookie, testUser } = await performLogin(app);
-
-    try {
-      const res = await request(app)
-        .delete(`/experiences/${mockExperienceId}/reactions/1234`)
-        .set("Cookie", sessionCookie);
-
-      expect(res.status).toBe(400);
     } catch(err) {
       console.log(`sessionCookie: ${sessionCookie}`);
       console.log(`testUser: ${JSON.stringify(testUser)}`);

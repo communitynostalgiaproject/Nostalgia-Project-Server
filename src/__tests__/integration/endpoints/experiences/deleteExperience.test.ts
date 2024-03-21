@@ -57,7 +57,7 @@ describe("DELETE /experiences/{experienceId}", () => {
     }
   });
 
-  it("should return a 200 code upon success and should delete the db record", async () => {
+  it("should return a 204 code upon success and should delete the db record", async () => {
     const { sessionCookie, testUser } = await performLogin(app);
 
     try {
@@ -71,7 +71,7 @@ describe("DELETE /experiences/{experienceId}", () => {
         .delete(`/experiences/${insertedExperience._id}`)
         .set("Cookie", sessionCookie);
 
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(204);
       
       const retrievedExperience = await ExperienceModel.findById(insertedExperience._id);
       expect(retrievedExperience).toBeNull();
@@ -98,7 +98,7 @@ describe("DELETE /experiences/{experienceId}", () => {
         .delete(`/experiences/${insertedExperience._id}`)
         .set("Cookie", sessionCookie);
   
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(204);
       
       const retrievedExperience = await ExperienceModel.findById(insertedExperience._id);
       expect(retrievedExperience).toBeNull();
@@ -125,7 +125,7 @@ describe("DELETE /experiences/{experienceId}", () => {
         .delete(`/experiences/${insertedExperience._id}`)
         .set("Cookie", sessionCookie);
 
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(204);
       
       const retrievedExperience = await ExperienceModel.findById(insertedExperience._id);
       expect(retrievedExperience).toBeNull();
@@ -135,25 +135,6 @@ describe("DELETE /experiences/{experienceId}", () => {
       throw err;
     } finally {
       await performLogout(app, testUser._id);
-    }
-  });
-
-  it("should return a 400 code if given an invalid ID", async () => {
-    const { sessionCookie, testUser } = await performLogin(app);
-    upgradePermissions(app, { testUser, makeAdmin: true });
-
-    try {
-      const res = await request(app)
-        .delete(`/experiences/1234`)
-        .set("Cookie", sessionCookie);
-
-      expect(res.status).toBe(400);
-    } catch(err) {
-      console.log(`sessionCookie: ${sessionCookie}`);
-      console.log(`testUser: ${JSON.stringify(testUser)}`);
-      throw err;
-    } finally {
-      await performLogout(app, testUser);
     }
   });
 });

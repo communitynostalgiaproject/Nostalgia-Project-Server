@@ -114,23 +114,28 @@ export class ExperienceController extends CRUDControllerBase<Experience & Docume
   };
 
   delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    let experience: any;
+
     try {
       const { documentId } = req.params;
-      const experience = await this.model.findById(documentId);
+      experience = await this.model.findById(documentId);
+      await this.model.deleteOne({ _id: documentId });
 
-      if (!experience) throw new ValidationError("Experience not found");
-
-      if (experience.foodPhotoUrl) await this.imgStorage.deleteFile(await this.imgStorage.getFileId(experience.foodPhotoUrl));
-      if (experience.personPhotoUrl) await this.imgStorage.deleteFile(await this.imgStorage.getFileId(experience.personPhotoUrl));
-
-      const deleteResult = await this.model.deleteOne({ _id: documentId });
-
-      if (deleteResult.deletedCount === 0) throw(new Error("Unable to delete document"));
-
-      res.status(200).send();
+      res.status(204).send();
     } catch(err) {
       console.error(err);
       next(this.convertMongoError(err));
+    } finally {
+      if (experience?.foodPhotoUrl) {
+        let splitUrl = experience.foodPhotoUrl.split("/");
+        let imageHash = splitUrl[splitUrl.length - 1].split(".")[0];
+        await this.imgStorage.deleteFile(await this.imgStorage.getFileId(imageHash));
+      }
+      if (experience?.personPhotoUrl) {
+        let splitUrl = experience.personPhotoUrl.split("/");
+        let imageHash = splitUrl[splitUrl.length - 1].split(".")[0];
+        await this.imgStorage.deleteFile(await this.imgStorage.getFileId(imageHash));
+      }
     }
   };
 
