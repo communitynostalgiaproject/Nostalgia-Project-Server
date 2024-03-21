@@ -4,7 +4,6 @@ import { InternalServerError } from "../../utils/customErrors";
 import axios, { AxiosError } from "axios";
 import FormData from "form-data";
 
-
 export class ImgurStorageService implements FileStorage {
   private accessToken: string;
   private refreshToken: string;
