@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { UnauthorizedUserError, NotLoggedInError, NotFoundError, ValidationError } from "../utils/customErrors";
 import { ObjectId } from "mongodb";
 import { User } from "../../types/user";
+import BanModel from "../models/ban.model";
 
 export const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
   if (req.isAuthenticated()) {
@@ -52,3 +53,20 @@ export const isModerator = (req: Request, res: Response, next: NextFunction) => 
   }
   next(new UnauthorizedUserError("User is not a moderator"));
 };
+
+export const checkBanStatus = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const currentUser = req.user as User;
+    const ban = await BanModel.findOne({ userId: currentUser._id });
+    
+    if (ban && ban.active) {
+      next(new UnauthorizedUserError("User is banned"));
+    }
+
+    next();
+  } catch(err) {
+    console.error(`Error in checkBanStatus: ${JSON.stringify(err)}`);
+    next(new Error("Unable to verify ban status"));
+  }
+  
+}

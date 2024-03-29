@@ -7,7 +7,7 @@ import cors from "cors";
 import { Request, Response } from "express";
 
 // Import routers
-import experienceRouter from "../routes/experiences.route";
+import getExperienceRouter from "../routes/experiences.route";
 import commentRouter from "../routes/comments.route";
 import userRouter from "../routes/users.route";
 import flagRouter from "../routes/flags.route";
@@ -22,17 +22,15 @@ import errorHandler from "../middleware/errorHandler";
 import connectDB from "./mongodbSetup";
 import configurePassport from "../config/passportConfig";
 
-export const setupApp = (mongoUri: string) => {
+export const setupApp = async (mongoUri: string) => {
   connectDB(mongoUri);
   configurePassport(passport);
 
   const app = express();
-  const sessionStore = process.env.NODE_ENV === "test"
-    ? undefined
-    : mongoStore.create({
-      mongoUrl: process.env.MONGODB_URI,
-      dbName: "session-data"
-    });
+  const sessionStore = mongoStore.create({
+    mongoUrl: mongoUri,
+    dbName: "session-data"
+  });
 
   // Global middlewares
   app.use(cors({
@@ -44,7 +42,7 @@ export const setupApp = (mongoUri: string) => {
   app.use(session({
     secret: `${process.env.SESSION_SECRET}`,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     store: sessionStore,
     cookie: {
       maxAge: 1000 * 60 * 60 * 24
@@ -54,13 +52,14 @@ export const setupApp = (mongoUri: string) => {
   app.use(passport.session());
 
   // API routes
+  const experienceRouter = await getExperienceRouter();
   app.get("/", (req: Request, res: Response) => res.status(200).json({ message: "Ping received!" }));
   app.use("/experiences", experienceRouter);
   experienceRouter.use("/:experienceId/comments", commentRouter);
   userRouter.use("/:userId/bans", banRouter);
   app.use("/users", userRouter);
   app.use("/flags", flagRouter);
-  app.use("/reactions", reactionRouter);
+  experienceRouter.use("/:experienceId/reactions", reactionRouter);
   app.use("/auth", authRouter);
 
   // Error handling middleware

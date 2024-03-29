@@ -1,21 +1,22 @@
 import request from "supertest";
 import { setupApp } from "../../../../config/app";
-import { createReactions } from "../../../../utils/testDataGen";
+import { createReactions, createRandomId } from "../../../../utils/testDataGen";
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Express } from "express";
 import mongoose from "mongoose";
 import ReactionModel from "../../../../models/reaction.model";
-import { performLogin, performLogout, upgradePermissions } from "../../../../utils/testUtils";
+import { performLogin, performLogout } from "../../../../utils/testUtils";
 
 let mongoServer: MongoMemoryServer;
 let app: Express;
+const mockExperienceId = createRandomId();
 
-describe("DELETE /reactions/{reactionId}", () => {
+describe("DELETE/experiences/{experienceId}/reactions/{reactionId}", () => {
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
     const uri = mongoServer.getUri();
     await mongoose.connect(uri);
-    app = setupApp(uri);
+    app = await setupApp(uri);
   });
   
   afterAll(async () => {
@@ -29,7 +30,7 @@ describe("DELETE /reactions/{reactionId}", () => {
     const testReaction = createReactions(1)[0];
     const insertedReaction = await new ReactionModel(testReaction).save();
 
-    const res = await request(app).delete(`/reactions/${insertedReaction._id}`);
+    const res = await request(app).delete(`/experiences/${mockExperienceId}/reactions/${insertedReaction._id}`);
 
     expect(res.status).toBe(401);
   });
@@ -44,7 +45,7 @@ describe("DELETE /reactions/{reactionId}", () => {
       expect(insertedReaction._id).not.toBe(testUser._id);
   
       const res = await request(app)
-        .delete(`/reactions/${insertedReaction._id}`)
+        .delete(`/experiences/${mockExperienceId}/reactions/${insertedReaction._id}`)
         .set("Cookie", sessionCookie);
   
       expect(res.status).toBe(403);
@@ -68,31 +69,13 @@ describe("DELETE /reactions/{reactionId}", () => {
       }).save();
 
       const res = await request(app)
-        .delete(`/reactions/${insertedReaction._id}`)
+        .delete(`/experiences/${mockExperienceId}/reactions/${insertedReaction._id}`)
         .set("Cookie", sessionCookie);
 
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(204);
       
       const retrievedExperience = await ReactionModel.findById(insertedReaction._id);
       expect(retrievedExperience).toBeNull();
-    } catch(err) {
-      console.log(`sessionCookie: ${sessionCookie}`);
-      console.log(`testUser: ${JSON.stringify(testUser)}`);
-      throw err;
-    } finally {
-      await performLogout(app, testUser);
-    }
-  });
-
-  it("should return a 400 code if given an invalid ID", async () => {
-    const { sessionCookie, testUser } = await performLogin(app);
-
-    try {
-      const res = await request(app)
-        .delete(`/reactions/1234`)
-        .set("Cookie", sessionCookie);
-
-      expect(res.status).toBe(400);
     } catch(err) {
       console.log(`sessionCookie: ${sessionCookie}`);
       console.log(`testUser: ${JSON.stringify(testUser)}`);

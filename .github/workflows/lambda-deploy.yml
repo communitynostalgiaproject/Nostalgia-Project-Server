@@ -1,0 +1,65 @@
+name: Deploy to AWS Lambda
+
+on:
+  push:
+    branches:
+      - master
+      - development
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+      
+    - name: Set up variables for different environments
+      run: |
+        if [[ $GITHUB_REF == 'refs/heads/master' ]]; then
+          echo "LAMBDA_FUNCTION_NAME=${{ secrets.PROD_LAMBDA_FUNCTION_NAME }}" >> $GITHUB_ENV
+          echo "ECR_REPOSITORY=${{ secrets.PROD_ECR_REPOSITORY }}" >> $GITHUB_ENV
+        elif [[ $GITHUB_REF == 'refs/heads/development' ]]; then
+          echo "LAMBDA_FUNCTION_NAME=${{ secrets.TEST_LAMBDA_FUNCTION_NAME }}" >> $GITHUB_ENV
+          echo "ECR_REPOSITORY=${{ secrets.TEST_ECR_REPOSITORY }}" >> $GITHUB_ENV
+        fi
+        echo "ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}" >> $GITHUB_ENV
+        echo "IMAGE_TAG=${{ github.sha }}" >> $GITHUB_ENV
+
+    - name: Build, tag, and push image to Amazon ECR
+      run: |
+        docker build -f Dockerfile.lambda -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+    - name: Update Lambda function
+      run: |
+        aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG | jq 'del(.Environment.Variables)'
+
+    - name: Delete old images from ECR
+      env:
+        AWS_PAGER: "cat"
+      run: |
+        # Fetch the list of image digests excluding the latest one
+        image_digests_to_delete=$(aws ecr list-images --repository-name $ECR_REPOSITORY --query 'imageIds[?imageTag!=`'"$IMAGE_TAG"'`].[imageDigest]' --output text)
+        
+        # Check if there's anything to delete
+        if [ -z "$image_digests_to_delete" ]; then
+          echo "No old images to delete."
+        else
+          for digest in $image_digests_to_delete; do
+            aws ecr batch-delete-image --repository-name $ECR_REPOSITORY --image-ids imageDigest=$digest
+            echo "Deleted image with digest: $digest"
+          done
+        fi
+

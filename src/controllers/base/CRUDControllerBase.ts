@@ -8,7 +8,7 @@ export abstract class CRUDControllerBase<T> {
 
   constructor(model: Model<T>) {
       this.model = model;
-  }
+  };
 
   create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -19,7 +19,7 @@ export abstract class CRUDControllerBase<T> {
     } catch (err) {
       this.handleError(err, next);
     }
-  }
+  };
 
   readById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -28,11 +28,11 @@ export abstract class CRUDControllerBase<T> {
 
       if (!document) throw new NotFoundError("Document not found");
 
-      res.status(200).send(document);
+      res.status(200).send(this.processReadResults(req, [document])[0]);
     } catch(err) {
       this.handleError(err, next);
     }
-  }
+  };
 
   read = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -41,6 +41,7 @@ export abstract class CRUDControllerBase<T> {
         offset,
         createdBefore,
         createdAfter,
+        excludedIds,
         ...rest
       } = req.query;
 
@@ -53,8 +54,9 @@ export abstract class CRUDControllerBase<T> {
 
       if (createdBefore) query.createdDate = { $lt: new Date(`${createdBefore}`) };
       if (createdAfter) query.createdDate = { ...query.createdDate, $gt: new Date(`${createdAfter}`) };
+      if (excludedIds) query._id = { $nin: excludedIds };
 
-      const finalQuery = await this.modifyReadQuery(query);
+      const finalQuery = await this.modifyReadQuery(req, query);
       const projectionString = this.injectReadProjectionString(req);
       const docs = await this.model
         .find(finalQuery, projectionString)
@@ -66,7 +68,7 @@ export abstract class CRUDControllerBase<T> {
     } catch(err) {
       this.handleError(err, next);
     }
-  }
+  };
 
   update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -75,41 +77,58 @@ export abstract class CRUDControllerBase<T> {
         __v,
         ...rest
       } = req.body;
-      await this.model.updateOne({ _id }, rest);
+
+      const processedUpdateObj = this.processUpdateObject(req, rest);
+      await this.model.updateOne({ _id }, processedUpdateObj);
   
       res.status(200).send();
     } catch(err) { 
       this.handleError(err, next);
     }
-  }
+  };
 
   delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { documentId } = req.params;
+      this.beforeDelete(req, documentId);
       const deleteResult = await this.model.deleteOne({ _id: documentId });
 
-      if (deleteResult.deletedCount === 0) throw(new Error("Unable to delete document"));
+      if (deleteResult.deletedCount > 0) {
+        this.afterDelete(req, documentId);
+      };
   
-      res.status(200).send();
+      res.status(204).send();
     } catch(err) {
       this.handleError(err, next);
     }
-  }
+  };
 
   // Overwrite this method to modify the query before it is sent to the database
-  protected modifyReadQuery = async (query: any): Promise<any> => {
+  protected async modifyReadQuery(req: Request, query: any): Promise<any> {
     return query;
-  }
+  };
 
   // Overwrite this method to inject a read projection string into the query
   protected injectReadProjectionString = (req: Request): string => {
     return "";
-  }
+  };
 
   // Overwrite this method to process results of a read operation before sending them back to the client
-  protected processReadResults = (req: Request, results: any): any => {
+  protected processReadResults = (req: Request, results: T[]): any[] => {
     return results;
-  }
+  };
+
+  // Overwrite this method to inspect and change the object passed to Mongoose update in Update method
+  protected processUpdateObject = (req: Request, updateObject: any): any => {
+    return updateObject;
+  };
+
+  // Overwrite this method to perform an action BEFORE a document is deleted from the DB
+  protected beforeDelete = (req: Request, documentId: string): void => {};
+
+  // Overwrite this method to perform an action AFTER a document is deleted from the DB
+  protected afterDelete = (req: Request, documentId: string): void => {};
+
 
   protected convertMongoError = (err: any): any => {
     if (err instanceof Error.ValidationError) {
@@ -127,10 +146,10 @@ export abstract class CRUDControllerBase<T> {
     }
 
     return err;
-  }
+  };
 
   protected handleError = (err: any, next: NextFunction): void => {
     console.error(err);
     next(this.convertMongoError(err));
-  }
-}
+  };
+};

@@ -7,8 +7,8 @@ import { NotFoundError } from "../utils/customErrors";
 import BanModel from "../models/ban.model";
 
 export class BanController extends CRUDControllerBase<Ban & Document> {
-  constructor(model: any) {
-    super(model);
+  constructor() {
+    super(BanModel);
   };
 
   create = async (req: Request, res: Response, next: NextFunction) => {
@@ -73,5 +73,3 @@ export class BanController extends CRUDControllerBase<Ban & Document> {
 
 
 };
-
-export default new BanController(BanModel);

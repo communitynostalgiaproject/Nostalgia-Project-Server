@@ -52,54 +52,43 @@ describe("PUT /experiences/{experienceId}/reactions", () => {
     };
 
     const res = await request(app)
-      .put(`/experiences/${mockExperienceId}/reactions`)
+      .put(`/experiences/${mockExperienceId}/reactions/remove`)
       .send(testReaction)
       .set("Content-Type", "application/json");
 
     expect(res.status).toBe(401);
   });
 
-  it("should return a 201 code after creating a reaction", async () => {
+  it("should return a 200 code upon success and delete the reaction if it exists", async () => {
     const { sessionCookie, testUser } = await performLogin(app);
     
     try {
       const testReaction = {
         reaction: "meToo"
       };
-  
-      const res = await request(app)
-        .put(`/experiences/${mockExperienceId}/reactions`)
-        .send(testReaction)
-        .set("Content-Type", "application/json")
-        .set("Cookie", sessionCookie);
-  
-      expect(res.status).toBe(201);
-    } catch (err) {
-      throw err;
-    } finally {
-      await performLogout(app, testUser);
-    }
-  });
-
-  it("should return a 200 code if reaction already exists", async () => {
-    const { sessionCookie, testUser } = await performLogin(app);
-    
-    try {
       const existingReaction = await ReactionModel.create({
         userId: testUser._id,
         experienceId: mockExperienceId,
-        reaction: "meToo"
+        reaction: testReaction.reaction
       });
       expect(existingReaction._id).toBeDefined();
-      expect(existingReaction.reaction).toBe("meToo");
+      expect(existingReaction.reaction).toBe(testReaction.reaction);
   
       const res = await request(app)
-        .put(`/experiences/${mockExperienceId}/reactions`)
-        .send({reaction: existingReaction.reaction})
+        .put(`/experiences/${mockExperienceId}/reactions/remove`)
+        .send(testReaction)
         .set("Content-Type", "application/json")
         .set("Cookie", sessionCookie);
   
       expect(res.status).toBe(200);
+
+      const deletedReaction = await ReactionModel.findOne({
+        userId: testUser._id,
+        experienceId: mockExperienceId,
+        reaction: testReaction.reaction
+      });
+
+      expect(deletedReaction).toBeNull();
     } catch (err) {
       throw err;
     } finally {
@@ -107,21 +96,26 @@ describe("PUT /experiences/{experienceId}/reactions", () => {
     }
   });
 
-  it("should return a 400 code if invalid object was submitted", async () => {
+  it("should return a 200 code even if reaction does not exist", async () => {
     const { sessionCookie, testUser } = await performLogin(app);
     
     try {
-      const testReaction = {
-        reaction: "whatever"
+      const nonExistentReaction = {
+        userId: testUser._id,
+        experienceId: mockExperienceId,
+        reaction: "willTry"
       };
-  
+      const queryResult = await ReactionModel.findOne(nonExistentReaction);
+
+      expect(queryResult).toBeNull();
+
       const res = await request(app)
-        .put(`/experiences/${mockExperienceId}/reactions`)
-        .send(testReaction)
+        .put(`/experiences/${mockExperienceId}/reactions/remove`)
+        .send({reaction: nonExistentReaction.reaction})
         .set("Content-Type", "application/json")
         .set("Cookie", sessionCookie);
   
-      expect(res.status).toBe(400);
+      expect(res.status).toBe(200);
     } catch (err) {
       throw err;
     } finally {

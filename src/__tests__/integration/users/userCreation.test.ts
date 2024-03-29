@@ -12,7 +12,7 @@ describe("User creation tests", () => {
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
     const uri = mongoServer.getUri();
-    app = setupApp(uri);
+    app = await setupApp(uri);
   });
 
   beforeEach(async () => {

@@ -4,6 +4,7 @@ import { createExperiences } from "../../../../utils/testDataGen";
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Express } from "express";
 import { performLogin, banUser } from "../../../../utils/testUtils";
+import BanModel from "../../../../models/ban.model";
 import mongoose from "mongoose";
 import fs from "fs";
 import path from "path";
@@ -36,7 +37,7 @@ describe("POST /experiences", () => {
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
-    app = setupApp(mongoUri);
+    app = await setupApp(mongoUri);
 
     const loginResults = await performLogin(app);
     sessionCookie = loginResults.sessionCookie;
@@ -80,6 +81,19 @@ describe("POST /experiences", () => {
     expect(res.status).toBe(201);
   });
 
+  it("successfully creates an experience when no person photo is uploaded", async () => {
+    const testExperience = createExperiences(1)[0];
+
+    const res = await request(app)
+      .post("/experiences")
+      .field("experience", JSON.stringify(testExperience))
+      .attach("foodPhoto", testFoodPhotoBuffer, "testFoodPhoto.png")
+      .set("Content-Type", "multipart/form-data")
+      .set("Cookie", sessionCookie);
+
+    expect(res.status).toBe(201);
+  });
+
   it("should return a 400 code if invalid object was submitted", async () => {
     const testExperience = {
       title: "This shouldn't work"
@@ -97,7 +111,12 @@ describe("POST /experiences", () => {
   });
 
   it("should return a 403 code if user is banned", async () => {
-    await banUser({ userId: testUser._id });
+    const userBan = await BanModel.create({
+      userId: testUser._id,
+      reason: "Test ban"
+    });
+    expect(userBan).toBeDefined();
+    expect(userBan?.active).toBe(true);
     const testExperience = createExperiences(1)[0];
 
     const res = await request(app)
@@ -108,6 +127,6 @@ describe("POST /experiences", () => {
       .set("Content-Type", "multipart/form-data")
       .set("Cookie", sessionCookie);
 
-    expect(res.status).toBe(201);
+    expect(res.status).toBe(403);
   });
 });
