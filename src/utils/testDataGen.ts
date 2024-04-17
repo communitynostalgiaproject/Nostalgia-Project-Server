@@ -213,6 +213,29 @@ const periodOfLifeAssociations = [
   "Reflection Period"
 ];
 
+const cuisines = [
+  "Italian",
+  "Chinese",
+  "Mexican",
+  "French",
+  "Japanese",
+  "Indian",
+  "Thai",
+  "Greek",
+  "Lebanese",
+  "Korean",
+  "Spanish",
+  "Vietnamese",
+  "Moroccan",
+  "Turkish",
+  "Ethiopian",
+  "Brazilian",
+  "Peruvian",
+  "German",
+  "Russian",
+  "American"
+];
+
 const createRandomPlaces = (n: number) => {
   if (n < 1) return [];
 
@@ -266,6 +289,7 @@ export const createExperiences = (n: number, userIds: string[] = []) => {
       foodtype: foodTypes[randomInt(foodTypes.length)],
       personItRemindsThemOf: peopleToBeRemindedOf[randomInt(peopleToBeRemindedOf.length)],
       flavourProfile: flavourProfiles[randomInt(flavourProfiles.length)],
+      cuisine: cuisines[randomInt(cuisines.length)],
       periodOfLifeAssociation: periodOfLifeAssociations[randomInt(periodOfLifeAssociations.length)],
       placesToGetFood: createRandomPlaces(randomInt(3)),
       creatorId: userIds.length ? userIds[randomInt(userIds.length)] : createRandomId()

@@ -55,6 +55,7 @@ const ExperienceSchema: Schema = new Schema({
   foodtype: String,
   personItRemindsThemOf: String,
   flavourProfile: String,
+  cuisine: String,
   periodOfLifeAssociation: String,
   placesToGetFood: [PlaceSchema],
   creatorId: {
