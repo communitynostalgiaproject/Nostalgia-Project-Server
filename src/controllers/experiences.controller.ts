@@ -2,8 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { Experience } from "@projectTypes/experience";
 import { Document } from "mongoose";
 import { CRUDControllerBase } from "./base/CRUDControllerBase";
-import { ValidationError } from "../utils/customErrors";
-import { FilesRequest } from "@projectTypes/filesRequest";
+import { NoFileFoundError, ValidationError } from "../utils/customErrors";
 import { FileUploader } from "../services/fileUploader.service";
 import { FileStorage } from "../services/fileStorage";
 import ExperienceModel from "../models/experience.model";
@@ -16,102 +15,45 @@ export class ExperienceController extends CRUDControllerBase<Experience & Docume
   constructor(imgUploader: FileUploader, imgStorage: FileStorage) {
     super(ExperienceModel);
     this.imgUploader = imgUploader;
-    this.imgStorage = imgStorage
+    this.imgStorage = imgStorage;
   };
 
-  create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  uploadPhoto = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const extendedReq = req as FilesRequest;
-      const experience = JSON.parse(req.body.experience);
-      const foodPhoto = extendedReq.files['foodPhoto'][0];
-      const personPhoto = extendedReq.files['personPhoto']?.[0];
-
-      if (!experience) throw new ValidationError("Missing experience JSON");
-      if (!foodPhoto) throw new ValidationError("Missing food photo");
-
-      const foodPhotoUrl = await this.imgUploader.uploadFile(
-        fs.readFileSync(foodPhoto.path),
-        `${foodPhoto.filename}.${foodPhoto.mimetype.split("/")[1]}`
+      const imageFile = req.file;
+      if (!imageFile) throw new NoFileFoundError("Expected an image file");
+      const imageUrl = await this.imgUploader.uploadFile(
+        fs.readFileSync(imageFile.path),
+        `${imageFile.filename}.${imageFile.mimetype.split("/")[1]}`
       );
-      const personPhotoUrl = personPhoto ? await this.imgUploader.uploadFile(
-        fs.readFileSync(personPhoto.path),
-        `${personPhoto.filename}.${personPhoto.mimetype.split("/")[1]}`
-      ) : undefined;
 
-      const newExperience = await this.model.create({
-        ...experience,
-        foodPhotoUrl,
-        personPhotoUrl
+      res.status(201).json({
+        imageUrl
       });
+    } catch(err) {
+      console.error(err);
+      next(this.convertMongoError(err));
+    }
+  }
 
-      fs.unlink(foodPhoto.path, (err) => {
-        if (err) {
-          console.error(`Error deleting photo: ${err}`);
-        }
+  updatePhoto = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const imageFile = req.file;
+      if (!imageFile) throw new NoFileFoundError("Expected an image file");
+      const prevImgUrl = req.body?.["imageUrl"];
+      await this.imgStorage.deleteFile(await this.imgStorage.getFileId(prevImgUrl));
+      const imageUrl = await this.imgUploader.uploadFile(
+        fs.readFileSync(imageFile.path),
+        `${imageFile.filename}.${imageFile.mimetype.split("/")[1]}`
+      );
+      res.status(200).json({
+        imageUrl
       });
-      if (personPhoto) fs.unlink(personPhoto.path, (err) => {
-        if (err) {
-          console.error(`Error deleting photo: ${err}`);
-        }
-      });
-
-      res.status(201).json(newExperience);
     } catch (err) {
       console.error(err);
       next(this.convertMongoError(err));
     }
-  };
-
-  update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const extendedReq = req as FilesRequest;
-      const experience = JSON.parse(req.body.experience);
-      const foodPhoto = extendedReq.files['foodPhoto']?.[0];
-      const personPhoto = extendedReq.files['personPhoto']?.[0];
-      let newFoodPhotoUrl: string | undefined;
-      let newPersonPhotoUrl: string | undefined;
-
-      if (!experience) throw new ValidationError("Missing experience JSON");
-
-      if (foodPhoto) newFoodPhotoUrl = await this.imgUploader.uploadFile(
-        fs.readFileSync(foodPhoto.path),
-        experience.foodPhotoUrl.split("/").pop()!
-      );
-      if (personPhoto) newPersonPhotoUrl = await this.imgUploader.uploadFile(
-        fs.readFileSync(personPhoto.path),
-        experience.personPhotoUrl 
-          ? experience.personPhotoUrl.split("/").pop()!
-          : `${personPhoto.filename}.${personPhoto.mimetype.split("/")[1]}`
-      );
-
-      if (foodPhoto) fs.unlink(foodPhoto.path, (err) => {
-        if (err) {
-          console.error(`Error deleting photo: ${err}`);
-        }
-      });
-      if (personPhoto) fs.unlink(personPhoto.path, (err) => {
-        if (err) {
-          console.error(`Error deleting photo: ${err}`);
-        }
-      });
-
-      const {
-        _id,
-        __v,
-        ...rest
-      } = experience;
-      await this.model.updateOne({ _id }, {
-        ...rest,
-        foodPhotoUrl: newFoodPhotoUrl || experience.foodPhotoUrl,
-        personPhotoUrl: newPersonPhotoUrl || experience.personPhotoUrl
-      });
-
-      res.status(200).send();
-    } catch (err) {
-      console.error(err);
-      next(this.convertMongoError(err));
-    }
-  };
+  }
 
   delete = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     let experience: any;

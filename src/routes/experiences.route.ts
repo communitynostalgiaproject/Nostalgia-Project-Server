@@ -55,12 +55,13 @@ const setupRouter = async () => {
     "/",
     isAuthenticated,
     checkBanStatus,
-    upload.fields([{ name: "foodPhoto", maxCount: 1 }, { name: "personPhoto", maxCount: 1 }]),
     experienceController.create
   );
+  router.post("/images", isAuthenticated, checkBanStatus, upload.single("image"), experienceController.uploadPhoto);
+  router.post("/images/update", isAuthenticated, checkBanStatus, upload.single("image"), experienceController.updatePhoto)
   router.get("/", experienceController.read)
   router.get("/:documentId", experienceController.readById);
-  router.patch("/:documentId", isAuthorized, upload.fields([{ name: "foodPhoto", maxCount: 1 }, { name: "personPhoto", maxCount: 1 }]), experienceController.update);
+  router.patch("/:documentId", isAuthorized, experienceController.update);
   router.delete("/:documentId", isAuthorized, experienceController.delete);
 
   return router;
