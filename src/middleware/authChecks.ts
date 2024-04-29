@@ -68,5 +68,4 @@ export const checkBanStatus = async (req: Request, res: Response, next: NextFunc
     console.error(`Error in checkBanStatus: ${JSON.stringify(err)}`);
     next(new Error("Unable to verify ban status"));
   }
-  
 }

@@ -1,6 +1,6 @@
 import { VirusScanner } from "./virusScanner.service";
 import { ImageScaler } from "./imageScaler.service";
-import { FileStorage } from "./fileStorage.service";
+import { FileStorage } from "./fileStorage";
 
 export interface FileUploader {
   uploadFile(fileBuffer: Buffer, fileName: string): Promise<string>;

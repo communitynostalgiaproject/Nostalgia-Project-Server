@@ -4,6 +4,7 @@ import session from "express-session";
 import passport from "passport";
 import mongoStore from "connect-mongo";
 import cors from "cors";
+import path from "path";
 import { Request, Response } from "express";
 
 // Import routers
@@ -62,6 +63,10 @@ export const setupApp = async (mongoUri: string) => {
   experienceRouter.use("/:experienceId/reactions", reactionRouter);
   app.use("/auth", authRouter);
 
+  // Serve files from local storage in testing and development environments
+  if (process.env.NODE_ENV !== "production") {
+    app.use('/files', express.static(path.resolve(__dirname, '../../uploads')));
+  }
   // Error handling middleware
   app.use(errorHandler);
 

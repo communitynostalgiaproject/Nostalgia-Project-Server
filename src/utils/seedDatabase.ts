@@ -3,6 +3,7 @@ import { createUsers, createExperiences, createFlags } from "./testDataGen";
 import ExperienceModel from "../models/experience.model";
 import UserModel from "../models/user.model";
 import FlagModel from "../models/flag.model";
+import ConfigurationModel from "../models/configuration.model";
 import dotenv from "dotenv";
 import connectDB from "../config/mongodbSetup";
 
@@ -16,11 +17,15 @@ const numFlags = 150;
 connectDB(process.env.MONGODB_URI as string);
 
 async function seedData() {
-  console.log("Seeding database...");
-  // If the overwrite option is set, delete existing records
-  await UserModel.deleteMany({});
-  await ExperienceModel.deleteMany({});
-  await FlagModel.deleteMany({});
+  const existingUserCount = await UserModel.countDocuments();
+  const existingExperienceCount = await ExperienceModel.countDocuments();
+  const existingFlagCount = await FlagModel.countDocuments();
+
+  if (existingUserCount > 0 || existingExperienceCount > 0 || existingFlagCount > 0) {
+    console.log("Data already exists in the database. Skipping seeding.");
+    mongoose.disconnect();
+    return;
+  }
 
   // Generate data
   const users = createUsers(numUsers);

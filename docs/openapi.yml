@@ -58,21 +58,9 @@ paths:
       requestBody:
         required: true
         content:
-          multipart/form-data:
+          application/json:
             schema:
-              type: object
-              properties:
-                experience:
-                  type: string
-                  description: A stringified JSON object containing information about the experience.
-                foodPhoto:
-                  type: string
-                  format: binary
-                  description: Photo of the food associated with the experience.
-                personPhoto:
-                  type: string
-                  format: binary
-                  description: Photo of the person associated with the experience, if any.
+              $ref: '#/components/schemas/Experience'
       responses:
         '201':
           description: Experience created successfully.
@@ -155,19 +143,9 @@ paths:
       requestBody:
         required: true
         content:
-          multipart/form-data:
+          application/json:
             schema:
-              type: object
-              properties:
-                experience:
-                  type: string
-                  description: A stringified JSON object describing the experience.
-                foodPhoto:
-                  type: string
-                  format: binary
-                personPhoto:
-                  type: string
-                  format: binary
+              $ref: '#/components/schemas/Experience'
       responses:
         '200':
           description: Experience updated successfully.
@@ -200,6 +178,66 @@ paths:
         '403':
           description: Forbidden due to lack of permissions.
 
+  /experiences/images:
+    post:
+      summary: Upload an image for an experience
+      operationId: uploadExperienceImage
+      tags:
+        - Images
+      security:
+        - googleAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: An file buffer for the image.
+      responses:
+        '201':
+          description: Image uploaded successfully.
+        '400':
+          description: Bad Request (invalid JSON format, etc.)
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden due to ban status or lack of permissions.
+
+  /experiences/images/update:
+    post:
+      summary: Upload an image for an experience
+      operationId: updateExperienceImage
+      tags:
+        - Images
+      security:
+        - googleAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                imageUrl:
+                  type: string
+                  description: The current url of the image.
+                image:
+                  type: string
+                  format: binary
+                  description: An file buffer for the image.
+      responses:
+        '201':
+          description: Image uploaded successfully.
+        '400':
+          description: Bad Request (invalid JSON format, etc.)
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden due to ban status or lack of permissions.
   /experiences/{experienceId}/reactions:
     put:
       summary: Create a reaction
@@ -494,11 +532,11 @@ paths:
       tags:
         - Bans
       parameters:
-        - in: query
+        - in: path
           name: userId
           schema:
             type: string
-          required: false
+          required: true
           description: The user ID to filter bans by.
       responses:
         '200':

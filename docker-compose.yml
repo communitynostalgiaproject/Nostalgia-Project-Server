@@ -9,4 +9,24 @@ services:
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
+    entrypoint: /usr/src/app/entrypoint.sh
     command: npm run dev
+    environment:
+      - MONGODB_URI=mongodb://mongoadmin:secret@mongo:27017/devdb?authSource=admin
+    env_file:
+      - ./.env
+    depends_on:
+      - mongo
+  
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongoadmin
+      - MONGO_INITDB_ROOT_PASSWORD=secret
+
+volumes:
+  mongodata:

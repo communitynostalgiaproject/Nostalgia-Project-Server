@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { ObjectId } from "mongodb";
 import ExperienceModel from "../../../models/experience.model";
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { createExperiences } from "../../../utils/testDataGen";
