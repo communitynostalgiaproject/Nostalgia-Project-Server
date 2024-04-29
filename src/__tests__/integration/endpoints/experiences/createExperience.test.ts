@@ -12,7 +12,6 @@ let app: Express;
 let testUser: any;
 let sessionCookie: string;
 
-
 const removeMongooseDocFields: any = (obj: any) => {
   if (typeof obj !== 'object' || obj === null) return obj;
 

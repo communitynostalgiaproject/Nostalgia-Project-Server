@@ -238,7 +238,6 @@ paths:
           description: Unauthenticated
         '403':
           description: Forbidden due to ban status or lack of permissions.
-
   /experiences/{experienceId}/reactions:
     put:
       summary: Create a reaction

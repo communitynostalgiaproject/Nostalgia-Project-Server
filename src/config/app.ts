@@ -67,7 +67,6 @@ export const setupApp = async (mongoUri: string) => {
   if (process.env.NODE_ENV !== "production") {
     app.use('/files', express.static(path.resolve(__dirname, '../../uploads')));
   }
-
   // Error handling middleware
   app.use(errorHandler);
 
