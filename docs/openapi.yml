@@ -684,6 +684,31 @@ paths:
           description: Unauthenticated
         '403':
           description: Forbidden due to lack of moderator/admin privileges.
+  
+  /github/bug-report:
+    post:
+      summary: Post a user bug report to the GitHub Issues board
+      operationId: createBugReport
+      tags:
+        - GitHub
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: User's bug report message.
+      responses:
+        '201':
+          description: Bug report created successfully.
+        '400':
+          description: Bad Request
+        '500':
+          description: Unexpected server error.
+
 
 components:
   securitySchemes:
