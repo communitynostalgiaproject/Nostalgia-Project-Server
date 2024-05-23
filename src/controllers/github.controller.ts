@@ -22,8 +22,12 @@ export class GithubController {
       await this.octokit.request("POST /repos/{owner}/{repo}/issues", {
         owner: "communitynostalgiaproject",
         repo: "Nostalgia-Project-Client",
-        title: "New User Bug Report",
-        body: message
+        title: "New User-Generated Bug Report",
+        body: message,
+        labels: [
+          "bug",
+          "user-generated"
+        ]
       });
 
       res.status(201).send("Bug report created");
