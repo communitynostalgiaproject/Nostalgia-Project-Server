@@ -16,6 +16,7 @@
   "license": "ISC",
   "dependencies": {
     "@codegenie/serverless-express": "^4.13.0",
+    "@octokit/core": "^5.2.0",
     "@stadiamaps/api": "^1.0.9",
     "aws-sdk": "^2.1517.0",
     "axios": "^1.6.2",

@@ -10,5 +10,5 @@ export const handler = async (event: any, context: any) => {
     app = await setupApp(`${process.env.MONGODB_URI}`);
   }
   const serverlessHandler = serverlessExpress({ app });
-  return serverlessHandler(event, context);
+  return serverlessHandler(event, context, () => {});
 };

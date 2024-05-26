@@ -15,6 +15,7 @@ import flagRouter from "../routes/flags.route";
 import authRouter from "../routes/auth.route";
 import reactionRouter from "../routes/reactions.route";
 import banRouter from "../routes/bans.route";
+import githubRouter from "../routes/github.route";
 
 // Import middleware
 import errorHandler from "../middleware/errorHandler";
@@ -62,6 +63,7 @@ export const setupApp = async (mongoUri: string) => {
   app.use("/flags", flagRouter);
   experienceRouter.use("/:experienceId/reactions", reactionRouter);
   app.use("/auth", authRouter);
+  app.use("/github", githubRouter);
 
   // Serve files from local storage in testing and development environments
   if (process.env.NODE_ENV !== "production") {
