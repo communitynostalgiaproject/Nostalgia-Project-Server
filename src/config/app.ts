@@ -61,6 +61,7 @@ export const setupApp = async (mongoUri: string) => {
   userRouter.use("/:userId/bans", banRouter);
   app.use("/users", userRouter);
   app.use("/flags", flagRouter);
+  app.use("/reactions", reactionRouter);
   experienceRouter.use("/:experienceId/reactions", reactionRouter);
   app.use("/auth", authRouter);
   app.use("/github", githubRouter);
